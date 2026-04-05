@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoola — Siswa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <script>
+        (function() {
+            var t = localStorage.getItem('scoola-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+
+    @include('layouts.partials.theme-tokens')
+    @include('layouts.partials.topbar-styles')
+
+    <style>
+        body { overflow-x: hidden; }
+
+        /* Student uses topbar-only layout (no sidebar) */
+        .main-wrapper { margin-left: 0 !important; }
+
+        .topbar { padding: 0 24px; gap: 14px; }
+
+        .tb-brand { display: flex; align-items: center; gap: 10px; }
+
+        .tb-logo {
+            width: 28px; height: 28px;
+            background: var(--accent);
+            border-radius: 7px;
+            display: grid; place-items: center;
+            font-size: 14px; font-weight: 800;
+            color: var(--navy);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .tb-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px; font-weight: 800;
+            color: var(--text1);
+        }
+
+        .page-body {
+            padding: 30px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .user-pill {
+            font-size: 11px;
+            padding: 4px 10px;
+            background: var(--glass);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            font-weight: 600;
+            color: var(--text1);
+        }
+    </style>
+</head>
+<body>
+
+<!-- MAIN (no sidebar for students) -->
+<div class="main-wrapper">
+    <header class="topbar">
+        <div class="tb-brand">
+            <div class="tb-logo">S</div>
+            <div class="tb-title">Scoola Student</div>
+        </div>
+
+        <div class="top-spacer"></div>
+
+        <button class="theme-toggle" onclick="scoolaToggleTheme()" id="scoolaThemeBtn" title="Ganti tema">
+            <i class="bi bi-sun-fill" id="scoolaThemeIcon" style="font-size:13px"></i>
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+            <span class="d-none d-sm-inline" id="scoolaThemeLabel">Light</span>
+        </button>
+
+        <div class="user-pill">
+            <i class="bi bi-person-fill" style="color:var(--accent); margin-right:4px;"></i>
+            {{ auth()->user()->name ?? auth()->user()->email }}
+        </div>
+
+        <form action="{{ route('logout') }}" method="POST" class="mb-0">
+            @csrf
+            <button type="submit" class="top-logout">
+                <i class="bi bi-box-arrow-right"></i> Keluar
+            </button>
+        </form>
+    </header>
+
+    <main class="page-body">
+        @yield('content')
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+@include('layouts.partials.theme-engine')
+
+</body>
+</html>
