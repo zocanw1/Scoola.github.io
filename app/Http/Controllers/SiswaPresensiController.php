@@ -12,6 +12,11 @@ use Carbon\Carbon;
 
 class SiswaPresensiController extends Controller
 {
+    // Koordinat Sekolah: Jl. Ki Ageng Gribig No. 28, Madyopuro, Kedungkandang, Malang
+    private const SCHOOL_LAT = -7.974867815619122;
+    private const SCHOOL_LNG = 112.67166658058967;
+    private const MAX_RADIUS_METERS = 50; // Radius toleransi dalam meter
+
     public function dashboard()
     {
         $siswa = Siswa::where('user_id', auth()->id())->first();
@@ -32,6 +37,8 @@ class SiswaPresensiController extends Controller
     {
         $request->validate([
             'kode_presensi' => 'required|string|size:6',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ]);
 
         // Rate limiting — max 10 attempts per minute per user
@@ -75,6 +82,15 @@ class SiswaPresensiController extends Controller
             return redirect()->back()->with('error', 'Gagal absen. Sesi ini untuk kelas ' . $sesi->kelas . ', sedangkan kamu berada di ' . $siswa->kelas . '.');
         }
 
+        // ===== Validasi GPS =====
+        $latitude = (float) $request->latitude;
+        $longitude = (float) $request->longitude;
+        $jarak = $this->hitungJarak($latitude, $longitude, self::SCHOOL_LAT, self::SCHOOL_LNG);
+        $isDalamRadius = $jarak <= self::MAX_RADIUS_METERS;
+
+        // Tentukan status berdasarkan lokasi
+        $statusPresensi = $isDalamRadius ? 'Hadir' : 'Ditolak';
+
         // Masukkan atau update presensi
         $today = Carbon::today()->format('Y-m-d');
 
@@ -86,7 +102,12 @@ class SiswaPresensiController extends Controller
             if ($presensi->status === 'Hadir') {
                 return redirect()->back()->with('success', 'Kamu sudah melakukan absensi Hadir di sesi ini!');
             }
-            $presensi->update(['status' => 'Hadir']);
+            $presensi->update([
+                'status' => $statusPresensi,
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'is_dalam_radius' => $isDalamRadius,
+            ]);
         } else {
             $randomString = strtoupper(Str::random(6));
             $kd_presensi = 'PRS-' . Carbon::today()->format('Ymd') . '-' . $randomString;
@@ -97,11 +118,41 @@ class SiswaPresensiController extends Controller
                 'tanggal' => $today,
                 'kd_jp' => null,
                 'jam_masuk' => Carbon::now()->format('H:i:s'),
-                'status' => 'Hadir',
-                'NIS' => $siswa->NIS
+                'status' => $statusPresensi,
+                'NIS' => $siswa->NIS,
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'is_dalam_radius' => $isDalamRadius,
             ]);
         }
 
+        // Return message berdasarkan status
+        if (!$isDalamRadius) {
+            $jarakFormatted = round($jarak);
+            return redirect()->back()->with('error', "Presensi ditolak! Kamu berada {$jarakFormatted}m dari sekolah (maks " . self::MAX_RADIUS_METERS . "m). Hubungi guru untuk mengubah status.");
+        }
+
         return redirect()->back()->with('success', 'Berhasil! Kehadiran kamu tercatat di sistem.');
+    }
+
+    /**
+     * Menghitung jarak antara dua titik koordinat menggunakan Haversine Formula.
+     * 
+     * @return float Jarak dalam meter
+     */
+    private function hitungJarak(float $lat1, float $lon1, float $lat2, float $lon2): float
+    {
+        $earthRadius = 6371000; // Radius bumi dalam meter
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
     }
 }

@@ -28,7 +28,16 @@ class Presensi extends Model
         'kd_jp',
         'jam_masuk',
         'status',
-        'NIS'
+        'NIS',
+        'latitude',
+        'longitude',
+        'is_dalam_radius',
+    ];
+
+    protected $casts = [
+        'is_dalam_radius' => 'boolean',
+        'latitude' => 'decimal:7',
+        'longitude' => 'decimal:7',
     ];
 
     // Relasi

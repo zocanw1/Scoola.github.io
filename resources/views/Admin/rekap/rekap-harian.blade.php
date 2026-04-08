@@ -266,6 +266,9 @@
         <a href="{{ route('admin.rekap.harian') }}" class="btn-outline active">
             <i class="bi bi-calendar-day"></i> Rekap Harian
         </a>
+        <a href="{{ route('admin.rekap.bulanan') }}" class="btn-outline">
+            <i class="bi bi-calendar-month"></i> Rekap Bulanan
+        </a>
     </div>
 </div>
 

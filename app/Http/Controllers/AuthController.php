@@ -33,10 +33,19 @@ class AuthController extends Controller
             return back()->with('error', "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.");
         }
 
-        if (!Auth::attempt($credentials)) {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
             RateLimiter::hit($throttleKey, $decayMinutes * 60);
-            return back()->with('error', 'Email atau password salah');
+            return back()->withErrors(['email' => 'Hmm.. sepertinya email ini belum terdaftar di sistem. Coba periksa lagi!'])->withInput($request->except('password'));
         }
+
+        if (!Hash::check($request->password, $user->password)) {
+            RateLimiter::hit($throttleKey, $decayMinutes * 60);
+            return back()->withErrors(['password' => 'Oops! Kata sandi yang kamu masukkan kurang tepat. Yuk, coba lagi.'])->withInput($request->except('password'));
+        }
+
+        Auth::login($user);
 
         RateLimiter::clear($throttleKey);
         $request->session()->regenerate();

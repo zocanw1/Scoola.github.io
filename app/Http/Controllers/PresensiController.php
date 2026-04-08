@@ -186,4 +186,47 @@ class PresensiController extends Controller
         return redirect()->route('guru.dashboard')
             ->with('success', 'Sesi Kelas ' . $sesi->kelas . ' telah diakhiri. Data presensi pada sesi ini telah direset.');
     }
+
+    /* =========================
+       8. UPDATE STATUS PRESENSI SISWA (Manual Override oleh Guru)
+    ========================= */
+    public function updateStatusSiswa(Request $request, $sesiId, $nis)
+    {
+        $request->validate([
+            'status' => 'required|in:Hadir,Izin,Sakit,Alpa,Belum Hadir',
+        ]);
+
+        $sesi = SesiPresensi::findOrFail($sesiId);
+
+        if ($sesi->guru_id !== auth()->id()) {
+            abort(403, 'Anda tidak berhak mengakses sesi presensi ini.');
+        }
+
+        // Cari presensi siswa di sesi ini
+        $presensi = Presensi::where('sesi_id', $sesiId)
+                            ->where('NIS', $nis)
+                            ->first();
+
+        if ($presensi) {
+            // Update status yang sudah ada
+            $presensi->update(['status' => $request->status]);
+        } else {
+            // Buat record presensi baru (manual oleh guru)
+            $randomString = strtoupper(Str::random(6));
+            $kd_presensi = 'PRS-' . Carbon::today()->format('Ymd') . '-' . $randomString;
+
+            Presensi::create([
+                'kd_presensi' => $kd_presensi,
+                'sesi_id' => $sesiId,
+                'tanggal' => Carbon::today()->format('Y-m-d'),
+                'kd_jp' => null,
+                'jam_masuk' => Carbon::now()->format('H:i:s'),
+                'status' => $request->status,
+                'NIS' => $nis,
+            ]);
+        }
+
+        return redirect()->route('guru.presensi.ruang', $sesiId)
+            ->with('success', 'Status presensi siswa berhasil diperbarui.');
+    }
 }

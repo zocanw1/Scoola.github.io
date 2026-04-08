@@ -394,6 +394,18 @@
     }
     .field-pw input { padding-right: 46px; }
 
+    .error-text {
+        font-size: 11.5px;
+        color: #dc2626;
+        margin-top: 6px;
+        font-weight: 500;
+        display: block;
+        letter-spacing: 0.02em;
+    }
+    [data-theme="dark"] .error-text { color: #f87171; }
+    .has-error { border-color: #dc2626 !important; }
+    [data-theme="dark"] .has-error { border-color: #f87171 !important; }
+
     .eye-btn {
         position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
         background: none; border: none; cursor: pointer;
@@ -548,14 +560,17 @@
                 <div class="field" style="--d:.52s">
                     <label class="field-label" for="emailInput">Email</label>
                     <div class="field-inner">
-                        <input type="email" id="emailInput" name="email" placeholder="Email" required autocomplete="email">
+                        <input type="email" id="emailInput" name="email" value="{{ old('email') }}" placeholder="Email" required autocomplete="email" class="{{ $errors->has('email') ? 'has-error' : '' }}">
                     </div>
+                    @error('email')
+                        <span class="error-text">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="field" style="--d:.59s">
                     <label class="field-label" for="pwInput">Password</label>
                     <div class="field-inner field-pw">
-                        <input type="password" id="pwInput" name="password" placeholder="••••••••" required autocomplete="current-password">
+                        <input type="password" id="pwInput" name="password" placeholder="••••••••" required autocomplete="current-password" class="{{ $errors->has('password') ? 'has-error' : '' }}">
                         <button type="button" class="eye-btn" onclick="togglePw()" title="Tampilkan password">
                             <svg id="pwEye" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
                                 <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
@@ -564,6 +579,9 @@
                             </svg>
                         </button>
                     </div>
+                    @error('password')
+                        <span class="error-text">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="field-footer">

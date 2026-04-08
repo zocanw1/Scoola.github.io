@@ -105,6 +105,13 @@
 
     .btn-submit:active { transform: translateY(0); }
 
+    .btn-submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
     /* Custom Alerts */
     .alert {
         padding: 14px 20px;
@@ -126,6 +133,79 @@
         color: var(--red);
     }
     .alert i { font-size: 16px; margin-top: 1px; }
+
+    /* GPS Status */
+    .gps-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all .3s ease;
+    }
+
+    .gps-status i { font-size: 16px; }
+
+    .gps-status.detecting {
+        background: rgba(88, 166, 255, 0.08);
+        border: 1px solid rgba(88, 166, 255, 0.2);
+        color: var(--accent);
+    }
+
+    .gps-status.success {
+        background: rgba(63, 185, 80, 0.08);
+        border: 1px solid rgba(63, 185, 80, 0.2);
+        color: var(--green);
+    }
+
+    .gps-status.error {
+        background: rgba(248, 81, 73, 0.08);
+        border: 1px solid rgba(248, 81, 73, 0.2);
+        color: var(--red);
+    }
+
+    .gps-status.warning {
+        background: rgba(227, 179, 65, 0.08);
+        border: 1px solid rgba(227, 179, 65, 0.2);
+        color: var(--amber);
+    }
+
+    .gps-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    .gps-dot.pulse { animation: pulse 1.5s infinite; }
+    .gps-dot.detecting { background: var(--accent); }
+    .gps-dot.success { background: var(--green); }
+    .gps-dot.error { background: var(--red); }
+    .gps-dot.warning { background: var(--amber); }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.4); }
+    }
+
+    .gps-loader {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .gps-loader .spinner {
+        width: 14px; height: 14px;
+        border: 2px solid rgba(88, 166, 255, 0.2);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Riwayat Absensi */
     .history-card {
@@ -158,6 +238,21 @@
     }
     .s-hadir { background: rgba(63, 185, 80, 0.15); color: var(--green); }
     .s-izin  { background: rgba(227, 179, 65, 0.15); color: var(--amber); }
+    .s-ditolak { background: rgba(248, 81, 73, 0.15); color: var(--red); }
+    .s-alfa { background: rgba(248, 81, 73, 0.15); color: var(--red); }
+    .s-belum-hadir { background: rgba(139, 148, 158, 0.15); color: var(--text3); }
+
+    .h-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .loc-icon {
+        font-size: 14px;
+    }
+    .loc-icon.in { color: var(--green); }
+    .loc-icon.out { color: var(--red); }
 
     @keyframes fi { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -183,11 +278,21 @@
     @if($siswa)
     <div class="code-container">
         <div class="otp-label">Masukkan Kode Presensi dari Papan Tulis</div>
+
+        {{-- GPS Status Indicator --}}
+        <div class="gps-status detecting" id="gpsStatus">
+            <div class="gps-loader">
+                <div class="spinner"></div>
+            </div>
+            <span id="gpsText">Mendeteksi lokasi GPS...</span>
+        </div>
         
         <form action="{{ route('siswa.presensi.store') }}" method="POST" id="otpForm">
             @csrf
             <!-- Hidden real input -->
             <input type="hidden" name="kode_presensi" id="realKode">
+            <input type="hidden" name="latitude" id="inputLat">
+            <input type="hidden" name="longitude" id="inputLng">
             
             <div class="otp-inputs" id="inputs">
                 <input type="text" maxlength="1" autocomplete="off" autofocus>
@@ -199,8 +304,8 @@
             </div>
 
             <div style="text-align: center;">
-                <button type="submit" class="btn-submit" id="submitBtn">
-                    <i class="bi bi-send-fill"></i> Kirim Presensi
+                <button type="submit" class="btn-submit" id="submitBtn" disabled>
+                    <i class="bi bi-geo-alt-fill"></i> <span id="btnText">Menunggu GPS...</span>
                 </button>
             </div>
         </form>
@@ -219,8 +324,22 @@
             <div class="h-date">{{ \Carbon\Carbon::parse($r->tanggal)->translatedFormat('l, d F Y') }}</div>
             <div class="h-time">Pukul {{ $r->jam_masuk }}</div>
         </div>
-        <div>
-            <span class="s-badge {{ $r->status == 'Hadir' ? 's-hadir' : 's-izin' }}">{{ $r->status }}</span>
+        <div class="h-meta">
+            @if($r->is_dalam_radius !== null)
+                @if($r->is_dalam_radius)
+                    <i class="bi bi-geo-alt-fill loc-icon in" title="Dalam area sekolah"></i>
+                @else
+                    <i class="bi bi-geo-alt-fill loc-icon out" title="Di luar area sekolah"></i>
+                @endif
+            @endif
+            @php
+                $badgeClass = 's-izin';
+                if ($r->status == 'Hadir') $badgeClass = 's-hadir';
+                elseif ($r->status == 'Ditolak') $badgeClass = 's-ditolak';
+                elseif ($r->status == 'Alfa' || $r->status == 'Alpa') $badgeClass = 's-alfa';
+                elseif ($r->status == 'Belum Hadir') $badgeClass = 's-belum-hadir';
+            @endphp
+            <span class="s-badge {{ $badgeClass }}">{{ $r->status }}</span>
         </div>
     </div>
     @endforeach
@@ -232,9 +351,88 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputs = document.querySelectorAll('.otp-inputs input');
     const realKode = document.getElementById('realKode');
     const form = document.getElementById('otpForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const inputLat = document.getElementById('inputLat');
+    const inputLng = document.getElementById('inputLng');
+    const gpsStatus = document.getElementById('gpsStatus');
+    const gpsText = document.getElementById('gpsText');
 
+    let gpsReady = false;
+
+    // ===== GPS: Ambil lokasi =====
+    function initGPS() {
+        if (!navigator.geolocation) {
+            setGPSState('error', 'Browser tidak mendukung GPS. Hubungi guru.');
+            return;
+        }
+
+        // Langsung request GPS saat halaman load
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                inputLat.value = position.coords.latitude;
+                inputLng.value = position.coords.longitude;
+                gpsReady = true;
+
+                setGPSState('success', 'Lokasi berhasil terdeteksi (' + 
+                    position.coords.latitude.toFixed(5) + ', ' + 
+                    position.coords.longitude.toFixed(5) + ')');
+
+                submitBtn.disabled = false;
+                btnText.textContent = 'Kirim Presensi';
+                submitBtn.querySelector('i').className = 'bi bi-send-fill';
+            },
+            function(error) {
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        setGPSState('error', 'Akses GPS ditolak! Izinkan akses lokasi di pengaturan browser.');
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        setGPSState('error', 'Lokasi tidak tersedia. Pastikan GPS aktif.');
+                        break;
+                    case error.TIMEOUT:
+                        setGPSState('warning', 'Timeout mendeteksi GPS. Mencoba ulang...');
+                        setTimeout(initGPS, 2000);
+                        return;
+                    default:
+                        setGPSState('error', 'Gagal mengambil lokasi. Coba refresh halaman.');
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 30000
+            }
+        );
+    }
+
+    function setGPSState(state, message) {
+        gpsStatus.className = 'gps-status ' + state;
+        gpsText.textContent = message;
+
+        let iconHTML = '';
+        if (state === 'detecting') {
+            iconHTML = '<div class="gps-loader"><div class="spinner"></div></div>';
+        } else if (state === 'success') {
+            iconHTML = '<span class="gps-dot success"></span>';
+        } else if (state === 'error') {
+            iconHTML = '<span class="gps-dot error"></span>';
+        } else if (state === 'warning') {
+            iconHTML = '<span class="gps-dot warning pulse"></span>';
+        }
+
+        // Replace the first child (icon area)
+        const firstChild = gpsStatus.firstElementChild;
+        if (firstChild) {
+            firstChild.outerHTML = iconHTML;
+        }
+    }
+
+    // Mulai deteksi GPS
+    initGPS();
+
+    // ===== OTP Input Logic =====
     inputs.forEach((input, index) => {
-        // Auto convert to uppercase
         input.addEventListener('input', function() {
             this.value = this.value.toUpperCase();
             
@@ -246,7 +444,6 @@ document.addEventListener('DOMContentLoaded', function() {
             updateRealKode();
         });
 
-        // Handle Backspace
         input.addEventListener('keydown', function(e) {
             if(e.key === 'Backspace' && this.value === '') {
                 if(index > 0) {
@@ -255,7 +452,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Handle Paste
         input.addEventListener('paste', function(e) {
             e.preventDefault();
             const pastedData = e.clipboardData.getData('text').toUpperCase().trim().substring(0, 6);
@@ -285,10 +481,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     form.addEventListener('submit', function(e) {
         updateRealKode();
+
         if(realKode.value.length < 6) {
             e.preventDefault();
             alert('Kode presensi harus terdiri dari 6 karakter!');
+            return;
         }
+
+        if(!gpsReady) {
+            e.preventDefault();
+            alert('GPS belum siap. Pastikan izin lokasi sudah diberikan dan tunggu sampai GPS terdeteksi.');
+            return;
+        }
+
+        // Disable button saat submit
+        submitBtn.disabled = true;
+        btnText.textContent = 'Mengirim...';
     });
 });
 </script>

@@ -296,6 +296,33 @@
     .sb-sakit { background: rgba(188, 140, 255, 0.15); color: var(--purple); }
     .sb-alpha { background: rgba(248, 81, 73, 0.15); color: var(--red); }
     .sb-none  { background: var(--navy4); color: var(--text2); }
+    .sb-ditolak { background: rgba(248, 81, 73, 0.15); color: var(--red); }
+    .sb-belum-hadir { background: rgba(139, 148, 158, 0.15); color: var(--text3); }
+
+    .gps-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 6px;
+    }
+
+    .gps-badge.in {
+        background: rgba(63, 185, 80, 0.1);
+        color: var(--green);
+    }
+
+    .gps-badge.out {
+        background: rgba(248, 81, 73, 0.1);
+        color: var(--red);
+    }
+
+    .gps-badge.na {
+        color: var(--text3);
+        font-weight: 400;
+    }
 
     .action-group {
         display: flex;
@@ -323,6 +350,7 @@
     .btn-act.i:hover { border-color: var(--amber); color: var(--amber); }
     .btn-act.s:hover { border-color: var(--purple); color: var(--purple); }
     .btn-act.a:hover { border-color: var(--red); color: var(--red); }
+    .btn-act.bh:hover { border-color: var(--text3); color: var(--text3); }
 
     /* ── Modal ── */
     .modal-overlay {
@@ -525,6 +553,7 @@
         <thead>
             <tr>
                 <th>Siswa</th>
+                <th>Lokasi GPS</th>
                 <th>Status Saat Ini</th>
                 <th>Set Manual</th>
             </tr>
@@ -541,33 +570,51 @@
                         <div class="student-nis">NIS: {{ $siswa->NIS }}</div>
                     </td>
                     <td>
+                        @if($presensi && $presensi->is_dalam_radius !== null)
+                            @if($presensi->is_dalam_radius)
+                                <span class="gps-badge in"><i class="bi bi-geo-alt-fill"></i> Dalam Area</span>
+                            @else
+                                <span class="gps-badge out" title="Lat: {{ $presensi->latitude }}, Lng: {{ $presensi->longitude }}">
+                                    <i class="bi bi-geo-alt-fill"></i> Luar Area
+                                </span>
+                            @endif
+                        @else
+                            <span class="gps-badge na">—</span>
+                        @endif
+                    </td>
+                    <td>
                         @if($status == 'Hadir')
                             <span class="status-badge sb-hadir">Hadir</span>
                         @elseif($status == 'Izin')
                             <span class="status-badge sb-izin">Izin</span>
                         @elseif($status == 'Sakit')
                             <span class="status-badge sb-sakit">Sakit</span>
-                        @elseif($status == 'Alfa' || $status == 'Alpha')
+                        @elseif($status == 'Alpa' || $status == 'Alfa' || $status == 'Alpha')
                             <span class="status-badge sb-alpha">Alpha</span>
+                        @elseif($status == 'Ditolak')
+                            <span class="status-badge sb-ditolak"><i class="bi bi-geo-alt-fill" style="font-size:10px"></i> Ditolak (Lokasi)</span>
+                        @elseif($status == 'Belum Hadir')
+                            <span class="status-badge sb-belum-hadir">Belum Hadir</span>
                         @else
                             <span class="status-badge sb-none">Belum Absen</span>
                         @endif
                     </td>
                     <td>
                         <div class="action-group">
-                            <form action="#" method="POST" style="margin:0;">
+                            <form action="{{ route('guru.presensi.update-status', [$sesi->id, $siswa->NIS]) }}" method="POST" style="margin:0; display:flex; gap:6px;">
                                 @csrf
-                                <button type="button" class="btn-act h">Hadir</button>
-                                <button type="button" class="btn-act i">Izin</button>
-                                <button type="button" class="btn-act s">Sakit</button>
-                                <button type="button" class="btn-act a">Alpha</button>
+                                <button type="submit" name="status" value="Hadir" class="btn-act h" title="Set Hadir">Hadir</button>
+                                <button type="submit" name="status" value="Izin" class="btn-act i" title="Set Izin">Izin</button>
+                                <button type="submit" name="status" value="Sakit" class="btn-act s" title="Set Sakit">Sakit</button>
+                                <button type="submit" name="status" value="Alpa" class="btn-act a" title="Set Alpha">Alpha</button>
+                                <button type="submit" name="status" value="Belum Hadir" class="btn-act bh" title="Set Belum Hadir">Reset</button>
                             </form>
                         </div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="3" style="text-align:center; padding: 40px; color: var(--text3);">
+                    <td colspan="4" style="text-align:center; padding: 40px; color: var(--text3);">
                         Tidak ada siswa yang terdata di kelas ini.
                     </td>
                 </tr>

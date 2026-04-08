@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
         /* ===================== REKAP PRESENSI ===================== */
         Route::get('/rekap', [RekapController::class, 'index'])->name('admin.rekap.index');
         Route::get('/rekap/harian', [RekapController::class, 'harian'])->name('admin.rekap.harian');
+        Route::get('/rekap/bulanan', [RekapController::class, 'bulanan'])->name('admin.rekap.bulanan');
         Route::get('/rekap/{id}', [RekapController::class, 'show'])->name('admin.rekap.show');
 
         /* ===================== MAPEL ===================== */
@@ -108,6 +109,8 @@ Route::middleware('auth')->group(function () {
             ->name('guru.presensi.generate-kode');
         Route::post('/presensi/akhiri-kelas/{id}', [PresensiController::class, 'akhiriKelas'])
             ->name('guru.presensi.akhiri-kelas');
+        Route::post('/presensi/ruang/{sesiId}/update-status/{nis}', [PresensiController::class, 'updateStatusSiswa'])
+            ->name('guru.presensi.update-status');
     });
 
     /*

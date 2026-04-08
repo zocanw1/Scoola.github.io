@@ -142,4 +142,74 @@ class RekapController extends Controller
 
         return view('admin.rekap.rekap-harian', compact('tanggal', 'sesiHari', 'kelasBreakdown'));
     }
+
+    /**
+     * Rekap bulanan — ringkasan kehadiran per siswa dalam satu bulan
+     */
+    public function bulanan(Request $request)
+    {
+        $bulanStr = $request->get('bulan', Carbon::today()->format('Y-m'));
+        $bulan = Carbon::createFromFormat('Y-m', $bulanStr)->startOfMonth();
+        $bulanAkhir = $bulan->copy()->endOfMonth();
+
+        // Ambil semua kelas yang punya sesi selesai di bulan ini
+        $kelasList = SesiPresensi::where('status', 'selesai')
+            ->whereBetween('created_at', [$bulan, $bulanAkhir])
+            ->distinct()
+            ->pluck('kelas')
+            ->sort()
+            ->values();
+
+        $selectedKelas = $request->get('kelas', $kelasList->first());
+
+        // Ambil semua sesi selesai di bulan+kelas ini
+        $sesiList = SesiPresensi::where('status', 'selesai')
+            ->whereBetween('created_at', [$bulan, $bulanAkhir])
+            ->when($selectedKelas, fn($q) => $q->where('kelas', $selectedKelas))
+            ->orderBy('created_at')
+            ->get();
+
+        $totalSesi = $sesiList->count();
+        $sesiIds = $sesiList->pluck('id');
+
+        // Ambil siswa di kelas terpilih
+        $siswaKelas = $selectedKelas
+            ? Siswa::where('kelas', $selectedKelas)->orderBy('nama_siswa')->get()
+            : collect();
+
+        // Hitung rekap per siswa
+        $rekapSiswa = $siswaKelas->map(function ($siswa) use ($sesiIds, $totalSesi) {
+            $totalHadir = Presensi::where('NIS', $siswa->NIS)
+                ->whereIn('sesi_id', $sesiIds)
+                ->where('status', 'Hadir')
+                ->count();
+
+            $totalAlpa = $totalSesi - $totalHadir;
+            $persentase = $totalSesi > 0 ? round(($totalHadir / $totalSesi) * 100, 1) : 0;
+
+            return (object) [
+                'NIS'        => $siswa->NIS,
+                'nama_siswa' => $siswa->nama_siswa,
+                'total_hadir' => $totalHadir,
+                'total_alpa'  => $totalAlpa,
+                'persentase'  => $persentase,
+            ];
+        });
+
+        // Ringkasan
+        $rataRata = $rekapSiswa->count() > 0 ? round($rekapSiswa->avg('persentase'), 1) : 0;
+        $siswaTerbaik = $rekapSiswa->sortByDesc('persentase')->first();
+        $siswaTerendah = $rekapSiswa->sortBy('persentase')->first();
+
+        $ringkasan = (object) [
+            'rata_rata'      => $rataRata,
+            'siswa_terbaik'  => $siswaTerbaik,
+            'siswa_terendah' => $siswaTerendah,
+        ];
+
+        return view('admin.rekap.rekap-bulanan', compact(
+            'bulan', 'kelasList', 'selectedKelas',
+            'rekapSiswa', 'totalSesi', 'ringkasan'
+        ));
+    }
 }

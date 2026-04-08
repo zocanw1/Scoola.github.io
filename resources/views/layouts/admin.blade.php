@@ -56,11 +56,14 @@
         </a>
 
         <div class="sb-section" style="margin-top:6px">Laporan</div>
-        <a href="{{ route('admin.rekap.index') }}" class="nav-link {{ request()->routeIs('admin.rekap.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.rekap.index') }}" class="nav-link {{ request()->routeIs('admin.rekap.index') || request()->routeIs('admin.rekap.show') ? 'active' : '' }}">
             <i class="bi bi-calendar-check-fill"></i> Rekap Presensi
         </a>
         <a href="{{ route('admin.rekap.harian') }}" class="nav-link {{ request()->routeIs('admin.rekap.harian') ? 'active' : '' }}">
             <i class="bi bi-bar-chart-fill"></i> Rekap Harian
+        </a>
+        <a href="{{ route('admin.rekap.bulanan') }}" class="nav-link {{ request()->routeIs('admin.rekap.bulanan') ? 'active' : '' }}">
+            <i class="bi bi-calendar-month-fill"></i> Rekap Bulanan
         </a>
         <a href="#" class="nav-link disabled" title="Segera hadir">
             <i class="bi bi-download"></i> Ekspor Data
