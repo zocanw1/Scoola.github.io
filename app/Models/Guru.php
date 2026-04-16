@@ -30,4 +30,20 @@ class Guru extends Model
     {
         return $this->belongsTo(Mapel::class, 'kd_mapel', 'kd_mapel');
     }
+
+    /**
+     * Relasi ke kelas yang di-wali
+     */
+    public function kelasWali()
+    {
+        return $this->hasOne(Kelas::class, 'wali_kelas_nip', 'NIP');
+    }
+
+    /**
+     * Cek apakah guru ini adalah wali kelas
+     */
+    public function isWaliKelas(): bool
+    {
+        return $this->kelasWali()->exists();
+    }
 }

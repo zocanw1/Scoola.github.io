@@ -11,6 +11,9 @@ use App\Http\Controllers\MapelController;
 use App\Http\Controllers\JadwalPelajaranController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\SiswaPresensiController;
+use App\Http\Controllers\AdminWaliKelasController;
+use App\Http\Controllers\WaliKelasController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +73,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/kelas', [KelasController::class, 'index'])->name('admin.kelas.index');
         Route::get('/kelas/{kelas}', [KelasController::class, 'show'])->name('admin.kelas.show');
 
+        /* ===================== WALI KELAS ===================== */
+        Route::get('/walikelas', [AdminWaliKelasController::class, 'index'])->name('admin.walikelas.index');
+        Route::get('/walikelas/create', [AdminWaliKelasController::class, 'create'])->name('admin.walikelas.create');
+        Route::post('/walikelas', [AdminWaliKelasController::class, 'store'])->name('admin.walikelas.store');
+        Route::get('/walikelas/{id}/edit', [AdminWaliKelasController::class, 'edit'])->name('admin.walikelas.edit');
+        Route::put('/walikelas/{id}', [AdminWaliKelasController::class, 'update'])->name('admin.walikelas.update');
+        Route::delete('/walikelas/{id}', [AdminWaliKelasController::class, 'destroy'])->name('admin.walikelas.destroy');
+
         /* ===================== REKAP PRESENSI ===================== */
         Route::get('/rekap', [RekapController::class, 'index'])->name('admin.rekap.index');
         Route::get('/rekap/harian', [RekapController::class, 'harian'])->name('admin.rekap.harian');
@@ -111,6 +122,14 @@ Route::middleware('auth')->group(function () {
             ->name('guru.presensi.akhiri-kelas');
         Route::post('/presensi/ruang/{sesiId}/update-status/{nis}', [PresensiController::class, 'updateStatusSiswa'])
             ->name('guru.presensi.update-status');
+
+        /* ===================== WALI KELAS ===================== */
+        Route::get('/walikelas', [WaliKelasController::class, 'index'])->name('guru.walikelas.index');
+        Route::get('/walikelas/harian', [WaliKelasController::class, 'harian'])->name('guru.walikelas.harian');
+        Route::get('/walikelas/bulanan', [WaliKelasController::class, 'bulanan'])->name('guru.walikelas.bulanan');
+        Route::get('/walikelas/{id}', [WaliKelasController::class, 'show'])->name('guru.walikelas.show');
+
+
     });
 
     /*
@@ -124,6 +143,8 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/presensi', [SiswaPresensiController::class, 'absenMandiri'])
             ->name('siswa.presensi.store');
+
+
     });
 });
 

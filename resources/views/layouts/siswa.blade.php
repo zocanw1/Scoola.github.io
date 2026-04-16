@@ -59,6 +59,47 @@
             font-weight: 600;
             color: var(--text1);
         }
+
+        /* Navigation Tabs */
+        .siswa-nav {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+        }
+
+        .siswa-nav a {
+            padding: 6px 16px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text2);
+            text-decoration: none;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .siswa-nav a:hover { color: var(--text1); background: rgba(255,255,255,0.04); }
+        .siswa-nav a.active {
+            background: var(--accent);
+            color: var(--navy);
+        }
+
+        .izin-badge {
+            font-size: 9px;
+            background: var(--red);
+            color: #fff;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            display: inline-grid;
+            place-items: center;
+            font-weight: 700;
+            line-height: 1;
+        }
     </style>
 </head>
 <body>
@@ -70,6 +111,13 @@
             <div class="tb-logo">S</div>
             <div class="tb-title">Scoola Student</div>
         </div>
+
+        <nav class="siswa-nav">
+            <a href="{{ route('siswa.dashboard') }}" class="{{ request()->routeIs('siswa.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-qr-code-scan"></i> Presensi
+            </a>
+
+        </nav>
 
         <div class="top-spacer"></div>
 

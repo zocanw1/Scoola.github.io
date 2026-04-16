@@ -41,4 +41,10 @@ class Siswa extends Model
     {
         return $this->hasMany(Presensi::class, 'NIS', 'NIS');
     }
+
+    // Relasi ke model kelas
+    public function kelasModel()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas', 'nama_kelas');
+    }
 }

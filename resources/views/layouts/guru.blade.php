@@ -41,6 +41,20 @@
             <i class="bi bi-journal-check"></i> Mulai Mengajar
         </a>
 
+        @if(auth()->user()->guru && auth()->user()->guru->kelasWali)
+        <div class="sb-section" style="margin-top:6px">Wali Kelas</div>
+        <a href="{{ route('guru.walikelas.index') }}" class="nav-link {{ request()->routeIs('guru.walikelas.index') || request()->routeIs('guru.walikelas.show') ? 'active' : '' }}">
+            <i class="bi bi-clipboard2-check"></i> Rekap Per Sesi
+        </a>
+        <a href="{{ route('guru.walikelas.harian') }}" class="nav-link {{ request()->routeIs('guru.walikelas.harian') ? 'active' : '' }}">
+            <i class="bi bi-calendar-day"></i> Rekap Harian
+        </a>
+        <a href="{{ route('guru.walikelas.bulanan') }}" class="nav-link {{ request()->routeIs('guru.walikelas.bulanan') ? 'active' : '' }}">
+            <i class="bi bi-calendar-month"></i> Rekap Bulanan
+        </a>
+
+        @endif
+
         <div class="sb-section" style="margin-top:6px">Sistem</div>
         <a href="#" class="nav-link disabled" title="Segera hadir">
             <i class="bi bi-person-circle"></i> Profil Saya

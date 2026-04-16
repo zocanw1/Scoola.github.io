@@ -51,6 +51,9 @@
         <a href="{{ route('admin.kelas.index') }}" class="nav-link {{ request()->routeIs('admin.kelas.*') ? 'active' : '' }}">
             <i class="bi bi-building"></i> Kelas
         </a>
+        <a href="{{ route('admin.walikelas.index') }}" class="nav-link {{ request()->routeIs('admin.walikelas.*') ? 'active' : '' }}">
+            <i class="bi bi-mortarboard-fill"></i> Wali Kelas
+        </a>
         <a href="{{ route('mapel.index') }}" class="nav-link {{ request()->routeIs('mapel.*') ? 'active' : '' }}">
             <i class="bi bi-book-fill"></i> Mata Pelajaran
         </a>
