@@ -100,6 +100,44 @@
             font-weight: 700;
             line-height: 1;
         }
+
+        /* ══ MOBILE SISWA ══ */
+        @media (max-width: 768px) {
+            .topbar { padding: 0 12px; gap: 8px; flex-wrap: nowrap; }
+
+            .siswa-nav {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                white-space: nowrap;
+                flex-shrink: 1;
+                min-width: 0;
+            }
+            .siswa-nav::-webkit-scrollbar { display: none; }
+
+            .user-pill { display: none; }
+
+            .tb-title { font-size: 12px; }
+
+            .theme-toggle span { display: none !important; }
+            .theme-toggle { padding: 5px 8px; }
+
+            .top-logout {
+                padding: 6px 10px;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+
+            .page-body { padding: 16px 14px; }
+        }
+
+        @media (max-width: 480px) {
+            .topbar { padding: 0 8px; gap: 6px; }
+            .tb-brand { gap: 6px; }
+            .tb-title { font-size: 11px; }
+            .siswa-nav a { padding: 5px 12px; font-size: 11px; }
+            .page-body { padding: 12px 10px; }
+        }
     </style>
 </head>
 <body>

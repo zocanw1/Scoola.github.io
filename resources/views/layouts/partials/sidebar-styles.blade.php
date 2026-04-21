@@ -144,4 +144,54 @@
 
     .sb-uname { font-size: 11.5px; font-weight: 600; color: var(--text1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
     .sb-urole { font-size: 9.5px; color: var(--accent); letter-spacing: .04em; text-transform: uppercase; }
+
+    /* ── HAMBURGER BUTTON ── */
+    .hamburger-btn {
+        display: none;
+        background: var(--navy3);
+        border: 1px solid var(--glass-border);
+        color: var(--text1);
+        width: 36px; height: 36px;
+        border-radius: 8px;
+        font-size: 18px;
+        cursor: pointer;
+        place-items: center;
+        flex-shrink: 0;
+        transition: all .15s;
+    }
+    .hamburger-btn:hover { background: var(--glass-hover); }
+
+    /* ── SIDEBAR OVERLAY ── */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 199;
+        opacity: 0;
+        transition: opacity .3s;
+    }
+    .sidebar-overlay.open {
+        display: block;
+        opacity: 1;
+    }
+
+    /* ══ MOBILE RESPONSIVE ══ */
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform .3s cubic-bezier(.4,0,.2,1);
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .hamburger-btn {
+            display: grid;
+        }
+
+        .main-wrapper {
+            margin-left: 0 !important;
+        }
+    }
 </style>

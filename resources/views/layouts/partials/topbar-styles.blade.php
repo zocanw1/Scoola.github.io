@@ -143,4 +143,57 @@
         transition: transform .3s cubic-bezier(.34,1.56,.64,1), background .3s;
     }
     [data-theme="dark"] .toggle-thumb  { transform: translateX(12px); background: var(--accent); }
+
+    /* ══ MOBILE TOPBAR ══ */
+    @media (max-width: 768px) {
+        .topbar {
+            padding: 0 12px;
+            gap: 8px;
+        }
+
+        .top-search {
+            display: none;
+        }
+
+        .top-title {
+            font-size: 13px;
+        }
+
+        .top-breadcrumb {
+            display: none;
+        }
+
+        .top-logout span,
+        .top-logout .d-none-mobile {
+            display: none;
+        }
+
+        .theme-toggle span {
+            display: none !important;
+        }
+
+        .theme-toggle {
+            padding: 5px 8px;
+        }
+
+        .top-logout {
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .page-body {
+            padding: 16px 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .topbar {
+            padding: 0 10px;
+            gap: 6px;
+        }
+
+        .page-body {
+            padding: 12px 10px;
+        }
+    }
 </style>
