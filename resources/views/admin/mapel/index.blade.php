@@ -147,7 +147,6 @@
 }
 
 .btn-edit:hover { background: rgba(88,166,255,0.1); color: var(--accent); border-color: var(--accent); }
-.btn-delete:hover { background: rgba(248,81,73,0.1); color: var(--red); border-color: var(--red); }
 
 /* ── Primary Button ── */
 .btn-primary-scoola {
@@ -237,13 +236,6 @@
                             <a href="{{ route('mapel.edit', $m->kd_mapel) }}" class="btn-icon btn-edit" title="Edit">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <form action="{{ route('mapel.destroy', $m->kd_mapel) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-icon btn-delete" title="Hapus">
-                                    <i class="bi bi-trash-fill"></i>
-                                </button>
-                            </form>
                         </div>
                     </td>
                 </tr>

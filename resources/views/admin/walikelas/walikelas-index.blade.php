@@ -120,16 +120,6 @@
         transition: all .15s; font-family: 'Inter', sans-serif;
     }
     .btn-edit:hover { background: rgba(88,166,255,0.18); border-color: rgba(88,166,255,0.4); color: var(--accent); }
-    .btn-del {
-        display: inline-flex; align-items: center; gap: 5px;
-        padding: 5px 11px; background: rgba(248,81,73,0.08);
-        border: 1px solid rgba(248,81,73,0.15);
-        color: var(--red); border-radius: 6px;
-        font-size: 11.5px; font-weight: 500;
-        transition: all .15s; font-family: 'Inter', sans-serif;
-        cursor: pointer;
-    }
-    .btn-del:hover { background: rgba(248,81,73,0.18); border-color: rgba(248,81,73,0.4); }
     .action-btns { display: flex; gap: 6px; justify-content: center; }
 
     .empty-state { padding: 60px 20px; text-align: center; }
@@ -216,6 +206,10 @@
             <span class="card-label">Daftar Kelas & Wali Kelas</span>
             <span class="count-badge">{{ $totalKelas }} kelas</span>
         </div>
+        <div class="search-box" style="width: 250px;">
+            <i class="bi bi-search"></i>
+            <input type="text" id="searchInput" placeholder="Cari kelas atau guru...">
+        </div>
     </div>
 
     <div class="tbl-wrap">
@@ -261,13 +255,6 @@
                                 <a href="{{ route('admin.walikelas.edit', $kls->id) }}" class="btn-edit">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </a>
-                                <form action="{{ route('admin.walikelas.destroy', $kls->id) }}" method="POST"
-                                      onsubmit="return confirm('Hapus wali kelas dari {{ $kls->nama_kelas }}?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn-del">
-                                        <i class="bi bi-trash3"></i> Hapus
-                                    </button>
-                                </form>
                             @else
                                 <a href="{{ route('admin.walikelas.create') }}?kelas_id={{ $kls->id }}" class="btn-add" style="font-size:11px; padding:5px 12px;">
                                     <i class="bi bi-plus"></i> Assign
@@ -277,7 +264,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr>
+                <tr class="empty-state-row">
                     <td colspan="6" style="padding:0; border:none">
                         <div class="empty-state">
                             <div class="empty-icon"><i class="bi bi-building"></i></div>
@@ -287,9 +274,44 @@
                     </td>
                 </tr>
                 @endforelse
+                <tr id="noResults" style="display: none;">
+                    <td colspan="6" style="padding:0; border:none">
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="bi bi-search"></i></div>
+                            <div class="empty-title">Pencarian tidak ditemukan</div>
+                            <div class="empty-desc">Tidak ada kelas atau guru yang cocok dengan kata kunci Anda.</div>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
 
+
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const table = document.querySelector('.data-table');
+        const rows = table.querySelectorAll('tbody tr:not(.empty-state-row):not(#noResults)');
+        const noResults = document.getElementById('noResults');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            if (text.includes(searchTerm)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (visibleCount === 0 && rows.length > 0) {
+            noResults.style.display = '';
+        } else {
+            noResults.style.display = 'none';
+        }
+    });
+</script>
 @endsection

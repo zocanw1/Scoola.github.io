@@ -85,6 +85,18 @@
         background: rgba(88,166,255,.12); color: var(--accent);
         padding: 2px 8px; border-radius: 10px;
     }
+    .search-box {
+        display: flex; align-items: center; gap: 7px;
+        background: var(--navy3); border: 1px solid var(--glass-border);
+        border-radius: 7px; padding: 6px 11px; transition: border-color .2s;
+    }
+    .search-box:focus-within { border-color: rgba(88,166,255,.4); }
+    .search-box i { font-size: 12px; color: var(--text3); }
+    .search-box input {
+        background: none; border: none; outline: none; color: var(--text1);
+        font-size: 12px; font-family: 'Inter', sans-serif; width: 160px;
+    }
+    .search-box input::placeholder { color: var(--text3); }
     .btn-print {
         display: inline-flex; align-items: center; gap: 6px;
         background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.15);
@@ -237,9 +249,15 @@
             <span class="card-label">Rekap Per Siswa — {{ $namaKelas }}</span>
             <span class="count-badge">{{ $rekapSiswa->count() }} siswa</span>
         </div>
-        <button onclick="window.print()" class="btn-print">
-            <i class="bi bi-printer-fill"></i> Cetak
-        </button>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari nama atau NIS...">
+            </div>
+            <button onclick="window.print()" class="btn-print">
+                <i class="bi bi-printer-fill"></i> Cetak
+            </button>
+        </div>
     </div>
 
     <div class="tbl-wrap">
@@ -259,7 +277,7 @@
                 @php
                     $barColor = $siswa->persentase >= 80 ? 'var(--green)' : ($siswa->persentase >= 50 ? 'var(--amber)' : 'var(--red)');
                 @endphp
-                <tr>
+                <tr data-name="{{ strtolower($siswa->nama_siswa) }}" data-nis="{{ strtolower($siswa->NIS) }}">
                     <td style="color:var(--text3); font-size:11px">{{ $index + 1 }}</td>
                     <td><span class="nis-badge">{{ $siswa->NIS }}</span></td>
                     <td>
@@ -302,5 +320,40 @@
         </table>
     </div>
 </div>
+
+<div id="noResult" style="display:none">
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-search"></i></div>
+        <div class="empty-title">Tidak ada hasil</div>
+        <div class="empty-desc">Coba kata kunci yang berbeda.</div>
+    </div>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const rows        = document.querySelectorAll('.data-table tbody tr[data-name]');
+    const noResult    = document.getElementById('noResult');
+
+    function filterTable() {
+        const q = searchInput.value.toLowerCase().trim();
+        let visible = 0;
+
+        rows.forEach(row => {
+            const name = row.dataset.name || '';
+            const nis  = row.dataset.nis || '';
+
+            if (!q || name.includes(q) || nis.includes(q)) {
+                row.style.display = '';
+                visible++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        noResult.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    searchInput.addEventListener('input', filterTable);
+</script>
 
 @endsection

@@ -95,6 +95,18 @@
         padding: 2px 8px; border-radius: 10px;
     }
     .toolbar-right { display: flex; align-items: center; gap: 8px; }
+    .search-box {
+        display: flex; align-items: center; gap: 7px;
+        background: var(--navy3); border: 1px solid var(--glass-border);
+        border-radius: 7px; padding: 6px 11px; transition: border-color .2s;
+    }
+    .search-box:focus-within { border-color: rgba(88,166,255,.4); }
+    .search-box i { font-size: 12px; color: var(--text3); }
+    .search-box input {
+        background: none; border: none; outline: none; color: var(--text1);
+        font-size: 12px; font-family: 'Inter', sans-serif; width: 160px;
+    }
+    .search-box input::placeholder { color: var(--text3); }
     .filter-select {
         background: var(--navy3); border: 1px solid var(--glass-border);
         border-radius: 7px; padding: 6px 11px; color: var(--text2);
@@ -267,6 +279,10 @@
             <span class="count-badge">{{ $totalSiswa }} siswa</span>
         </div>
         <div class="toolbar-right">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari nama atau NIS...">
+            </div>
             <select class="filter-select" id="statusFilter">
                 <option value="">Semua Status</option>
                 <option value="hadir">Hadir</option>
@@ -288,7 +304,7 @@
             </thead>
             <tbody id="rekapBody">
                 @forelse($rekapData as $index => $data)
-                <tr data-status="{{ strtolower($data->status) }}">
+                <tr data-status="{{ strtolower($data->status) }}" data-name="{{ strtolower($data->nama_siswa) }}" data-nis="{{ strtolower($data->NIS) }}">
                     <td style="color:var(--text3); font-size:11px">{{ $index + 1 }}</td>
                     <td><span class="nis-badge">{{ $data->NIS }}</span></td>
                     <td>
@@ -331,20 +347,46 @@
     </div>
 </div>
 
-<script>
-    const statusFilter = document.getElementById('statusFilter');
-    const rows = document.querySelectorAll('#rekapBody tr[data-status]');
+<div id="noResult" style="display:none">
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-search"></i></div>
+        <div class="empty-title">Tidak ada hasil</div>
+        <div class="empty-desc">Coba kata kunci atau filter status yang berbeda.</div>
+    </div>
+</div>
 
-    statusFilter.addEventListener('change', function() {
-        const val = this.value;
+<script>
+    const searchInput  = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const rows         = document.querySelectorAll('#rekapBody tr[data-status]');
+    const noResult     = document.getElementById('noResult');
+
+    function filterTable() {
+        const q      = searchInput.value.toLowerCase().trim();
+        const status = statusFilter.value;
+        let visible  = 0;
+
         rows.forEach(row => {
-            if (!val || row.dataset.status === val) {
+            const name = row.dataset.name || '';
+            const nis  = row.dataset.nis || '';
+            const rowS = row.dataset.status;
+
+            const matchQ = !q || name.includes(q) || nis.includes(q);
+            const matchS = !status || rowS === status;
+
+            if (matchQ && matchS) {
                 row.style.display = '';
+                visible++;
             } else {
                 row.style.display = 'none';
             }
         });
-    });
+
+        noResult.style.display = visible === 0 ? 'flex' : 'none';
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    statusFilter.addEventListener('change', filterTable);
 </script>
 
 @endsection

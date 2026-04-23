@@ -221,26 +221,7 @@
         color: var(--accent);
     }
 
-    .btn-delete {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 5px 11px;
-        background: rgba(248,81,73,0.08);
-        border: 1px solid rgba(248,81,73,0.15);
-        color: var(--red);
-        border-radius: 6px;
-        font-size: 11.5px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all .15s;
-        font-family: 'Inter', sans-serif;
-    }
 
-    .btn-delete:hover {
-        background: rgba(248,81,73,0.18);
-        border-color: rgba(248,81,73,0.4);
-    }
 
     /* ── EMPTY STATE ─────────────────────────── */
     .empty-state {
@@ -351,13 +332,6 @@
                             <a href="{{ route('jadwal.edit', $j->kd_jp) }}" class="btn-edit">
                                 <i class="bi bi-pencil-fill"></i> Edit
                             </a>
-                            <form action="{{ route('jadwal.destroy', $j->kd_jp) }}" method="POST" style="display:inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-delete" onclick="return confirm('Yakin ingin menghapus jadwal ini?')">
-                                    <i class="bi bi-trash3-fill"></i> Hapus
-                                </button>
-                            </form>
                         </div>
                     </td>
                 </tr>

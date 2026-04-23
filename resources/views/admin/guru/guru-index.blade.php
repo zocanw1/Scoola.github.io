@@ -270,23 +270,7 @@
         color: var(--accent);
     }
 
-    .btn-delete {
-        display: inline-flex; align-items: center; gap: 5px;
-        padding: 5px 11px;
-        background: rgba(248,81,73,0.08);
-        border: 1px solid rgba(248,81,73,0.15);
-        color: var(--red);
-        border-radius: 6px;
-        font-size: 11.5px; font-weight: 500;
-        cursor: pointer;
-        transition: all .15s;
-        font-family: 'Inter', sans-serif;
-    }
 
-    .btn-delete:hover {
-        background: rgba(248,81,73,0.18);
-        border-color: rgba(248,81,73,0.4);
-    }
 
     /* ── EMPTY / ALERT ─────────────────────────── */
     .empty-state { padding: 60px 20px; text-align: center; }
@@ -434,16 +418,6 @@
                             <a href="{{ route('guru.edit', $g->NIP) }}" class="btn-edit">
                                 <i class="bi bi-pencil-fill"></i> Edit
                             </a>
-                            <form action="{{ route('guru.destroy', $g->NIP) }}"
-                                  method="POST"
-                                  style="display:inline"
-                                  onsubmit="return confirmDelete(event, '{{ $g->nama_guru }}')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-delete">
-                                    <i class="bi bi-trash3-fill"></i> Hapus
-                                </button>
-                            </form>
                         </div>
                     </td>
                 </tr>
@@ -471,101 +445,8 @@
     </div>
 </div>
 
-{{-- DELETE MODAL --}}
-<div id="deleteModal" style="
-    display:none; position:fixed; inset:0;
-    background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);
-    z-index:999; place-items:center;
-">
-    <div style="
-        background:var(--navy2); border:1px solid var(--glass-border);
-        border-radius:14px; padding:28px; max-width:360px; width:90%;
-        text-align:center; animation:slideIn .25s ease;
-    ">
-        <div style="
-            width:52px; height:52px; border-radius:50%;
-            background:rgba(248,81,73,0.12);
-            display:grid; place-items:center; margin:0 auto 16px;
-            font-size:22px; color:var(--red);
-        "><i class="bi bi-trash3-fill"></i></div>
-
-        <div style="font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; font-weight:800; color:var(--text1); margin-bottom:8px">
-            Hapus Guru?
-        </div>
-        <div style="font-size:12.5px; color:var(--text2); margin-bottom:22px; line-height:1.6">
-            Data guru <strong id="modalName" style="color:var(--text1)"></strong> akan dihapus secara permanen beserta akun loginnya.
-        </div>
-
-        <div style="display:flex; gap:10px; justify-content:center">
-            <button onclick="closeModal()" style="
-                flex:1; padding:9px; background:var(--navy3);
-                border:1px solid var(--glass-border); color:var(--text2);
-                border-radius:8px; font-size:12.5px; font-weight:500;
-                cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s;
-            ">Batal</button>
-            <button id="confirmDeleteBtn" style="
-                flex:1; padding:9px; background:var(--red);
-                border:none; color:#fff;
-                border-radius:8px; font-size:12.5px; font-weight:600;
-                cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s;
-            ">Ya, Hapus</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // ── SEARCH & FILTER
-    const searchInput = document.getElementById('searchInput');
-    const mapelFilter = document.getElementById('mapelFilter');
-    const rows        = document.querySelectorAll('#guruBody tr[data-name]');
-    const noResult    = document.getElementById('noResult');
-
-    function filterTable() {
-        const q     = searchInput.value.toLowerCase().trim();
-        const mapel = mapelFilter.value.toLowerCase();
-        let visible = 0;
-
-        rows.forEach(row => {
-            const name = row.dataset.name;
-            const nip  = row.dataset.nip;
-            const rowM = row.dataset.mapel.toLowerCase();
-
-            const matchQ = !q || name.includes(q) || nip.includes(q);
-            const matchM = !mapel || rowM === mapel;
-
-            if (matchQ && matchM) { row.style.display = ''; visible++; }
-            else { row.style.display = 'none'; }
-        });
-
-        noResult.style.display = visible === 0 ? 'flex' : 'none';
-    }
-
     searchInput.addEventListener('input', filterTable);
     mapelFilter.addEventListener('change', filterTable);
-
-    // ── DELETE MODAL
-    let pendingForm = null;
-
-    function confirmDelete(e, name) {
-        e.preventDefault();
-        pendingForm = e.target.closest('form');
-        document.getElementById('modalName').textContent = name;
-        document.getElementById('deleteModal').style.display = 'grid';
-        return false;
-    }
-
-    function closeModal() {
-        document.getElementById('deleteModal').style.display = 'none';
-        pendingForm = null;
-    }
-
-    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-        if (pendingForm) pendingForm.submit();
-    });
-
-    document.getElementById('deleteModal').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
-    });
 </script>
 
 @endsection

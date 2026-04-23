@@ -165,15 +165,7 @@
         text-decoration: none;
     }
 
-    .btn-delete {
-        padding: 5px 11px;
-        background: rgba(248,81,73,0.08);
-        border: 1px solid rgba(248,81,73,0.15);
-        color: var(--red);
-        border-radius: 6px;
-        font-size: 11.5px;
-        cursor: pointer;
-    }
+
 
     .alert-success {
         padding: 11px 16px;
@@ -231,13 +223,6 @@
                     <td>
                         <div class="action-group" style="justify-content:center">
                             <a href="{{ route('admin.akun.edit', $admin->id) }}" class="btn-edit">Edit</a>
-                            @if($admin->id !== auth()->id())
-                            <form action="{{ route('admin.akun.destroy', $admin->id) }}" method="POST" onsubmit="return confirm('Hapus admin ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-delete">Hapus</button>
-                            </form>
-                            @endif
                         </div>
                     </td>
                 </tr>

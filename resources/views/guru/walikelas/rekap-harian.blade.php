@@ -251,9 +251,15 @@
             <span class="card-label">Sesi Kelas {{ $namaKelas }} — {{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}</span>
             <span class="count-badge">{{ $sesiHari->count() }} sesi</span>
         </div>
-        <button onclick="window.print()" class="btn-print">
-            <i class="bi bi-printer-fill"></i> Cetak
-        </button>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <div class="search-box" style="width: 250px;">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari guru atau waktu...">
+            </div>
+            <button onclick="window.print()" class="btn-print">
+                <i class="bi bi-printer-fill"></i> Cetak
+            </button>
+        </div>
     </div>
 
     <div class="tbl-wrap">
@@ -314,7 +320,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr>
+                <tr class="empty-state-row">
                     <td colspan="7" style="padding:0; border:none">
                         <div class="empty-state">
                             <div class="empty-icon"><i class="bi bi-calendar-x"></i></div>
@@ -324,9 +330,44 @@
                     </td>
                 </tr>
                 @endforelse
+                <tr id="noResults" style="display: none;">
+                    <td colspan="7" style="padding:0; border:none">
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="bi bi-search"></i></div>
+                            <div class="empty-title">Pencarian tidak ditemukan</div>
+                            <div class="empty-desc">Tidak ada sesi yang cocok dengan kata kunci Anda.</div>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
 
+
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const table = document.querySelector('.data-table');
+        const rows = table.querySelectorAll('tbody tr:not(.empty-state-row):not(#noResults)');
+        const noResults = document.getElementById('noResults');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            if (text.includes(searchTerm)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (visibleCount === 0 && rows.length > 0) {
+            noResults.style.display = '';
+        } else {
+            noResults.style.display = 'none';
+        }
+    });
+</script>
 @endsection

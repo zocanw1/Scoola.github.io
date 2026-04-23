@@ -350,7 +350,6 @@
     .btn-act.i:hover { border-color: var(--amber); color: var(--amber); }
     .btn-act.s:hover { border-color: var(--purple); color: var(--purple); }
     .btn-act.a:hover { border-color: var(--red); color: var(--red); }
-    .btn-act.bh:hover { border-color: var(--text3); color: var(--text3); }
 
     /* ── Modal ── */
     .modal-overlay {
@@ -607,7 +606,6 @@
                                 <button type="submit" name="status" value="Izin" class="btn-act i" title="Set Izin">Izin</button>
                                 <button type="submit" name="status" value="Sakit" class="btn-act s" title="Set Sakit">Sakit</button>
                                 <button type="submit" name="status" value="Alpa" class="btn-act a" title="Set Alpha">Alpha</button>
-                                <button type="submit" name="status" value="Belum Hadir" class="btn-act bh" title="Set Belum Hadir">Reset</button>
                             </form>
                         </div>
                     </td>
