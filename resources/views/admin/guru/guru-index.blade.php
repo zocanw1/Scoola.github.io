@@ -445,6 +445,36 @@
     </div>
 </div>
 
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const mapelFilter = document.getElementById('mapelFilter');
+    const rows        = document.querySelectorAll('#guruBody tr[data-name]');
+    const noResult    = document.getElementById('noResult');
+
+    function filterTable() {
+        const q     = searchInput.value.toLowerCase().trim();
+        const mapel = mapelFilter.value;
+        let visible = 0;
+
+        rows.forEach(row => {
+            const name  = row.dataset.name || '';
+            const nip   = row.dataset.nip || '';
+            const rowM  = row.dataset.mapel;
+
+            const matchQ = !q || name.includes(q) || nip.includes(q);
+            const matchM = !mapel || rowM === mapel;
+
+            if (matchQ && matchM) {
+                row.style.display = '';
+                visible++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        noResult.style.display = (visible === 0 && rows.length > 0) ? 'block' : 'none';
+    }
+
     searchInput.addEventListener('input', filterTable);
     mapelFilter.addEventListener('change', filterTable);
 </script>
