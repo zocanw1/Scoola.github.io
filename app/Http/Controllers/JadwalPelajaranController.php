@@ -27,15 +27,21 @@ class JadwalPelajaranController extends Controller
     /* ==============================
      * JADWAL PER KELAS
      * ============================== */
-    public function kelas(string $kelas)
+    public function kelas(string $kelas, string $hari = null)
     {
-        $jadwal = JadwalPelajaran::with(['guru', 'mapel'])
+        $query = JadwalPelajaran::with(['guru', 'mapel'])
             ->where('kelas', $kelas)
-            ->orderBy('hari')
-            ->orderBy('jam_mulai')
-            ->get();
+            ->orderBy('jam_mulai');
 
-        return view('admin.jadwal.index', compact('jadwal', 'kelas'));
+        if ($hari) {
+            $query->where('hari', $hari);
+        } else {
+            $query->orderBy('hari');
+        }
+
+        $jadwal = $query->get();
+
+        return view('admin.jadwal.index', compact('jadwal', 'kelas', 'hari'));
     }
 
     /* ==============================
@@ -63,8 +69,32 @@ class JadwalPelajaranController extends Controller
             'jam_selesai' => 'required|integer|min:1|max:12|gte:jam_mulai',
         ]);
 
+        $overlap = JadwalPelajaran::where('hari', $request->hari)
+            ->where('kelas', $request->kelas)
+            ->where(function ($query) use ($request) {
+                $query->where('jam_mulai', '<=', $request->jam_selesai)
+                      ->where('jam_selesai', '>=', $request->jam_mulai);
+            })->get();
+
+        if ($overlap->isNotEmpty() && !$request->has('force')) {
+            $jamBentrok = $overlap->map(function ($j) {
+                return $j->jam_mulai . '-' . $j->jam_selesai;
+            })->implode(', ');
+            
+            return back()->withInput()->with('confirm_replace', "Terdapat jadwal yang bentrok pada jam ke ($jamBentrok). Jadwal yang lama akan diganti/ditimpa. Apakah Anda yakin?");
+        }
+
+        if ($request->has('force')) {
+            JadwalPelajaran::where('hari', $request->hari)
+                ->where('kelas', $request->kelas)
+                ->where(function ($query) use ($request) {
+                    $query->where('jam_mulai', '<=', $request->jam_selesai)
+                          ->where('jam_selesai', '>=', $request->jam_mulai);
+                })->delete();
+        }
+
         JadwalPelajaran::create([
-            'kd_jp'       => 'JP-' . Str::uuid(),
+            'kd_jp'       => 'JP-' . Str::upper(Str::random(10)),
             'hari'        => $request->hari,
             'kelas'       => $request->kelas,
             'jam_mulai'   => $request->jam_mulai,
@@ -105,6 +135,32 @@ class JadwalPelajaranController extends Controller
             'jam_mulai'   => 'required|integer|min:1|max:12',
             'jam_selesai' => 'required|integer|min:1|max:12|gte:jam_mulai',
         ]);
+
+        $overlap = JadwalPelajaran::where('hari', $request->hari)
+            ->where('kelas', $request->kelas)
+            ->where('kd_jp', '!=', $kd_jp)
+            ->where(function ($query) use ($request) {
+                $query->where('jam_mulai', '<=', $request->jam_selesai)
+                      ->where('jam_selesai', '>=', $request->jam_mulai);
+            })->get();
+
+        if ($overlap->isNotEmpty() && !$request->has('force')) {
+            $jamBentrok = $overlap->map(function ($j) {
+                return $j->jam_mulai . '-' . $j->jam_selesai;
+            })->implode(', ');
+            
+            return back()->withInput()->with('confirm_replace', "Terdapat jadwal yang bentrok pada jam ke ($jamBentrok). Jadwal yang lama akan diganti/ditimpa. Apakah Anda yakin?");
+        }
+
+        if ($request->has('force')) {
+            JadwalPelajaran::where('hari', $request->hari)
+                ->where('kelas', $request->kelas)
+                ->where('kd_jp', '!=', $kd_jp)
+                ->where(function ($query) use ($request) {
+                    $query->where('jam_mulai', '<=', $request->jam_selesai)
+                          ->where('jam_selesai', '>=', $request->jam_mulai);
+                })->delete();
+        }
 
         $jadwal->update([
             'hari'        => $request->hari,

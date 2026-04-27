@@ -173,6 +173,30 @@
     </div>
 @endif
 
+@if (session('confirm_replace'))
+    <div class="alert-warning" style="background: rgba(227, 179, 65, 0.1); border: 1px solid rgba(227, 179, 65, 0.3); border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; max-width: 800px;">
+        <div style="color: var(--yellow); font-weight: 700; margin-bottom: 8px; font-size: 14px; display:flex; align-items:center; gap:6px;">
+            <i class="bi bi-exclamation-triangle-fill"></i> Peringatan Jadwal Bentrok
+        </div>
+        <div style="color: var(--text2); font-size: 13px; margin-bottom: 16px;">
+            {{ session('confirm_replace') }}
+        </div>
+        <form action="{{ route('jadwal.store') }}" method="POST" style="display: inline-block;">
+            @csrf
+            <input type="hidden" name="hari" value="{{ old('hari') }}">
+            <input type="hidden" name="kelas" value="{{ old('kelas') }}">
+            <input type="hidden" name="jam_mulai" value="{{ old('jam_mulai') }}">
+            <input type="hidden" name="jam_selesai" value="{{ old('jam_selesai') }}">
+            <input type="hidden" name="kd_mapel" value="{{ old('kd_mapel') }}">
+            <input type="hidden" name="NIP" value="{{ old('NIP') }}">
+            <input type="hidden" name="force" value="1">
+            <button type="submit" style="background: var(--yellow); color: var(--navy); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s;">
+                <i class="bi bi-check-circle-fill" style="margin-right: 4px;"></i> Ya, Tetap Simpan & Ganti
+            </button>
+        </form>
+    </div>
+@endif
+
 <div class="form-card">
     <form action="{{ route('jadwal.store') }}" method="POST">
         @csrf

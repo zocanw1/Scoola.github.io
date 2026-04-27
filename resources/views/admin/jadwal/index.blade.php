@@ -78,9 +78,10 @@
 
     .visual-grid {
         width: 100%;
-        min-width: 1100px;
+        min-width: 1200px;
         border-collapse: separate;
         border-spacing: 8px;
+        table-layout: fixed;
     }
 
     .visual-grid th {
@@ -321,13 +322,43 @@
     </div>
 @endif
 
-@if(isset($kelas))
-    {{-- VISUAL GRID FOR SPECIFIC CLASS --}}
+@if(isset($kelas) && !isset($hari))
+    {{-- DASHBOARD VIEW: CHOOSE DAY --}}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        @php
+            $daysList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        @endphp
+        @foreach($daysList as $d)
+            @php
+                $countDay = \App\Models\JadwalPelajaran::where('kelas', $kelas)->where('hari', $d)->count();
+            @endphp
+            <a href="{{ route('jadwal.kelas', ['kelas' => $kelas, 'hari' => $d]) }}" class="schedule-container" style="text-decoration:none; padding:24px; display:flex; flex-direction:column; align-items:center; gap:16px; transition:all 0.3s; margin-bottom:0; cursor:pointer; background: var(--navy3);">
+                <div style="width:64px; height:64px; border-radius:16px; background:rgba(88,166,255,0.1); color:var(--accent); display:grid; place-items:center; font-size:28px; transition:all 0.3s;" class="class-icon">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+                <div style="text-align:center">
+                    <div style="font-size:18px; font-weight:800; color:var(--text1)">{{ $d }}</div>
+                    <div style="font-size:12px; color:var(--text3); text-transform:uppercase; margin-top:4px; letter-spacing:0.05em">{{ $countDay }} Mata Pelajaran</div>
+                </div>
+                <div style="margin-top:8px; font-size:11px; font-weight:700; color:var(--accent); background:rgba(88,166,255,0.1); padding:4px 12px; border-radius:20px;">LIHAT JADWAL HARI INI <i class="bi bi-arrow-right" style="margin-left:4px"></i></div>
+            </a>
+        @endforeach
+    </div>
+@endif
+
+@if(isset($kelas) && isset($hari))
+    <div style="margin-bottom: 20px;">
+        <a href="{{ route('jadwal.kelas', $kelas) }}" style="color:var(--text2); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">
+            <i class="bi bi-arrow-left"></i> Kembali ke Pilihan Hari
+        </a>
+    </div>
+
+    {{-- VISUAL GRID FOR SPECIFIC CLASS AND DAY --}}
     <div class="schedule-container">
         <div class="schedule-header">
             <div class="schedule-title">
                 <i class="bi bi-calendar3"></i>
-                Visualisasi Jadwal: <span style="color:var(--accent); margin-left:4px">{{ $kelas }}</span>
+                Visualisasi Jadwal: <span style="color:var(--accent); margin-left:4px">{{ $kelas }} - Hari {{ $hari }}</span>
             </div>
             <div style="font-size: 11px; color: var(--text3); font-weight: 700; letter-spacing:0.1em">
                 GASAL 2025/2026
@@ -346,7 +377,7 @@
                 </thead>
                 <tbody>
                     @php
-                        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+                        $days = [$hari];
                         $jadwalByDay = $jadwal->groupBy('hari');
                     @endphp
 
@@ -401,76 +432,7 @@
     </div>
 @endif
 
-{{-- LIST VIEW CARD --}}
-<div class="list-card">
-    <div class="list-header">
-        <div style="display:flex; align-items:center; gap:10px">
-            <i class="bi bi-list-ul" style="color:var(--accent); font-size:18px"></i>
-            <span style="font-size:14px; font-weight:700; color:var(--text1)">Detail Jadwal (List View)</span>
-        </div>
-        <span style="font-size:11px; font-weight:700; background:rgba(88,166,255,0.1); color:var(--accent); padding:4px 10px; border-radius:20px">{{ count($jadwal) }} DATA</span>
-    </div>
 
-    <div style="overflow-x: auto;">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th style="width:120px">Kelas</th>
-                    <th style="width:100px">Hari</th>
-                    <th style="width:120px">Waktu</th>
-                    <th>Mata Pelajaran</th>
-                    <th>Guru</th>
-                    <th>Ruangan</th>
-                    <th style="text-align:center; width:100px">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($jadwal as $j)
-                <tr>
-                    <td><span style="font-weight:800; color:var(--text1)">{{ $j->kelas }}</span></td>
-                    <td><span class="hari-badge">{{ $j->hari }}</span></td>
-                    <td><span class="jam-badge">JAM {{ $j->jam_mulai }} - {{ $j->jam_selesai }}</span></td>
-                    <td><div style="font-weight:700; color:var(--text1)">{{ $j->mapel->nama_mapel ?? $j->kd_mapel }}</div></td>
-                    <td>
-                        <div style="display:flex; align-items:center; gap:6px">
-                            <i class="bi bi-person-circle" style="color:var(--text3)"></i>
-                            {{ $j->guru->nama_guru ?? '-' }}
-                        </div>
-                    </td>
-                    <td>
-                        @if($j->ruangan)
-                            <span class="ruangan-tag" style="margin-top:0">{{ $j->ruangan }}</span>
-                        @else
-                            <span style="color:var(--text3)">-</span>
-                        @endif
-                    </td>
-                    <td>
-                        <div style="display:flex; justify-content:center; gap:8px">
-                            <a href="{{ route('jadwal.edit', $j->kd_jp) }}" style="width:32px; height:32px; display:grid; place-items:center; background:rgba(88,166,255,0.1); color:var(--accent); border-radius:8px; text-decoration:none; transition:0.2s">
-                                <i class="bi bi-pencil-fill"></i>
-                            </a>
-                            <form action="{{ route('jadwal.destroy', $j->kd_jp) }}" method="POST" onsubmit="return confirm('Hapus jadwal ini?')" style="margin:0">
-                                @csrf @method('DELETE')
-                                <button type="submit" style="width:32px; height:32px; display:grid; place-items:center; background:rgba(255,100,100,0.1); color:var(--red); border-radius:8px; border:none; cursor:pointer; transition:0.2s">
-                                    <i class="bi bi-trash-fill"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7" style="padding:80px 20px; text-align:center">
-                        <i class="bi bi-calendar-x" style="font-size:48px; color:var(--text3); opacity:0.5; display:block; margin-bottom:16px"></i>
-                        <div style="color:var(--text2); font-weight:600; font-size:15px">Belum ada data jadwal pelajaran</div>
-                        <div style="color:var(--text3); font-size:12px; margin-top:4px">Klik "Tambah Jadwal Baru" untuk mulai mengisi.</div>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-</div>
 
 @endsection
 
