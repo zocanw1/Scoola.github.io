@@ -87,9 +87,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('mapel', MapelController::class)->except(['show', 'destroy']);
 
         /* ===================== JADWAL PELAJARAN ===================== */
+        Route::get('/jadwal/kelas/{kelas}', [JadwalPelajaranController::class, 'kelas'])->name('jadwal.kelas');
         Route::resource('jadwal', JadwalPelajaranController::class)
             ->parameters(['jadwal' => 'kd_jp'])
-            ->except(['show', 'destroy']);
+            ->except(['show']);
     });
 
     /*

@@ -57,6 +57,9 @@
         <a href="{{ route('mapel.index') }}" class="nav-link {{ request()->routeIs('mapel.*') ? 'active' : '' }}">
             <i class="bi bi-book-fill"></i> Mata Pelajaran
         </a>
+        <a href="{{ route('jadwal.index') }}" class="nav-link {{ request()->routeIs('jadwal.*') ? 'active' : '' }}">
+            <i class="bi bi-calendar3"></i> Jadwal Pelajaran
+        </a>
 
         <div class="sb-section" style="margin-top:6px">Laporan</div>
         <a href="{{ route('admin.rekap.index') }}" class="nav-link {{ request()->routeIs('admin.rekap.index') || request()->routeIs('admin.rekap.show') ? 'active' : '' }}">

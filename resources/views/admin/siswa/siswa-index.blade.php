@@ -523,6 +523,36 @@
     </div>
 </div>
 
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const kelasFilter = document.getElementById('kelasFilter');
+    const rows        = document.querySelectorAll('#siswaBody tr[data-name]');
+    const noResult    = document.getElementById('noResult');
+
+    function filterTable() {
+        const q     = searchInput.value.toLowerCase().trim();
+        const kelas = kelasFilter.value;
+        let visible = 0;
+
+        rows.forEach(row => {
+            const name  = row.dataset.name || '';
+            const nis   = row.dataset.nis || '';
+            const rowK  = row.dataset.kelas;
+
+            const matchQ = !q || name.includes(q) || nis.includes(q);
+            const matchK = !kelas || rowK === kelas;
+
+            if (matchQ && matchK) {
+                row.style.display = '';
+                visible++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        noResult.style.display = (visible === 0 && rows.length > 0) ? 'block' : 'none';
+    }
+
     searchInput.addEventListener('input', filterTable);
     kelasFilter.addEventListener('change', filterTable);
 </script>
