@@ -23,7 +23,7 @@ return new class extends Migration
 
         // Tabel Mata Pelajaran
         Schema::create('mapel', function (Blueprint $table) {
-            $table->string('kd_mapel', 10)->primary();
+            $table->string('kd_mapel', 50)->primary();
             $table->string('nama_mapel', 100);
             $table->timestamps();
         });
@@ -32,7 +32,7 @@ return new class extends Migration
         Schema::create('guru', function (Blueprint $table) {
             $table->string('NIP', 20)->primary();
             $table->string('nama_guru', 100);
-            $table->string('kd_mapel', 10)->nullable();
+            $table->string('kd_mapel', 50)->nullable();
             $table->timestamps();
 
             $table->foreign('kd_mapel')
@@ -47,7 +47,7 @@ return new class extends Migration
             $table->string('kd_jp', 20)->primary();
             $table->string('hari', 10);
             $table->integer('jam_ke');
-            $table->string('kd_mapel', 10)->nullable();
+            $table->string('kd_mapel', 50)->nullable();
             $table->string('NIP', 20)->nullable();
             $table->string('kelas', 10);
             $table->timestamps();

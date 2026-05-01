@@ -14,7 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
     })
-    ->withExceptions(function () {
-        //
+    ->withExceptions(function (Illuminate\Foundation\Configuration\Exceptions $exceptions) {
+        $exceptions->renderable(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
+            return redirect()->route('login')->with('info', 'Sesi Anda telah berakhir karena tidak ada aktivitas. Silakan login kembali.');
+        });
     })
     ->create();
