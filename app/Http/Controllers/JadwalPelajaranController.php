@@ -190,7 +190,9 @@ class JadwalPelajaranController extends Controller
      * ============================== */
     public function getGuruByMapel(string $kd_mapel)
     {
-        $guru = Guru::where('kd_mapel', $kd_mapel)
+        $guru = Guru::whereHas('mapels', function($query) use ($kd_mapel) {
+                $query->where('guru_mapel.kd_mapel', $kd_mapel);
+            })
             ->orderBy('nama_guru')
             ->get(['NIP', 'nama_guru']);
 

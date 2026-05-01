@@ -328,7 +328,9 @@
 
 {{-- STATS --}}
 @php
-    $mapelGroups = $guru->groupBy('kd_mapel');
+    $allMapels = $guru->flatMap(function($g) {
+        return $g->mapels;
+    })->unique('kd_mapel');
 @endphp
 <div class="stats-row">
     <div class="stat-card">
@@ -342,14 +344,14 @@
         <div class="stat-icon purple"><i class="bi bi-book-fill"></i></div>
         <div>
             <div class="stat-label">Mapel Diajar</div>
-            <div class="stat-value">{{ $mapelGroups->count() }}</div>
+            <div class="stat-value">{{ $allMapels->count() }}</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green"><i class="bi bi-person-check-fill"></i></div>
         <div>
             <div class="stat-label">Akun Aktif</div>
-            <div class="stat-value">{{ $guru->count() }}</div>
+            <div class="stat-value">{{ $guru->whereNotNull('user_id')->count() }}</div>
         </div>
     </div>
 </div>
@@ -368,9 +370,8 @@
             </div>
             <select class="filter-select" id="mapelFilter">
                 <option value="">Semua Mapel</option>
-                @foreach ($mapelGroups->keys()->sort() as $kd)
-                    @php $mapelObj = $guru->firstWhere('kd_mapel', $kd); @endphp
-                    <option value="{{ $kd }}">{{ $mapelObj->mapel->nama_mapel ?? $kd }}</option>
+                @foreach ($allMapels->sortBy('nama_mapel') as $m)
+                    <option value="{{ $m->kd_mapel }}">{{ $m->nama_mapel }}</option>
                 @endforeach
             </select>
         </div>
@@ -390,9 +391,9 @@
             </thead>
             <tbody id="guruBody">
                 @forelse ($guru as $index => $g)
-                <tr data-name="{{ strtolower($g->nama_guru) }}"
+                    <tr data-name="{{ strtolower($g->nama_guru) }}"
                     data-nip="{{ strtolower($g->NIP) }}"
-                    data-mapel="{{ $g->kd_mapel }}">
+                    data-mapels="{{ json_encode($g->mapels->pluck('kd_mapel')) }}">
                     <td style="color:var(--text3); font-size:11px">{{ $index + 1 }}</td>
                     <td><span class="cell-nip">{{ $g->NIP }}</span></td>
                     <td>
@@ -402,10 +403,16 @@
                         </div>
                     </td>
                     <td>
-                        <span class="mapel-badge">
-                            <i class="bi bi-book" style="font-size:10px"></i>
-                            {{ $g->mapel->nama_mapel ?? '-' }}
-                        </span>
+                        <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                            @forelse ($g->mapels as $m)
+                                <span class="mapel-badge">
+                                    <i class="bi bi-book" style="font-size:10px"></i>
+                                    {{ $m->nama_mapel }}
+                                </span>
+                            @empty
+                                <span class="text-muted" style="font-size: 11px;">-</span>
+                            @endforelse
+                        </div>
                     </td>
                     <td>
                         <span class="email-text">
@@ -457,12 +464,12 @@
         let visible = 0;
 
         rows.forEach(row => {
-            const name  = row.dataset.name || '';
-            const nip   = row.dataset.nip || '';
-            const rowM  = row.dataset.mapel;
+            const name   = row.dataset.name || '';
+            const nip    = row.dataset.nip || '';
+            const mapels = JSON.parse(row.dataset.mapels || '[]');
 
             const matchQ = !q || name.includes(q) || nip.includes(q);
-            const matchM = !mapel || rowM === mapel;
+            const matchM = !mapel || mapels.includes(mapel);
 
             if (matchQ && matchM) {
                 row.style.display = '';

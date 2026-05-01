@@ -135,14 +135,19 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">Mata Pelajaran</label>
-            <select name="kd_mapel" class="form-control" required>
+            <label class="form-label">Mata Pelajaran (Bisa pilih lebih dari satu)</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--navy3); padding: 12px; border-radius: 8px; border: 1px solid var(--glass-border);">
+                @php
+                    $assignedMapels = old('kd_mapel', $guru->mapels->pluck('kd_mapel')->toArray());
+                @endphp
                 @foreach ($mapel as $m)
-                    <option value="{{ $m->kd_mapel }}" @selected(old('kd_mapel', $guru->kd_mapel) == $m->kd_mapel)>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); cursor: pointer;">
+                        <input type="checkbox" name="kd_mapel[]" value="{{ $m->kd_mapel }}" 
+                            @checked(in_array($m->kd_mapel, $assignedMapels))>
                         {{ $m->nama_mapel }}
-                    </option>
+                    </label>
                 @endforeach
-            </select>
+            </div>
         </div>
 
         <div class="form-group">

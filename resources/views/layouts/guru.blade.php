@@ -44,16 +44,18 @@
 
         @if(auth()->user()->guru && auth()->user()->guru->kelasWali)
         <div class="sb-section" style="margin-top:6px">Wali Kelas</div>
-        <a href="{{ route('guru.walikelas.index') }}" class="nav-link {{ request()->routeIs('guru.walikelas.index') || request()->routeIs('guru.walikelas.show') ? 'active' : '' }}">
+        <a href="#" class="nav-link disabled" title="Segera hadir">
             <i class="bi bi-clipboard2-check"></i> Rekap Per Sesi
+            <span class="nav-badge nb-amber">Soon</span>
         </a>
-        <a href="{{ route('guru.walikelas.harian') }}" class="nav-link {{ request()->routeIs('guru.walikelas.harian') ? 'active' : '' }}">
+        <a href="#" class="nav-link disabled" title="Segera hadir">
             <i class="bi bi-calendar-day"></i> Rekap Harian
+            <span class="nav-badge nb-amber">Soon</span>
         </a>
-        <a href="{{ route('guru.walikelas.bulanan') }}" class="nav-link {{ request()->routeIs('guru.walikelas.bulanan') ? 'active' : '' }}">
+        <a href="#" class="nav-link disabled" title="Segera hadir">
             <i class="bi bi-calendar-month"></i> Rekap Bulanan
+            <span class="nav-badge nb-amber">Soon</span>
         </a>
-
         @endif
 
         <div class="sb-section" style="margin-top:6px">Sistem</div>

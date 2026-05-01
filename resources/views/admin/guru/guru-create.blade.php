@@ -119,15 +119,16 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">Mata Pelajaran</label>
-            <select name="kd_mapel" class="form-control" required>
-                <option value="" disabled {{ old('kd_mapel') ? '' : 'selected' }}>-- Pilih Mata Pelajaran --</option>
+            <label class="form-label">Mata Pelajaran (Bisa pilih lebih dari satu)</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--navy3); padding: 12px; border-radius: 8px; border: 1px solid var(--glass-border);">
                 @foreach ($mapel as $m)
-                    <option value="{{ $m->kd_mapel }}" @selected(old('kd_mapel') == $m->kd_mapel)>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); cursor: pointer;">
+                        <input type="checkbox" name="kd_mapel[]" value="{{ $m->kd_mapel }}" 
+                            @checked(is_array(old('kd_mapel')) && in_array($m->kd_mapel, old('kd_mapel')))>
                         {{ $m->nama_mapel }}
-                    </option>
+                    </label>
                 @endforeach
-            </select>
+            </div>
         </div>
 
         <div class="form-group">

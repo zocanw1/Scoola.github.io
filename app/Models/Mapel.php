@@ -22,4 +22,8 @@ class Mapel extends Model
     {
         return 'kd_mapel';
     }
+    public function gurus()
+    {
+        return $this->belongsToMany(Guru::class, 'guru_mapel', 'kd_mapel', 'NIP');
+    }
 }

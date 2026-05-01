@@ -26,6 +26,11 @@ class Guru extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function mapels()
+    {
+        return $this->belongsToMany(Mapel::class, 'guru_mapel', 'NIP', 'kd_mapel');
+    }
+
     public function mapel()
     {
         return $this->belongsTo(Mapel::class, 'kd_mapel', 'kd_mapel');
