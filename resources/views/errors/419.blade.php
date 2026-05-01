@@ -45,9 +45,9 @@
             const theme = localStorage.getItem('scoola-theme') || 'dark';
             document.documentElement.setAttribute('data-theme', theme);
 
-            // Redirect to login after 1 second
+            // Redirect to login after 1 second with expired flag
             setTimeout(function() {
-                window.location.href = "{{ route('login') }}";
+                window.location.href = "{{ route('login') }}?expired=1";
             }, 1000);
         </script>
 
