@@ -17,7 +17,7 @@
 }
 .abs-table td {
     padding: 10px 8px; font-size: 12.5px; color: var(--text2);
-    border-bottom: 1px solid rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--glass-border);
 }
 .abs-table tr:last-child td { border-bottom: none; }
 .abs-table tr:hover td { background: var(--glass-hover); }
@@ -42,7 +42,7 @@
 .d-pct { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 800; color: var(--text1); line-height: 1; }
 .d-lbl { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-top: 3px; }
 .d-legend { width: 100%; }
-.d-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12px; }
+.d-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--glass-border); font-size: 12px; }
 .d-row:last-child { border-bottom: none; }
 .d-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .d-name { color: var(--text2); flex: 1; }
@@ -89,7 +89,7 @@
 .alert-desc  { font-size: 11.5px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
 
 /* ── Rekap kelas ── */
-.kelas-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12.5px; }
+.kelas-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--glass-border); font-size: 12.5px; }
 .kelas-row:last-child { border-bottom: none; }
 .kelas-name { color: var(--text1); font-weight: 600; min-width: 60px; }
 .kelas-bar-wrap { flex: 1; height: 6px; background: var(--navy4); border-radius: 10px; overflow: hidden; }
@@ -287,7 +287,7 @@
                     @endphp
                     <div style="position:relative;display:inline-block;">
                         <svg class="donut-svg" viewBox="0 0 42 42" fill="none">
-                            <circle cx="21" cy="21" r="15.91" stroke="#21262d" stroke-width="5.5"/>
+                            <circle cx="21" cy="21" r="15.91" stroke="var(--glass-border)" stroke-width="5.5"/>
                             <circle cx="21" cy="21" r="15.91" stroke="#f85149" stroke-width="5.5"
                                 stroke-dasharray="{{ $pAlpa }} {{ 100 - $pAlpa }}" stroke-dashoffset="0" stroke-linecap="round"/>
                             <circle cx="21" cy="21" r="15.91" stroke="#e3b341" stroke-width="5.5"

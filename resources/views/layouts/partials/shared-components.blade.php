@@ -229,8 +229,8 @@
 
     select.form-control option,
     .form-select option {
-        background: #1e293b;
-        color: #e2e8f0;
+        background: var(--navy2);
+        color: var(--text1);
         padding: 10px 14px;
         font-size: 13px;
     }
@@ -353,7 +353,7 @@
 
     .data-table td {
         padding: 14px 20px;
-        border-bottom: 1px solid rgba(255,255,255,0.03);
+        border-bottom: 1px solid var(--glass-border);
         color: var(--text2);
         font-size: 13px;
         transition: all var(--transition);
@@ -791,7 +791,7 @@
 
     .empty-slot {
         background: var(--glass);
-        border: 1px dashed rgba(255,255,255,0.06);
+        border: 1px dashed var(--glass-border);
         border-radius: var(--r-sm);
         height: 100%;
     }
@@ -864,69 +864,69 @@
      * Many pages use `color: var(--navy)` which breaks in light mode
      * because --navy becomes a light color.
      */
-    .btn-primary,
-    .btn-primary:hover,
-    .btn-submit,
-    .btn-submit:hover,
-    .btn-add,
-    .btn-add:hover,
-    .btn-primary-scoola,
-    .btn-primary-scoola:hover {
+    .btn-primary, .btn-primary:hover,
+    .btn-submit, .btn-submit:hover,
+    .btn-add, .btn-add:hover,
+    .btn-primary-scoola, .btn-primary-scoola:hover {
         color: #fff !important;
+    }
+
+    /* Soft buttons: ensure they use var(--accent) consistently */
+    .btn-view, .btn-edit, .btn-detail, .btn-print, .btn-icon {
+        color: var(--accent) !important;
     }
 
     /* Override hardcoded hover backgrounds on buttons */
     .btn-primary:hover,
     .btn-add:hover,
-    .btn-primary-scoola:hover {
-        background: var(--gradient-accent) !important;
-        filter: brightness(1.12);
-    }
-
+    .btn-primary-scoola:hover,
     .btn-submit:hover {
         background: var(--gradient-accent) !important;
         filter: brightness(1.12);
     }
 
-    /* Gradient avatar text: always white (on gradient background) */
-    .avatar-sm {
+    /* Gradient elements: always white text */
+    .avatar-sm, .stat-icon, .sb-avatar {
         color: #fff !important;
     }
 
     /* Table cell borders — adapt for light mode */
-    [data-theme="light"] .data-table td {
-        border-bottom-color: rgba(0,0,0,0.06);
-    }
-
-    /* Filter-select and search-box option styling */
-    .filter-select option {
-        background: var(--navy2);
-        color: var(--text1);
-    }
-
-    [data-theme="light"] .filter-select option {
-        background: #ffffff;
-        color: #1e293b;
+    [data-theme="light"] .data-table td,
+    [data-theme="light"] .data-table th,
+    [data-theme="light"] .card-toolbar,
+    [data-theme="light"] .h-row {
+        border-bottom-color: rgba(0,0,0,0.08) !important;
     }
 
     /* Light mode: ensure hover backgrounds are visible */
     [data-theme="light"] .data-table tbody tr:hover td {
-        background: rgba(0,0,0,0.03);
+        background: rgba(0,0,0,0.035) !important;
     }
 
-    [data-theme="light"] .stat-card:hover {
-        border-color: rgba(59,130,246,0.25);
+    [data-theme="light"] .stat-card:hover,
+    [data-theme="light"] .stat-mini:hover {
+        border-color: rgba(59,130,246,0.3) !important;
+        background: #fff !important;
     }
 
-    /* Light mode: empty-slot dashed border */
-    [data-theme="light"] .empty-slot {
-        background: rgba(0,0,0,0.02);
-        border-color: rgba(0,0,0,0.08);
+    /* Light mode: search box and filter focus */
+    [data-theme="light"] .search-box:focus-within,
+    [data-theme="light"] .filter-select:focus,
+    [data-theme="light"] .form-control:focus,
+    [data-theme="light"] .form-select:focus {
+        border-color: rgba(59,130,246,0.4) !important;
     }
 
-    /* Light mode: search box focus */
-    [data-theme="light"] .search-box:focus-within {
-        border-color: rgba(59,130,246,0.4);
+    /* Light mode text readability for secondary labels */
+    [data-theme="light"] .stat-label,
+    [data-theme="light"] .info-label,
+    [data-theme="light"] .page-subtitle {
+        color: #64748b !important;
+    }
+
+    /* Fix donut chart stroke in light mode */
+    [data-theme="light"] circle[stroke="var(--navy3)"] {
+        stroke: rgba(0,0,0,0.08) !important;
     }
 
     /* Calendar day-today: ensure visible text */

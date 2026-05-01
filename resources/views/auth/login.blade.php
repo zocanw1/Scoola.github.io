@@ -69,7 +69,7 @@
         --lp-bg2:       #111111;
         --lp-text:      #f0f0f0;
         --lp-sub:       rgba(240,240,240,0.3);
-        --lp-card:      rgba(255,255,255,0.04);
+        --lp-card:      var(--glass-border);
         --lp-card-bdr:  rgba(255,255,255,0.1);
         --lp-bar-bg:    rgba(255,255,255,0.07);
         --lp-bar-a:     #ffffff;
@@ -82,10 +82,10 @@
         --tx:           #f0f0f0;
         --tx-sub:       #d8d8d8;
         --tx-hint:      #444444;
-        --in-bg:        rgba(255,255,255,0.04);
+        --in-bg:        var(--glass-border);
         --in-bdr:       rgba(255,255,255,0.1);
         --in-focus-bdr: rgba(255,255,255,0.5);
-        --in-focus-sh:  rgba(255,255,255,0.04);
+        --in-focus-sh:  var(--glass-border);
         --btn-bg:       #f0f0f0;
         --btn-tx:       #111111;
         --btn-sh:       rgba(240,240,240,0.08);

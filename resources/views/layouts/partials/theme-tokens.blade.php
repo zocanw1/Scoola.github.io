@@ -20,7 +20,7 @@
         --navy2:        #12171f;
         --navy3:        #1a2030;
         --navy4:        #222a3a;
-        --glass:        rgba(255,255,255,0.03);
+        --glass:        var(--glass-border);
         --glass-border: rgba(255,255,255,0.07);
         --glass-hover:  rgba(255,255,255,0.06);
         --accent:       #60a5fa;
@@ -39,11 +39,11 @@
         --text2:        #94a3b8;
         --text3:        #475569;
         --gb:           rgba(255,255,255,0.06);
-        --gh:           rgba(255,255,255,0.04);
-        --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+        --gh:           var(--glass-border);
+        --gradient-card: linear-gradient(135deg, var(--glass-border) 0%, rgba(255,255,255,0.01) 100%);
         --gradient-accent: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
         --gradient-success: linear-gradient(135deg, #34d399 0%, #22d3ee 100%);
-        --input-bg:     rgba(255,255,255,0.04);
+        --input-bg:     var(--glass-border);
     }
 
     /* ── LIGHT MODE ── */

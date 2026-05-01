@@ -91,7 +91,7 @@
 
     .data-table td {
         padding: 14px 20px;
-        border-bottom: 1px solid rgba(255,255,255,0.04);
+        border-bottom: 1px solid var(--glass-border);
         font-size: 13px;
         color: var(--text2);
         vertical-align: middle;

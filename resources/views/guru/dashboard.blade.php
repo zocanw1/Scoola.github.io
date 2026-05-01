@@ -136,7 +136,7 @@
     padding: 8px 8px;
     font-size: 12px;
     color: var(--text2);
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+    border-bottom: 1px solid var(--glass-border);
 }
 
 .abs-table tr:last-child td { border-bottom: none; }
@@ -226,7 +226,7 @@
     align-items: center;
     gap: 8px;
     padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,.04);
+    border-bottom: 1px solid var(--glass-border);
     font-size: 11.5px;
 }
 
@@ -363,7 +363,7 @@
     align-items: center;
     gap: 10px;
     padding: 7px 0;
-    border-bottom: 1px solid rgba(255,255,255,.04);
+    border-bottom: 1px solid var(--glass-border);
     font-size: 12px;
 }
 
@@ -560,7 +560,7 @@
                     @endphp
                     <div style="position:relative;display:inline-block;">
                         <svg class="donut-svg" viewBox="0 0 42 42" fill="none">
-                            <circle cx="21" cy="21" r="15.91" stroke="#21262d" stroke-width="5.5"/>
+                            <circle cx="21" cy="21" r="15.91" stroke="var(--glass-border)" stroke-width="5.5"/>
                             <circle cx="21" cy="21" r="15.91" stroke="#f85149" stroke-width="5.5"
                                 stroke-dasharray="{{ $pAlpa }} {{ 100 - $pAlpa }}" stroke-dashoffset="0" stroke-linecap="round"/>
                             <circle cx="21" cy="21" r="15.91" stroke="#e3b341" stroke-width="5.5"

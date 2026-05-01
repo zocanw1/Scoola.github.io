@@ -80,7 +80,7 @@
         background: var(--navy2); white-space: nowrap;
     }
     .data-table td {
-        padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.04);
+        padding: 12px 16px; border-bottom: 1px solid var(--glass-border);
         font-size: 12.5px; color: var(--text2); vertical-align: middle;
     }
     .data-table tbody tr { transition: background .15s; }

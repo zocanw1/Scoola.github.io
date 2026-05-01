@@ -192,7 +192,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: var(--glass, rgba(255,255,255,0.02));
+        background: var(--glass);
     }
 
     .schedule-title {
@@ -314,8 +314,8 @@
     }
 
     .empty-slot {
-        background: rgba(255,255,255,0.015);
-        border: 1px dashed rgba(255,255,255,0.06);
+        background: var(--glass);
+        border: 1px dashed var(--glass-border);
         border-radius: 10px;
         height: 100%;
     }

@@ -109,7 +109,7 @@
 /* ── Custom Table ── */
 .custom-table { width: 100%; border-collapse: collapse; }
 .custom-table th {
-    background: rgba(255,255,255,0.02);
+    background: var(--glass);
     padding: 12px 20px;
     text-align: left;
     font-size: 11px; font-weight: 700;
@@ -122,10 +122,10 @@
     padding: 16px 20px;
     font-size: 14px;
     color: var(--text2);
-    border-bottom: 1px solid rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--glass-border);
 }
 
-.custom-table tr:hover td { background: rgba(255,255,255,0.02); }
+.custom-table tr:hover td { background: var(--glass-hover); }
 
 .td-code { font-family: 'Mono', monospace; font-weight: 600; color: var(--accent); }
 .td-name { font-weight: 600; color: var(--text1); }
