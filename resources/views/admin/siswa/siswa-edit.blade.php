@@ -87,7 +87,7 @@
     .btn-submit {
         display: inline-flex; align-items: center; gap: 7px;
         padding: 9px 18px;
-        background: var(--accent); color: var(--navy);
+        background: var(--accent); color: #fff;
         border: none; border-radius: 8px;
         font-size: 12.5px; font-weight: 700;
         font-family: 'Inter', sans-serif;
@@ -95,7 +95,7 @@
     }
 
     .btn-submit:hover {
-        background: #79baff; color: var(--navy);
+        filter: brightness(1.15); color: #fff;
         transform: translateY(-1px);
         box-shadow: 0 4px 14px rgba(88,166,255,0.3);
     }

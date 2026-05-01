@@ -853,4 +853,106 @@
         .ws-time { font-size: 24px; }
         .ws-date { text-align: left; }
     }
+
+    /* ══════════════════════════════════════════════
+       GLOBAL THEME COMPATIBILITY OVERRIDES
+       Fixes hardcoded colors in individual pages
+       ══════════════════════════════════════════════ */
+
+    /*
+     * Force white text on accent/gradient buttons regardless of page overrides.
+     * Many pages use `color: var(--navy)` which breaks in light mode
+     * because --navy becomes a light color.
+     */
+    .btn-primary,
+    .btn-primary:hover,
+    .btn-submit,
+    .btn-submit:hover,
+    .btn-add,
+    .btn-add:hover,
+    .btn-primary-scoola,
+    .btn-primary-scoola:hover {
+        color: #fff !important;
+    }
+
+    /* Override hardcoded hover backgrounds on buttons */
+    .btn-primary:hover,
+    .btn-add:hover,
+    .btn-primary-scoola:hover {
+        background: var(--gradient-accent) !important;
+        filter: brightness(1.12);
+    }
+
+    .btn-submit:hover {
+        background: var(--gradient-accent) !important;
+        filter: brightness(1.12);
+    }
+
+    /* Gradient avatar text: always white (on gradient background) */
+    .avatar-sm {
+        color: #fff !important;
+    }
+
+    /* Table cell borders — adapt for light mode */
+    [data-theme="light"] .data-table td {
+        border-bottom-color: rgba(0,0,0,0.06);
+    }
+
+    /* Filter-select and search-box option styling */
+    .filter-select option {
+        background: var(--navy2);
+        color: var(--text1);
+    }
+
+    [data-theme="light"] .filter-select option {
+        background: #ffffff;
+        color: #1e293b;
+    }
+
+    /* Light mode: ensure hover backgrounds are visible */
+    [data-theme="light"] .data-table tbody tr:hover td {
+        background: rgba(0,0,0,0.03);
+    }
+
+    [data-theme="light"] .stat-card:hover {
+        border-color: rgba(59,130,246,0.25);
+    }
+
+    /* Light mode: empty-slot dashed border */
+    [data-theme="light"] .empty-slot {
+        background: rgba(0,0,0,0.02);
+        border-color: rgba(0,0,0,0.08);
+    }
+
+    /* Light mode: search box focus */
+    [data-theme="light"] .search-box:focus-within {
+        border-color: rgba(59,130,246,0.4);
+    }
+
+    /* Calendar day-today: ensure visible text */
+    .cal-day.today {
+        color: #fff !important;
+    }
+
+    /* Print media: force readable colors (these are intentionally hardcoded for print) */
+    @media print {
+        .btn-primary, .btn-submit, .btn-add, .btn-cancel,
+        .sidebar, .topbar, .hamburger-btn,
+        .sidebar-overlay, .toolbar-right { display: none !important; }
+        .main-wrapper { margin-left: 0 !important; }
+        body { background: #fff; color: #333; }
+        .card, .info-card, .donut-card, .stat-card, .form-card {
+            border: 1px solid #ddd;
+            background: #fff;
+            box-shadow: none;
+        }
+        .data-table th, .data-table td {
+            color: #333 !important;
+            border-color: #ddd;
+        }
+        .page-title, .card-label, .cell-name, .stat-value,
+        .info-value, .donut-pct, .legend-count {
+            color: #333 !important;
+        }
+    }
 </style>

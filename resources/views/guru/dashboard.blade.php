@@ -287,7 +287,7 @@
 }
 
 .cal-day:hover { background: var(--gh); color: var(--text1); }
-.cal-day.today { background: var(--accent); color: var(--navy); font-weight: 700; }
+.cal-day.today { background: var(--accent); color: #fff; font-weight: 700; }
 .cal-day.has-event { position: relative; }
 
 .cal-day.has-event::after {

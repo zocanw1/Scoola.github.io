@@ -137,7 +137,7 @@
     }
 
     .btn-finish:hover {
-        background: #ff6b6b;
+        filter: brightness(1.2);
         transform: translateY(-1px);
         color: #fff;
     }

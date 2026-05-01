@@ -89,7 +89,7 @@
 
 .btn-primary-scoola {
     background: var(--accent);
-    color: var(--navy);
+    color: #fff;
     padding: 12px 24px;
     border-radius: 8px;
     font-weight: 700;

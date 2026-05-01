@@ -35,7 +35,7 @@
             border-radius: 7px;
             display: grid; place-items: center;
             font-size: 14px; font-weight: 800;
-            color: var(--navy);
+            color: #fff;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
@@ -84,10 +84,10 @@
             gap: 5px;
         }
 
-        .siswa-nav a:hover { color: var(--text1); background: rgba(255,255,255,0.04); }
+        .siswa-nav a:hover { color: var(--text1); background: var(--glass-hover); }
         .siswa-nav a.active {
-            background: var(--accent);
-            color: var(--navy);
+            background: var(--gradient-accent);
+            color: #fff;
         }
 
         .izin-badge {

@@ -47,7 +47,7 @@
         border: none; cursor: pointer; transition: all .2s;
         font-family: 'Inter', sans-serif;
     }
-    .btn-submit:hover { background: #4d94ff; transform: translateY(-1px); }
+    .btn-submit:hover { filter: brightness(1.15); transform: translateY(-1px); }
 
     .btn-cancel {
         display: inline-flex; align-items: center; gap: 6px;

@@ -24,7 +24,7 @@
         text-decoration: none; transition: all .2s;
         font-family: 'Inter', sans-serif; border: none; cursor: pointer;
     }
-    .btn-add:hover { background: #4d94ff; transform: translateY(-1px); color: #fff; }
+    .btn-add:hover { filter: brightness(1.15); transform: translateY(-1px); color: #fff; }
 
     /* Stats */
     .stats-row {

@@ -77,7 +77,7 @@
         gap: 7px;
         padding: 9px 18px;
         background: var(--accent);
-        color: var(--navy);
+        color: #fff;
         border: none;
         border-radius: 8px;
         font-size: 12.5px;

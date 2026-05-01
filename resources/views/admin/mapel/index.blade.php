@@ -151,7 +151,7 @@
 /* ── Primary Button ── */
 .btn-primary-scoola {
     background: var(--accent);
-    color: var(--navy);
+    color: #fff;
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 700;
@@ -162,7 +162,7 @@
     border: none;
 }
 
-.btn-primary-scoola:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(88,166,255,0.4); color: var(--navy); }
+.btn-primary-scoola:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(88,166,255,0.4); color: #fff; }
 
 /* ── Animations ── */
 @keyframes fadeInUp {

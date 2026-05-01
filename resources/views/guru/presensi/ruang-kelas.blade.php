@@ -44,7 +44,7 @@
 
     .btn-projector:hover {
         background: var(--accent);
-        color: var(--navy);
+        color: #fff;
         box-shadow: 0 4px 14px rgba(88, 166, 255, 0.3);
     }
 
@@ -66,7 +66,7 @@
 
     .btn-generate:hover {
         background: var(--green);
-        color: var(--navy);
+        color: #fff;
         box-shadow: 0 4px 14px rgba(63, 185, 80, 0.3);
     }
 
@@ -88,7 +88,7 @@
 
     .btn-stop-code:hover {
         background: var(--amber);
-        color: var(--navy);
+        color: #fff;
         box-shadow: 0 4px 14px rgba(227, 179, 65, 0.3);
     }
 
@@ -443,7 +443,7 @@
 
     .modal-btn.confirm-warn {
         background: var(--amber);
-        color: var(--navy);
+        color: #fff;
     }
 
     .modal-btn.confirm-warn:hover {
