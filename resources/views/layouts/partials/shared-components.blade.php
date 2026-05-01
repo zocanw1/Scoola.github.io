@@ -191,6 +191,15 @@
         margin-bottom: 8px;
         text-transform: uppercase;
         letter-spacing: .07em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .form-label i {
+        font-size: 13px;
+        color: var(--accent);
+        opacity: .7;
     }
 
     .form-control,
@@ -212,9 +221,24 @@
         border-color: var(--accent-glow);
         box-shadow: 0 0 0 3px rgba(96,165,250,0.1);
         background: var(--navy3);
+        color: var(--text1) !important;
     }
 
-    .form-control::placeholder { color: var(--text3); }
+    .form-control::placeholder { color: var(--text2); opacity: 0.8; }
+
+    /* Fix Autofill in Dark Mode */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+        -webkit-text-fill-color: var(--text1) !important;
+        -webkit-box-shadow: 0 0 0px 1000px var(--navy3) inset !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    ::selection {
+        background: var(--accent);
+        color: #fff;
+    }
 
     select.form-control,
     .form-select {
@@ -237,8 +261,8 @@
 
     select.form-control option:checked,
     .form-select option:checked {
-        background: #334155;
-        color: #60a5fa;
+        background: var(--accent) !important;
+        color: #fff !important;
     }
 
     select.form-control option:disabled,
