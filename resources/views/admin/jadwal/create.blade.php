@@ -476,4 +476,47 @@
     </div>
 </div>
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mapelSelect = document.querySelector('select[name="kd_mapel"]');
+    const guruSelect = document.querySelector('select[name="NIP"]');
+    
+    if (mapelSelect && guruSelect) {
+        mapelSelect.addEventListener('change', function() {
+            const kdMapel = this.value;
+            if (!kdMapel) return;
+
+            // Clear current guru options
+            guruSelect.innerHTML = '<option value="" disabled selected>-- Memuat Guru... --</option>';
+            guruSelect.disabled = true;
+
+            // Fetch gurus for selected mapel
+            fetch(`{{ url('admin/jadwal/get-guru-by-mapel') }}/${kdMapel}`)
+                .then(response => response.json())
+                .then(data => {
+                    guruSelect.innerHTML = '<option value="" disabled selected>-- Pilih Guru --</option>';
+                    
+                    if (data.length === 0) {
+                        guruSelect.innerHTML = '<option value="" disabled selected>-- Tidak ada guru untuk mapel ini --</option>';
+                    } else {
+                        data.forEach(guru => {
+                            const option = document.createElement('option');
+                            option.value = guru.NIP;
+                            option.textContent = guru.nama_guru;
+                            guruSelect.appendChild(option);
+                        });
+                    }
+                    guruSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error fetching guru:', error);
+                    guruSelect.innerHTML = '<option value="" disabled selected>-- Gagal memuat data --</option>';
+                });
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

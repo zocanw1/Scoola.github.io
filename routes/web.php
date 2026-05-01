@@ -88,6 +88,7 @@ Route::middleware('auth')->group(function () {
 
         /* ===================== JADWAL PELAJARAN ===================== */
         Route::get('/jadwal/kelas/{kelas}/{hari?}', [JadwalPelajaranController::class, 'kelas'])->name('jadwal.kelas');
+        Route::get('/jadwal/get-guru-by-mapel/{kd_mapel}', [JadwalPelajaranController::class, 'getGuruByMapel'])->name('jadwal.get-guru');
         Route::resource('jadwal', JadwalPelajaranController::class)
             ->parameters(['jadwal' => 'kd_jp'])
             ->except(['show']);

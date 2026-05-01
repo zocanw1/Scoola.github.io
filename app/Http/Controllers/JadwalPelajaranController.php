@@ -185,4 +185,15 @@ class JadwalPelajaranController extends Controller
 
         return back()->with('success', 'Jadwal berhasil dihapus');
     }
+    /* ==============================
+     * GET GURU BY MAPEL (AJAX)
+     * ============================== */
+    public function getGuruByMapel(string $kd_mapel)
+    {
+        $guru = Guru::where('kd_mapel', $kd_mapel)
+            ->orderBy('nama_guru')
+            ->get(['NIP', 'nama_guru']);
+
+        return response()->json($guru);
+    }
 }

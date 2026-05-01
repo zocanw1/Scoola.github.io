@@ -486,4 +486,57 @@
     </div>
 </div>
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mapelSelect = document.querySelector('select[name="kd_mapel"]');
+    const guruSelect = document.querySelector('select[name="NIP"]');
+    const currentNip = "{{ $jadwal->NIP }}";
+    
+    function updateGuruList(kdMapel, selectedNip = null) {
+        if (!kdMapel) return;
+
+        guruSelect.innerHTML = '<option value="" disabled>-- Memuat Guru... --</option>';
+        guruSelect.disabled = true;
+
+        fetch(`{{ url('admin/jadwal/get-guru-by-mapel') }}/${kdMapel}`)
+            .then(response => response.json())
+            .then(data => {
+                guruSelect.innerHTML = '<option value="" disabled>-- Pilih Guru --</option>';
+                
+                if (data.length === 0) {
+                    guruSelect.innerHTML = '<option value="" disabled selected>-- Tidak ada guru untuk mapel ini --</option>';
+                } else {
+                    data.forEach(guru => {
+                        const option = document.createElement('option');
+                        option.value = guru.NIP;
+                        option.textContent = guru.nama_guru;
+                        if (selectedNip && guru.NIP === selectedNip) {
+                            option.selected = true;
+                        }
+                        guruSelect.appendChild(option);
+                    });
+                }
+                guruSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error fetching guru:', error);
+                guruSelect.innerHTML = '<option value="" disabled>-- Gagal memuat data --</option>';
+            });
+    }
+
+    if (mapelSelect && guruSelect) {
+        // Initial load for edit mode
+        if (mapelSelect.value) {
+            updateGuruList(mapelSelect.value, currentNip);
+        }
+
+        mapelSelect.addEventListener('change', function() {
+            updateGuruList(this.value);
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection
