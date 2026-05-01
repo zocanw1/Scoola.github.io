@@ -185,12 +185,8 @@
             <label class="form-label">Kelas</label>
             <select name="kelas" class="form-control" required>
                 <option value="" disabled {{ old('kelas') ? '' : 'selected' }}>-- Pilih Kelas --</option>
-                <option value="X-SIJA 1" {{ old('kelas') == 'X-SIJA 1' ? 'selected' : '' }}>X-SIJA 1</option>
-                <option value="X-SIJA 2" {{ old('kelas') == 'X-SIJA 2' ? 'selected' : '' }}>X-SIJA 2</option>
                 <option value="XI-SIJA 1" {{ old('kelas') == 'XI-SIJA 1' ? 'selected' : '' }}>XI-SIJA 1</option>
                 <option value="XI-SIJA 2" {{ old('kelas') == 'XI-SIJA 2' ? 'selected' : '' }}>XI-SIJA 2</option>
-                <option value="XII-SIJA 1" {{ old('kelas') == 'XII-SIJA 1' ? 'selected' : '' }}>XII-SIJA 1</option>
-                <option value="XII-SIJA 2" {{ old('kelas') == 'XII-SIJA 2' ? 'selected' : '' }}>XII-SIJA 2</option>
             </select>
         </div>
 
@@ -214,3 +210,4 @@
 </div>
 
 @endsection
+

@@ -6,12 +6,12 @@
 @section('content')
 
 <style>
-    /* ── PAGE HEADER ─────────────────────────── */
+    /* ── PAGE HEADER ── */
     .page-header {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        margin-bottom: 24px;
+        margin-bottom: 28px;
         gap: 16px;
         flex-wrap: wrap;
     }
@@ -22,6 +22,7 @@
         font-weight: 800;
         color: var(--text1);
         line-height: 1.2;
+        letter-spacing: -0.02em;
     }
 
     .page-header-left .page-subtitle {
@@ -32,21 +33,157 @@
 
     .btn-primary {
         display: inline-flex; align-items: center; gap: 8px;
-        padding: 10px 18px; background: var(--accent); color: var(--navy);
-        border: none; border-radius: 10px; font-size: 13px; font-weight: 700;
-        text-decoration: none; transition: all .2s; white-space: nowrap;
+        padding: 11px 22px;
+        background: var(--gradient-accent, linear-gradient(135deg, #60a5fa, #818cf8));
+        color: #fff;
+        border: none; border-radius: 12px;
+        font-size: 13px; font-weight: 700;
+        text-decoration: none; transition: all .25s;
+        white-space: nowrap;
+        box-shadow: 0 2px 10px rgba(96,165,250,0.25);
     }
 
-    .btn-primary:hover { background: #79baff; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(88,166,255,0.4); }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(96,165,250,0.4);
+        color: #fff;
+    }
 
-    /* ── SCHEDULE GRID ─────────────────────────── */
+    /* ── CLASS / DAY SELECTOR ── */
+    .selector-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .selector-card {
+        background: var(--navy2);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 24px 20px;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .selector-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: var(--gradient-accent, linear-gradient(135deg, #60a5fa, #818cf8));
+        opacity: 0;
+        transition: opacity .3s;
+    }
+
+    .selector-card:hover {
+        border-color: rgba(96,165,250,0.3);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+    }
+
+    .selector-card:hover::before { opacity: 1; }
+
+    .selector-icon {
+        width: 56px; height: 56px;
+        border-radius: 14px;
+        display: grid; place-items: center;
+        font-size: 24px;
+        transition: all .3s;
+    }
+
+    .selector-icon.blue {
+        background: var(--accent-soft, rgba(96,165,250,0.1));
+        color: var(--accent);
+    }
+
+    .selector-icon.purple {
+        background: var(--purple-soft, rgba(188,140,255,0.1));
+        color: var(--purple);
+    }
+
+    .selector-card:hover .selector-icon {
+        transform: scale(1.08);
+    }
+
+    .selector-name {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 17px; font-weight: 800;
+        color: var(--text1);
+        text-align: center;
+    }
+
+    .selector-count {
+        font-size: 11.5px;
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+    }
+
+    .selector-cta {
+        font-size: 11px; font-weight: 700;
+        color: var(--accent);
+        background: var(--accent-soft, rgba(96,165,250,0.08));
+        padding: 5px 14px;
+        border-radius: 20px;
+        display: flex; align-items: center; gap: 5px;
+        transition: all .2s;
+    }
+
+    .selector-card:hover .selector-cta {
+        background: var(--accent);
+        color: #fff;
+    }
+
+    /* ── CLASS SELECTOR TABS ── */
+    .class-selector {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 26px;
+        flex-wrap: wrap;
+    }
+
+    .class-btn {
+        padding: 8px 20px;
+        background: var(--navy3);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        color: var(--text2);
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .class-btn:hover {
+        border-color: rgba(96,165,250,0.3);
+        color: var(--text1);
+        background: var(--accent-soft, rgba(96,165,250,0.08));
+    }
+
+    .class-btn.active {
+        background: var(--gradient-accent, linear-gradient(135deg, #60a5fa, #818cf8));
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 3px 12px rgba(96,165,250,0.3);
+    }
+
+    /* ── SCHEDULE CONTAINER ── */
     .schedule-container {
         background: var(--navy2);
         border: 1px solid var(--glass-border);
         border-radius: 16px;
         overflow: hidden;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        margin-bottom: 28px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     }
 
     .schedule-header {
@@ -55,7 +192,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: rgba(255,255,255,0.03);
+        background: var(--glass, rgba(255,255,255,0.02));
     }
 
     .schedule-title {
@@ -69,25 +206,36 @@
 
     .schedule-title i { color: var(--accent); font-size: 18px; }
 
+    .semester-badge {
+        font-size: 11px;
+        color: var(--text3);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        background: var(--navy3);
+        padding: 4px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--glass-border);
+    }
+
     .grid-wrap {
         overflow-x: auto;
-        padding: 24px;
+        padding: 20px;
         scrollbar-width: thin;
         scrollbar-color: var(--glass-border) transparent;
     }
 
     .visual-grid {
         width: 100%;
-        min-width: 1200px;
+        min-width: 1100px;
         border-collapse: separate;
-        border-spacing: 8px;
+        border-spacing: 6px;
         table-layout: fixed;
     }
 
     .visual-grid th {
-        padding: 12px;
+        padding: 10px;
         text-align: center;
-        font-size: 11px;
+        font-size: 10.5px;
         font-weight: 700;
         color: var(--text3);
         text-transform: uppercase;
@@ -95,13 +243,13 @@
     }
 
     .visual-grid td {
-        height: 90px;
+        height: 85px;
         vertical-align: top;
         position: relative;
     }
 
     .day-cell {
-        width: 110px;
+        width: 100px;
         background: var(--navy3);
         border: 1px solid var(--glass-border);
         border-radius: 10px;
@@ -111,8 +259,8 @@
         font-weight: 800;
         color: var(--text1);
         font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 14px;
-        box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+        font-size: 13px;
+        box-shadow: inset 0 0 12px rgba(0,0,0,0.08);
     }
 
     .lesson-card {
@@ -125,16 +273,17 @@
         flex-direction: column;
         justify-content: center;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        border-left: 5px solid var(--accent);
+        border-left: 4px solid var(--accent);
         cursor: pointer;
+        position: relative;
     }
 
     .lesson-card:hover {
         background: var(--glass-hover);
-        border-color: rgba(88,166,255,0.5);
-        transform: scale(1.02);
+        border-color: rgba(96,165,250,0.4);
+        transform: scale(1.03);
         z-index: 10;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.25);
     }
 
     .mapel-name {
@@ -142,225 +291,229 @@
         font-size: 13px;
         color: var(--text1);
         line-height: 1.3;
-        margin-bottom: 6px;
+        margin-bottom: 5px;
     }
 
     .guru-name {
-        font-size: 11px;
+        font-size: 11.5px;
         color: var(--text2);
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
     }
 
     .ruangan-tag {
         font-size: 10px;
-        background: rgba(88,166,255,0.12);
+        background: var(--accent-soft, rgba(96,165,250,0.08));
         color: var(--accent);
         padding: 3px 8px;
         border-radius: 6px;
         font-weight: 700;
-        margin-top: 8px;
+        margin-top: 6px;
         align-self: flex-start;
-        border: 1px solid rgba(88,166,255,0.1);
     }
 
     .empty-slot {
         background: rgba(255,255,255,0.015);
-        border: 1px dashed rgba(255,255,255,0.08);
+        border: 1px dashed rgba(255,255,255,0.06);
         border-radius: 10px;
         height: 100%;
     }
 
-    /* Color variations */
-    .lesson-card.color-1 { border-left-color: #58a6ff; }
-    .lesson-card.color-2 { border-left-color: #bc8cff; }
-    .lesson-card.color-3 { border-left-color: #3fb950; }
-    .lesson-card.color-4 { border-left-color: #e3b341; }
-    .lesson-card.color-5 { border-left-color: #f78166; }
-
-    /* ── CLASS SELECTOR ─────────────────────────── */
-    .class-selector {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 24px;
-        flex-wrap: wrap;
+    [data-theme="light"] .empty-slot {
+        background: rgba(0,0,0,0.015);
+        border-color: rgba(0,0,0,0.06);
     }
 
-    .class-btn {
-        padding: 8px 18px;
-        background: var(--navy3);
-        border: 1px solid var(--glass-border);
-        border-radius: 12px;
-        color: var(--text2);
-        font-size: 13px;
-        font-weight: 600;
+    .lesson-card.color-1 { border-left-color: #60a5fa; }
+    .lesson-card.color-2 { border-left-color: #a78bfa; }
+    .lesson-card.color-3 { border-left-color: #34d399; }
+    .lesson-card.color-4 { border-left-color: #fbbf24; }
+    .lesson-card.color-5 { border-left-color: #f87171; }
+
+    /* ── BACK LINK ── */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text3);
         text-decoration: none;
-        transition: all 0.2s;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 20px;
+        transition: color .2s;
+        padding: 6px 0;
     }
 
-    .class-btn.active {
-        background: var(--accent);
-        color: var(--navy);
-        border-color: var(--accent);
-        box-shadow: 0 4px 12px rgba(88,166,255,0.3);
-    }
+    .back-link:hover { color: var(--accent); }
 
-    /* ── LIST VIEW CARD ─────────────────────────── */
-    .list-card {
-        background: var(--navy2);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        overflow: hidden;
-        margin-top: 40px;
-    }
-
-    .list-header {
-        padding: 16px 24px;
-        border-bottom: 1px solid var(--glass-border);
-        background: rgba(255,255,255,0.02);
+    /* ── FLASH SUCCESS ── */
+    .flash-success {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-    }
-
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .data-table th {
+        gap: 12px;
         padding: 14px 20px;
-        background: rgba(0,0,0,0.1);
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--text3);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        text-align: left;
-    }
-
-    .data-table td {
-        padding: 14px 20px;
-        border-bottom: 1px solid rgba(255,255,255,0.03);
-        color: var(--text2);
-        font-size: 13px;
-    }
-
-    .data-table tr:hover td {
-        background: rgba(255,255,255,0.02);
-        color: var(--text1);
-    }
-
-    .jam-badge {
-        background: rgba(63,185,80,0.1);
+        background: var(--green-soft, rgba(52,211,153,0.08));
+        border: 1px solid rgba(52,211,153,0.2);
+        border-radius: 12px;
         color: var(--green);
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 12px;
-        border: 1px solid rgba(63,185,80,0.15);
+        font-size: 13.5px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        animation: fadeInUp .3s ease;
     }
 
-    .hari-badge {
-        background: rgba(88,166,255,0.1);
-        color: var(--accent);
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 12px;
-        border: 1px solid rgba(88,166,255,0.15);
+    .flash-success i { font-size: 18px; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            gap: 14px;
+        }
+        .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+        .selector-grid {
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .class-selector {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            scrollbar-width: none;
+            padding-bottom: 4px;
+        }
+        .class-selector::-webkit-scrollbar { display: none; }
+        .class-btn { flex-shrink: 0; }
     }
+
+    /* ── ANIMATION ── */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .fi { animation: fadeInUp .35s ease both; }
+    .fi.d1 { animation-delay: .05s; }
+    .fi.d2 { animation-delay: .1s; }
+    .fi.d3 { animation-delay: .15s; }
+
+    .selector-card {
+        animation: fadeInUp .4s ease both;
+    }
+    @for ($i = 1; $i <= 10; $i++)
+    .selector-card:nth-child({{ $i }}) { animation-delay: {{ ($i - 1) * 60 }}ms; }
+    @endfor
 </style>
 
+{{-- FLASH SUCCESS --}}
 @if (session('success'))
-    <div style="display:flex; align-items:center; gap:12px; padding:14px 20px; background:rgba(63,185,80,0.12); border:1px solid rgba(63,185,80,0.25); border-radius:12px; color:var(--green); font-size:14px; margin-bottom:24px; animation: slideIn 0.3s ease;">
-        <i class="bi bi-check-circle-fill" style="font-size:18px"></i>
-        <span style="font-weight:600">{{ session('success') }}</span>
+    <div class="flash-success">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>{{ session('success') }}</span>
     </div>
 @endif
 
-<div class="page-header">
+{{-- PAGE HEADER --}}
+<div class="page-header fi">
     <div class="page-header-left">
-        <div class="page-title">Jadwal Pelajaran</div>
+        <div class="page-title">
+            <i class="bi bi-calendar3" style="color:var(--accent); margin-right:4px"></i>
+            Jadwal Pelajaran
+        </div>
         <div class="page-subtitle">Kelola dan visualisasikan jadwal pelajaran sekolah secara terorganisir</div>
     </div>
-    <a href="{{ route('jadwal.create') }}" class="btn-primary">
+    @php
+        $createUrlParams = [];
+        if(isset($kelas)) $createUrlParams['kelas'] = $kelas;
+        if(isset($hari)) $createUrlParams['hari'] = $hari;
+    @endphp
+    <a href="{{ route('jadwal.create', $createUrlParams) }}" class="btn-primary">
         <i class="bi bi-plus-lg"></i> Tambah Jadwal Baru
     </a>
 </div>
 
-{{-- CLASS SELECTOR --}}
-<div class="class-selector">
-    <a href="{{ route('jadwal.index') }}" class="class-btn {{ !isset($kelas) ? 'active' : '' }}">Semua Kelas</a>
+{{-- CLASS SELECTOR TABS --}}
+<div class="class-selector fi d1">
+    <a href="{{ route('jadwal.index') }}" class="class-btn {{ !isset($kelas) ? 'active' : '' }}">
+        <i class="bi bi-grid-3x3-gap" style="margin-right:4px"></i> Semua Kelas
+    </a>
     @php
         $allClasses = \App\Models\JadwalPelajaran::distinct()->pluck('kelas')->sort();
     @endphp
     @foreach($allClasses as $c)
-        <a href="{{ route('jadwal.kelas', $c) }}" class="class-btn {{ (isset($kelas) && $kelas == $c) ? 'active' : '' }}">{{ $c }}</a>
+        <a href="{{ route('jadwal.kelas', $c) }}" class="class-btn {{ (isset($kelas) && $kelas == $c) ? 'active' : '' }}">
+            {{ $c }}
+        </a>
     @endforeach
 </div>
 
+{{-- ═══════════ VIEW 1: ALL CLASSES DASHBOARD ═══════════ --}}
 @if(!isset($kelas))
-    {{-- DASHBOARD VIEW: CHOOSE CLASS --}}
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-bottom: 40px;">
+    <div class="selector-grid fi d2">
         @foreach($allClasses as $c)
             @php
                 $count = \App\Models\JadwalPelajaran::where('kelas', $c)->count();
             @endphp
-            <a href="{{ route('jadwal.kelas', $c) }}" class="schedule-container" style="text-decoration:none; padding:24px; display:flex; flex-direction:column; align-items:center; gap:16px; transition:all 0.3s; margin-bottom:0; cursor:pointer; background: var(--navy3);">
-                <div style="width:64px; height:64px; border-radius:16px; background:rgba(88,166,255,0.1); color:var(--accent); display:grid; place-items:center; font-size:28px; transition:all 0.3s;" class="class-icon">
+            <a href="{{ route('jadwal.kelas', $c) }}" class="selector-card">
+                <div class="selector-icon blue">
                     <i class="bi bi-building"></i>
                 </div>
-                <div style="text-align:center">
-                    <div style="font-size:18px; font-weight:800; color:var(--text1)">{{ $c }}</div>
-                    <div style="font-size:12px; color:var(--text3); text-transform:uppercase; margin-top:4px; letter-spacing:0.05em">{{ $count }} Mata Pelajaran</div>
+                <div class="selector-name">{{ $c }}</div>
+                <div class="selector-count">{{ $count }} Mata Pelajaran</div>
+                <div class="selector-cta">
+                    Lihat Jadwal <i class="bi bi-arrow-right"></i>
                 </div>
-                <div style="margin-top:8px; font-size:11px; font-weight:700; color:var(--accent); background:rgba(88,166,255,0.1); padding:4px 12px; border-radius:20px;">LIHAT JADWAL <i class="bi bi-arrow-right" style="margin-left:4px"></i></div>
             </a>
         @endforeach
     </div>
 @endif
 
+{{-- ═══════════ VIEW 2: CHOOSE DAY ═══════════ --}}
 @if(isset($kelas) && !isset($hari))
-    {{-- DASHBOARD VIEW: CHOOSE DAY --}}
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px;">
-        @php
-            $daysList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
-        @endphp
-        @foreach($daysList as $d)
-            @php
-                $countDay = \App\Models\JadwalPelajaran::where('kelas', $kelas)->where('hari', $d)->count();
-            @endphp
-            <a href="{{ route('jadwal.kelas', ['kelas' => $kelas, 'hari' => $d]) }}" class="schedule-container" style="text-decoration:none; padding:24px; display:flex; flex-direction:column; align-items:center; gap:16px; transition:all 0.3s; margin-bottom:0; cursor:pointer; background: var(--navy3);">
-                <div style="width:64px; height:64px; border-radius:16px; background:rgba(88,166,255,0.1); color:var(--accent); display:grid; place-items:center; font-size:28px; transition:all 0.3s;" class="class-icon">
-                    <i class="bi bi-calendar-event"></i>
-                </div>
-                <div style="text-align:center">
-                    <div style="font-size:18px; font-weight:800; color:var(--text1)">{{ $d }}</div>
-                    <div style="font-size:12px; color:var(--text3); text-transform:uppercase; margin-top:4px; letter-spacing:0.05em">{{ $countDay }} Mata Pelajaran</div>
-                </div>
-                <div style="margin-top:8px; font-size:11px; font-weight:700; color:var(--accent); background:rgba(88,166,255,0.1); padding:4px 12px; border-radius:20px;">LIHAT JADWAL HARI INI <i class="bi bi-arrow-right" style="margin-left:4px"></i></div>
-            </a>
-        @endforeach
-    </div>
-@endif
-
-@if(isset($kelas) && isset($hari))
-    <div style="margin-bottom: 20px;">
-        <a href="{{ route('jadwal.kelas', $kelas) }}" style="color:var(--text2); text-decoration:none; font-size:14px; display:inline-flex; align-items:center; gap:6px;">
-            <i class="bi bi-arrow-left"></i> Kembali ke Pilihan Hari
+    <div class="back-link fi">
+        <a href="{{ route('jadwal.index') }}" class="back-link">
+            <i class="bi bi-arrow-left"></i> Kembali ke Semua Kelas
         </a>
     </div>
 
-    {{-- VISUAL GRID FOR SPECIFIC CLASS AND DAY --}}
-    <div class="schedule-container">
+    <div class="selector-grid fi d2">
+        @php
+            $daysList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+            $dayIcons = ['bi-1-circle', 'bi-2-circle', 'bi-3-circle', 'bi-4-circle', 'bi-5-circle'];
+        @endphp
+        @foreach($daysList as $idx => $d)
+            @php
+                $countDay = \App\Models\JadwalPelajaran::where('kelas', $kelas)->where('hari', $d)->count();
+            @endphp
+            <a href="{{ route('jadwal.kelas', ['kelas' => $kelas, 'hari' => $d]) }}" class="selector-card">
+                <div class="selector-icon purple">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+                <div class="selector-name">{{ $d }}</div>
+                <div class="selector-count">{{ $countDay }} Mata Pelajaran</div>
+                <div class="selector-cta">
+                    Lihat Jadwal <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+        @endforeach
+    </div>
+@endif
+
+{{-- ═══════════ VIEW 3: SPECIFIC DAY VISUAL GRID ═══════════ --}}
+@if(isset($kelas) && isset($hari))
+    <a href="{{ route('jadwal.kelas', $kelas) }}" class="back-link fi">
+        <i class="bi bi-arrow-left"></i> Kembali ke Pilihan Hari
+    </a>
+
+    <div class="schedule-container fi d1">
         <div class="schedule-header">
             <div class="schedule-title">
                 <i class="bi bi-calendar3"></i>
-                Visualisasi Jadwal: <span style="color:var(--accent); margin-left:4px">{{ $kelas }} - Hari {{ $hari }}</span>
+                Jadwal: <span style="color:var(--accent); margin-left:4px">{{ $kelas }} — {{ $hari }}</span>
             </div>
-            <div style="font-size: 11px; color: var(--text3); font-weight: 700; letter-spacing:0.1em">
+            <div class="semester-badge">
                 GASAL 2025/2026
             </div>
         </div>
@@ -369,7 +522,7 @@
             <table class="visual-grid">
                 <thead>
                     <tr>
-                        <th style="width: 110px;">HARI</th>
+                        <th style="width: 100px;">HARI</th>
                         @for($i=1; $i<=12; $i++)
                             <th>JAM {{ $i }}</th>
                         @endfor
@@ -414,7 +567,7 @@
                                             @if($lesson->ruangan)
                                                 <div class="ruangan-tag"><i class="bi bi-geo-alt-fill" style="margin-right:3px"></i>{{ $lesson->ruangan }}</div>
                                             @endif
-                                            
+
                                             <div style="position:absolute; top:8px; right:10px; display:flex; gap:6px; opacity:0.3" class="card-actions">
                                                 <i class="bi bi-pencil-square"></i>
                                             </div>
@@ -432,7 +585,4 @@
     </div>
 @endif
 
-
-
 @endsection
-

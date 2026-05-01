@@ -14,6 +14,7 @@ class SesiPresensi extends Model
     protected $fillable = [
         'guru_id',
         'kelas',
+        'kd_jp',
         'kode_presensi',
         'waktu_berlaku',
         'status',
@@ -26,5 +27,10 @@ class SesiPresensi extends Model
     public function guru()
     {
         return $this->belongsTo(User::class, 'guru_id');
+    }
+
+    public function jadwal()
+    {
+        return $this->belongsTo(JadwalPelajaran::class, 'kd_jp', 'kd_jp');
     }
 }

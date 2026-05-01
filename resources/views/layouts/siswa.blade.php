@@ -17,6 +17,7 @@
 
     @include('layouts.partials.theme-tokens')
     @include('layouts.partials.topbar-styles')
+    @include('layouts.partials.shared-components')
 
     <style>
         body { overflow-x: hidden; }

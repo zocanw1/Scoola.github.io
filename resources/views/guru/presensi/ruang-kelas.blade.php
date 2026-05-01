@@ -481,7 +481,7 @@
 {{-- Header --}}
 <div class="page-header fi">
     <div>
-        <div class="page-title">Ruang Kelas: {{ $sesi->kelas }}</div>
+        <div class="page-title">Ruang Kelas: {{ $sesi->jadwal ? $sesi->jadwal->mapel->nama_mapel . ' (' . $sesi->kelas . ')' : $sesi->kelas }}</div>
         <div class="page-subtitle">Sesi Aktif | Guru: {{ auth()->user()->name }}</div>
     </div>
 

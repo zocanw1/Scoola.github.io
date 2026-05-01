@@ -116,7 +116,7 @@ class SiswaPresensiController extends Controller
                 'kd_presensi' => $kd_presensi,
                 'sesi_id' => $sesi->id,
                 'tanggal' => $today,
-                'kd_jp' => null,
+                'kd_jp' => $sesi->kd_jp,
                 'jam_masuk' => Carbon::now()->format('H:i:s'),
                 'status' => $statusPresensi,
                 'NIS' => $siswa->NIS,

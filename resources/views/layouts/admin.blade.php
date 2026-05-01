@@ -18,6 +18,7 @@
     @include('layouts.partials.theme-tokens')
     @include('layouts.partials.sidebar-styles')
     @include('layouts.partials.topbar-styles')
+    @include('layouts.partials.shared-components')
 </head>
 <body>
 

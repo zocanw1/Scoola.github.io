@@ -3,64 +3,151 @@
 @section('content')
 
 <style>
-    /* ── PAGE HEADER ─────────────────────────── */
+    /* ── PAGE HEADER ── */
     .page-header {
-        margin-bottom: 24px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        gap: 16px;
+        flex-wrap: wrap;
     }
 
-    .page-title {
+    .page-header-left .page-title {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 800;
         color: var(--text1);
         line-height: 1.2;
+        letter-spacing: -0.02em;
     }
 
-    .page-subtitle {
-        font-size: 12px;
+    .page-header-left .page-subtitle {
+        font-size: 13px;
         color: var(--text2);
         margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
-    /* ── FORM CARD ─────────────────────────── */
+    /* ── BREADCRUMB ── */
+    .breadcrumb-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        font-size: 12.5px;
+    }
+
+    .breadcrumb-nav a {
+        color: var(--text3);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color .2s;
+    }
+
+    .breadcrumb-nav a:hover { color: var(--accent); }
+
+    .breadcrumb-nav .sep {
+        color: var(--text3);
+        opacity: 0.4;
+        font-size: 10px;
+    }
+
+    .breadcrumb-nav .current {
+        color: var(--text1);
+        font-weight: 600;
+    }
+
+    /* ── FORM CARD ── */
     .form-card {
         background: var(--navy2);
         border: 1px solid var(--glass-border);
         border-radius: var(--r);
-        padding: 24px;
-        max-width: 800px;
+        max-width: 820px;
+        overflow: hidden;
     }
 
+    .form-card-header {
+        padding: 20px 28px;
+        border-bottom: 1px solid var(--glass-border);
+        background: var(--glass);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .form-card-header-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba(227,179,65,0.12);
+        color: var(--amber);
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .form-card-header-text h3 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text1);
+        margin: 0;
+    }
+
+    .form-card-header-text p {
+        font-size: 12px;
+        color: var(--text2);
+        margin: 2px 0 0;
+    }
+
+    .form-card-body {
+        padding: 28px;
+    }
+
+    /* ── FORM ELEMENTS ── */
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 22px;
     }
 
     .form-label {
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: 6px;
         font-size: 11.5px;
-        font-weight: 600;
+        font-weight: 700;
         color: var(--text2);
         margin-bottom: 8px;
         text-transform: uppercase;
-        letter-spacing: .06em;
+        letter-spacing: .07em;
+    }
+
+    .form-label i {
+        font-size: 13px;
+        color: var(--accent);
+        opacity: .6;
     }
 
     .form-control {
         width: 100%;
-        background: var(--navy3);
+        background: var(--input-bg);
         border: 1px solid var(--glass-border);
-        border-radius: 8px;
-        padding: 10px 14px;
+        border-radius: 10px;
+        padding: 12px 16px;
         color: var(--text1);
-        font-size: 13px;
+        font-size: 13.5px;
         font-family: 'Inter', sans-serif;
-        transition: all .2s;
+        transition: all .25s;
         outline: none;
     }
 
     .form-control:focus {
-        border-color: rgba(88,166,255,.4);
-        box-shadow: 0 0 0 3px rgba(88,166,255,.1);
+        border-color: rgba(96,165,250,.4);
+        box-shadow: 0 0 0 3px rgba(96,165,250,.1);
+        background: var(--navy3);
     }
 
     .form-control::placeholder {
@@ -69,63 +156,93 @@
 
     select.form-control {
         appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%238b949e' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 14px center;
         background-size: 12px 12px;
-        padding-right: 40px;
-    }
-    
-    [data-theme="light"] select.form-control {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%2357606a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+        padding-right: 42px;
+        cursor: pointer;
     }
 
-    /* ── ACTION BUTTONS ─────────────────────────── */
+    select.form-control option {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 10px 14px;
+    }
+
+    select.form-control option:checked {
+        background: #334155;
+        color: #60a5fa;
+    }
+
+    select.form-control option:disabled {
+        color: #64748b;
+    }
+
+    [data-theme="light"] select.form-control {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+    }
+
+    [data-theme="light"] select.form-control option {
+        background: #ffffff;
+        color: #1e293b;
+    }
+
+    [data-theme="light"] select.form-control option:checked {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    [data-theme="light"] select.form-control option:disabled {
+        color: #94a3b8;
+    }
+
+    /* ── ACTION BUTTONS ── */
     .form-actions {
         display: flex;
         gap: 12px;
         margin-top: 28px;
-        padding-top: 20px;
+        padding-top: 22px;
         border-top: 1px solid var(--glass-border);
     }
 
     .btn-submit {
         display: inline-flex;
         align-items: center;
-        gap: 7px;
-        padding: 9px 18px;
-        background: var(--accent);
-        color: var(--navy);
+        gap: 8px;
+        padding: 11px 24px;
+        background: var(--gradient-accent, linear-gradient(135deg, #60a5fa, #818cf8));
+        color: #fff;
         border: none;
-        border-radius: 8px;
-        font-size: 12.5px;
+        border-radius: 10px;
+        font-size: 13px;
         font-weight: 700;
         font-family: 'Inter', sans-serif;
         cursor: pointer;
-        transition: all .2s;
+        transition: all .25s;
+        box-shadow: 0 2px 10px rgba(96,165,250,0.25);
     }
 
     .btn-submit:hover {
-        background: #79baff;
-        color: var(--navy);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 14px rgba(88,166,255,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(96,165,250,0.4);
     }
 
     .btn-cancel {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 9px 18px;
+        gap: 6px;
+        padding: 11px 24px;
         background: var(--navy3);
         border: 1px solid var(--glass-border);
         color: var(--text2);
-        border-radius: 8px;
-        font-size: 12.5px;
-        font-weight: 500;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
         font-family: 'Inter', sans-serif;
         text-decoration: none;
-        transition: all .2s;
+        transition: all .25s;
     }
 
     .btn-cancel:hover {
@@ -134,163 +251,326 @@
         border-color: var(--text3);
     }
 
-    /* ── ALERT ─────────────────────────── */
+    /* ── GRID ── */
+    .grid-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 24px;
+    }
+
+    /* ── ALERTS ── */
     .alert-danger {
-        background: rgba(248,81,73,0.1);
-        border: 1px solid rgba(248,81,73,0.2);
-        border-radius: 8px;
-        padding: 14px 18px;
+        background: var(--red-soft, rgba(248,81,73,0.08));
+        border: 1px solid rgba(248,113,113,0.2);
+        border-radius: 12px;
+        padding: 16px 20px;
         margin-bottom: 24px;
-        max-width: 800px;
+        max-width: 820px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .alert-danger-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(248,113,113,0.15);
+        color: var(--red);
+        display: grid;
+        place-items: center;
+        font-size: 14px;
+        flex-shrink: 0;
     }
 
     .alert-danger ul {
         margin: 0;
-        padding-left: 20px;
+        padding-left: 16px;
         color: var(--red);
-        font-size: 12.5px;
+        font-size: 13px;
+        line-height: 1.6;
     }
 
-    .grid-form {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0 20px;
+    .alert-warning-card {
+        background: rgba(227,179,65,0.06);
+        border: 1px solid rgba(227,179,65,0.2);
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        max-width: 820px;
     }
+
+    .alert-warning-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .alert-warning-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(227,179,65,0.15);
+        color: var(--amber);
+        display: grid;
+        place-items: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .alert-warning-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--amber);
+    }
+
+    .alert-warning-body {
+        font-size: 13px;
+        color: var(--text2);
+        margin-bottom: 16px;
+        padding-left: 42px;
+        line-height: 1.5;
+    }
+
+    .alert-warning-actions {
+        padding-left: 42px;
+    }
+
+    .btn-warning {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--amber);
+        color: #1a1a2e;
+        border: none;
+        padding: 9px 18px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all .2s;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .btn-warning:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(227,179,65,0.3);
+    }
+
+    /* ── CURRENT VALUE BADGE ── */
+    .current-value {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 10.5px;
+        font-weight: 600;
+        color: var(--accent);
+        background: var(--accent-soft, rgba(96,165,250,0.08));
+        padding: 3px 10px;
+        border-radius: 6px;
+        margin-left: auto;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+        .grid-form {
+            grid-template-columns: 1fr;
+        }
+        .form-card-body {
+            padding: 20px 18px;
+        }
+        .form-actions {
+            flex-direction: column;
+        }
+        .btn-submit, .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* ── ANIMATION ── */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .fi { animation: fadeInUp .35s ease both; }
+    .fi.d1 { animation-delay: .05s; }
+    .fi.d2 { animation-delay: .1s; }
 </style>
 
-<div class="page-header">
-    <div class="page-title">Edit Jadwal Pelajaran</div>
-    <div class="page-subtitle">Perbarui jadwal pelajaran untuk kelas {{ $jadwal->kelas }}</div>
+{{-- BREADCRUMB --}}
+<div class="breadcrumb-nav fi">
+    <a href="{{ route('jadwal.index') }}"><i class="bi bi-calendar3"></i> Jadwal</a>
+    <span class="sep"><i class="bi bi-chevron-right"></i></span>
+    <a href="{{ route('jadwal.kelas', $jadwal->kelas) }}">{{ $jadwal->kelas }}</a>
+    <span class="sep"><i class="bi bi-chevron-right"></i></span>
+    <span class="current">Edit Jadwal</span>
 </div>
 
+{{-- PAGE HEADER --}}
+<div class="page-header fi">
+    <div class="page-header-left">
+        <div class="page-title">Edit Jadwal Pelajaran</div>
+        <div class="page-subtitle">
+            <i class="bi bi-pencil-square"></i>
+            Perbarui jadwal untuk kelas {{ $jadwal->kelas }}
+        </div>
+    </div>
+</div>
+
+{{-- VALIDATION ERRORS --}}
 @if ($errors->any())
-    <div class="alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+    <div class="alert-danger fi d1">
+        <div class="alert-danger-icon"><i class="bi bi-exclamation-circle-fill"></i></div>
+        <div>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
     </div>
 @endif
 
+{{-- COLLISION WARNING --}}
 @if (session('confirm_replace'))
-    <div class="alert-warning" style="background: rgba(227, 179, 65, 0.1); border: 1px solid rgba(227, 179, 65, 0.3); border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; max-width: 800px;">
-        <div style="color: var(--yellow); font-weight: 700; margin-bottom: 8px; font-size: 14px; display:flex; align-items:center; gap:6px;">
-            <i class="bi bi-exclamation-triangle-fill"></i> Peringatan Jadwal Bentrok
+    <div class="alert-warning-card fi d1">
+        <div class="alert-warning-header">
+            <div class="alert-warning-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="alert-warning-title">Peringatan Jadwal Bentrok</div>
         </div>
-        <div style="color: var(--text2); font-size: 13px; margin-bottom: 16px;">
+        <div class="alert-warning-body">
             {{ session('confirm_replace') }}
         </div>
-        <form action="{{ route('jadwal.update', $jadwal->kd_jp) }}" method="POST" style="display: inline-block;">
-            @csrf
-            @method('PUT')
-            <input type="hidden" name="hari" value="{{ old('hari') }}">
-            <input type="hidden" name="kelas" value="{{ old('kelas') }}">
-            <input type="hidden" name="jam_mulai" value="{{ old('jam_mulai') }}">
-            <input type="hidden" name="jam_selesai" value="{{ old('jam_selesai') }}">
-            <input type="hidden" name="kd_mapel" value="{{ old('kd_mapel') }}">
-            <input type="hidden" name="NIP" value="{{ old('NIP') }}">
-            <input type="hidden" name="force" value="1">
-            <button type="submit" style="background: var(--yellow); color: var(--navy); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s;">
-                <i class="bi bi-check-circle-fill" style="margin-right: 4px;"></i> Ya, Tetap Simpan & Ganti
-            </button>
-        </form>
+        <div class="alert-warning-actions">
+            <form action="{{ route('jadwal.update', $jadwal->kd_jp) }}" method="POST" style="display: inline-block;">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="hari" value="{{ old('hari') }}">
+                <input type="hidden" name="kelas" value="{{ old('kelas') }}">
+                <input type="hidden" name="jam_mulai" value="{{ old('jam_mulai') }}">
+                <input type="hidden" name="jam_selesai" value="{{ old('jam_selesai') }}">
+                <input type="hidden" name="kd_mapel" value="{{ old('kd_mapel') }}">
+                <input type="hidden" name="NIP" value="{{ old('NIP') }}">
+                <input type="hidden" name="force" value="1">
+                <button type="submit" class="btn-warning">
+                    <i class="bi bi-check-circle-fill"></i> Ya, Tetap Simpan & Ganti
+                </button>
+            </form>
+        </div>
     </div>
 @endif
 
-<div class="form-card">
-    <form action="{{ route('jadwal.update', $jadwal->kd_jp) }}" method="POST">
-        @csrf
-        @method('PUT')
+{{-- FORM CARD --}}
+<div class="form-card fi d2">
+    <div class="form-card-header">
+        <div class="form-card-header-icon"><i class="bi bi-pencil-square"></i></div>
+        <div class="form-card-header-text">
+            <h3>Edit Detail Jadwal</h3>
+            <p>Kode Jadwal: <strong>{{ $jadwal->kd_jp }}</strong></p>
+        </div>
+    </div>
 
-        <div class="grid-form">
-            <div class="form-group">
-                <label class="form-label">Hari</label>
-                <select name="hari" class="form-control" required>
-                    @php
-                        $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
-                    @endphp
+    <div class="form-card-body">
+        <form action="{{ route('jadwal.update', $jadwal->kd_jp) }}" method="POST">
+            @csrf
+            @method('PUT')
 
-                    @foreach($hariList as $h)
-                        <option value="{{ $h }}" @selected(old('hari', $jadwal->hari) == $h)>
-                            {{ $h }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Kelas</label>
-                <select name="kelas" class="form-control" required>
-                    @php
-                        $tingkatan = ['X', 'XI', 'XII'];
-                        $jurusan = 'SIJA';
-                        $rombel = [1, 2];
-                    @endphp
-
-                    @foreach ($tingkatan as $t)
-                        @foreach ($rombel as $r)
-                            @php $kls = "$t-$jurusan $r"; @endphp
-                            <option value="{{ $kls }}" @selected(old('kelas', $jadwal->kelas) == $kls)>
-                                {{ $kls }}
+            <div class="grid-form">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-calendar-event"></i> Hari
+                        <span class="current-value">{{ $jadwal->hari }}</span>
+                    </label>
+                    <select name="hari" class="form-control" required>
+                        @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'] as $h)
+                            <option value="{{ $h }}" @selected(old('hari', $jadwal->hari) == $h)>
+                                {{ $h }}
                             </option>
                         @endforeach
-                    @endforeach
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Jam Ke (Mulai)</label>
-                <input type="number" 
-                       name="jam_mulai" 
-                       class="form-control" 
-                       min="1" 
-                       max="12" 
-                       value="{{ old('jam_mulai', $jadwal->jam_mulai) }}" 
-                       required>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-building"></i> Kelas
+                        <span class="current-value">{{ $jadwal->kelas }}</span>
+                    </label>
+                    <select name="kelas" class="form-control" required>
+                        @php
+                            $tingkatan = ['XI'];
+                            $jurusan = 'SIJA';
+                            $rombel = [1, 2];
+                        @endphp
+                        @foreach ($tingkatan as $t)
+                            @foreach ($rombel as $r)
+                                @php $kls = "$t-$jurusan $r"; @endphp
+                                <option value="{{ $kls }}" @selected(old('kelas', $jadwal->kelas) == $kls)>
+                                    {{ $kls }}
+                                </option>
+                            @endforeach
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-clock"></i> Jam Ke (Mulai)</label>
+                    <input type="number"
+                           name="jam_mulai"
+                           class="form-control"
+                           min="1"
+                           max="12"
+                           value="{{ old('jam_mulai', $jadwal->jam_mulai) }}"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-clock-history"></i> Jam Ke (Selesai)</label>
+                    <input type="number"
+                           name="jam_selesai"
+                           class="form-control"
+                           min="1"
+                           max="12"
+                           value="{{ old('jam_selesai', $jadwal->jam_selesai) }}"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-book"></i> Mata Pelajaran</label>
+                    <select name="kd_mapel" class="form-control" required>
+                        @foreach($mapel as $m)
+                            <option value="{{ $m->kd_mapel }}" @selected(old('kd_mapel', $jadwal->kd_mapel) == $m->kd_mapel)>
+                                {{ $m->nama_mapel }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="bi bi-person-badge"></i> Guru Pengajar</label>
+                    <select name="NIP" class="form-control" required>
+                        @foreach($guru as $g)
+                            <option value="{{ $g->NIP }}" @selected(old('NIP', $jadwal->NIP) == $g->NIP)>
+                                {{ $g->nama_guru }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Jam Ke (Selesai)</label>
-                <input type="number" 
-                       name="jam_selesai" 
-                       class="form-control" 
-                       min="1" 
-                       max="12" 
-                       value="{{ old('jam_selesai', $jadwal->jam_selesai) }}" 
-                       required>
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check2-circle"></i> Simpan Perubahan
+                </button>
+                <a href="{{ route('jadwal.index') }}" class="btn-cancel">
+                    <i class="bi bi-x-lg"></i> Batal
+                </a>
             </div>
-
-            <div class="form-group">
-                <label class="form-label">Mata Pelajaran</label>
-                <select name="kd_mapel" class="form-control" required>
-                    @foreach($mapel as $m)
-                        <option value="{{ $m->kd_mapel }}" @selected(old('kd_mapel', $jadwal->kd_mapel) == $m->kd_mapel)>
-                            {{ $m->nama_mapel }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Guru Pengajar</label>
-                <select name="NIP" class="form-control" required>
-                    @foreach($guru as $g)
-                        <option value="{{ $g->NIP }}" @selected(old('NIP', $jadwal->NIP) == $g->NIP)>
-                            {{ $g->nama_guru }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-
-        <div class="form-actions">
-            <button type="submit" class="btn-submit">
-                <i class="bi bi-save"></i> Simpan Perubahan
-            </button>
-            <a href="{{ route('jadwal.index') }}" class="btn-cancel">Batal</a>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
 @endsection

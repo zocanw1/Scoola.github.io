@@ -6,8 +6,18 @@ use Illuminate\Http\Request;
 use App\Models\SesiPresensi;
 use App\Models\Siswa;
 use App\Models\Presensi;
+use App\Models\JadwalPelajaran;
+use App\Models\Guru;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+
+function convertDayToIndonesian($englishDay) {
+    $days = [
+        'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
+        'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
+    ];
+    return $days[$englishDay] ?? $englishDay;
+}
 
 class PresensiController extends Controller
 {
@@ -25,15 +35,26 @@ class PresensiController extends Controller
             return redirect()->route('guru.presensi.ruang', $activeSesi->id);
         }
 
-        $kelasList = Siswa::distinct()->pluck('kelas')->sort()->toArray();
+        // Ambil jadwal guru login untuk hari ini
+        $guru = Guru::where('user_id', auth()->id())->first();
+        if (!$guru) {
+            $jadwalHariIni = collect();
+        } else {
+            $hariIni = convertDayToIndonesian(date('l'));
+            $jadwalHariIni = JadwalPelajaran::with('mapel')
+                ->where('NIP', $guru->NIP)
+                ->where('hari', $hariIni)
+                ->orderBy('jam_mulai')
+                ->get();
+        }
 
         // Ambil semua sesi aktif untuk melihat siapa saja yang sedang mengajar
         $allActiveSessions = SesiPresensi::where('status', 'aktif')
-                                         ->with('guru')
+                                         ->with('guru', 'jadwal.mapel')
                                          ->get()
                                          ->groupBy('kelas');
 
-        return view('guru.presensi.pilih-kelas', compact('kelasList', 'allActiveSessions'));
+        return view('guru.presensi.pilih-kelas', compact('jadwalHariIni', 'allActiveSessions'));
     }
 
     /* =========================
@@ -42,8 +63,10 @@ class PresensiController extends Controller
     public function bukaKelas(Request $request)
     {
         $request->validate([
-            'kelas' => 'required|string',
+            'kd_jp' => 'required|string',
         ]);
+
+        $jadwal = JadwalPelajaran::where('kd_jp', $request->kd_jp)->firstOrFail();
 
         // Akhiri semua sesi aktif milik guru ini (Hanya boleh 1 sesi aktif per guru)
         SesiPresensi::where('guru_id', auth()->id())
@@ -55,7 +78,8 @@ class PresensiController extends Controller
 
         $sesi = SesiPresensi::create([
             'guru_id' => auth()->id(),
-            'kelas' => $request->kelas,
+            'kelas' => $jadwal->kelas,
+            'kd_jp' => $jadwal->kd_jp,
             'kode_presensi' => $kodeUnik,
             'waktu_berlaku' => Carbon::now()->addHours(2), // Berlaku 2 jam
             'status' => 'aktif',
@@ -69,7 +93,7 @@ class PresensiController extends Controller
     ========================= */
     public function ruangKelas($id)
     {
-        $sesi = SesiPresensi::findOrFail($id);
+        $sesi = SesiPresensi::with('jadwal.mapel')->findOrFail($id);
 
         if ($sesi->guru_id !== auth()->id()) {
             abort(403, 'Anda tidak berhak mengakses sesi presensi ini.');
@@ -219,7 +243,7 @@ class PresensiController extends Controller
                 'kd_presensi' => $kd_presensi,
                 'sesi_id' => $sesiId,
                 'tanggal' => Carbon::today()->format('Y-m-d'),
-                'kd_jp' => null,
+                'kd_jp' => $sesi->kd_jp,
                 'jam_masuk' => Carbon::now()->format('H:i:s'),
                 'status' => $request->status,
                 'NIS' => $nis,

@@ -399,7 +399,7 @@
                     <th style="width:40px">#</th>
                     <th>Tanggal</th>
                     <th>Guru Pengajar</th>
-                    <th>Kelas</th>
+                    <th>Mata Pelajaran & Kelas</th>
                     <th style="text-align:center">Hadir</th>
                     <th style="text-align:center">Alpa</th>
                     <th>Kehadiran</th>
@@ -434,6 +434,9 @@
                         </div>
                     </td>
                     <td>
+                        <div style="font-weight: 600; color: var(--text1); margin-bottom: 3px; font-size: 13px;">
+                            {{ $sesi->jadwal ? $sesi->jadwal->mapel->nama_mapel : '-' }}
+                        </div>
                         <span class="kelas-badge">
                             <i class="bi bi-building" style="font-size:10px"></i>
                             {{ $sesi->kelas }}

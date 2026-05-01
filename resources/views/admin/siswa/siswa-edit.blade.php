@@ -170,12 +170,8 @@
             <label class="form-label">Kelas</label>
             <select name="kelas" class="form-control" required>
                 <option value="" disabled>-- Pilih Kelas --</option>
-                <option value="X-SIJA 1" @selected(old('kelas', $siswa->kelas) == 'X-SIJA 1')>X-SIJA 1</option>
-                <option value="X-SIJA 2" @selected(old('kelas', $siswa->kelas) == 'X-SIJA 2')>X-SIJA 2</option>
                 <option value="XI-SIJA 1" @selected(old('kelas', $siswa->kelas) == 'XI-SIJA 1')>XI-SIJA 1</option>
                 <option value="XI-SIJA 2" @selected(old('kelas', $siswa->kelas) == 'XI-SIJA 2')>XI-SIJA 2</option>
-                <option value="XII-SIJA 1" @selected(old('kelas', $siswa->kelas) == 'XII-SIJA 1')>XII-SIJA 1</option>
-                <option value="XII-SIJA 2" @selected(old('kelas', $siswa->kelas) == 'XII-SIJA 2')>XII-SIJA 2</option>
             </select>
         </div>
 
@@ -194,3 +190,4 @@
 </div>
 
 @endsection
+

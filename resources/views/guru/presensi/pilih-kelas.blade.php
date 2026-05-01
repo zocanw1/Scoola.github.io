@@ -70,9 +70,38 @@
         padding-right: 40px;
         cursor: pointer;
     }
+
+    select.form-control option {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 10px 14px;
+    }
+
+    select.form-control option:checked {
+        background: #334155;
+        color: #60a5fa;
+    }
+
+    select.form-control option:disabled {
+        color: #64748b;
+    }
     
     [data-theme="light"] select.form-control {
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%2357606a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+    }
+
+    [data-theme="light"] select.form-control option {
+        background: #ffffff;
+        color: #1e293b;
+    }
+
+    [data-theme="light"] select.form-control option:checked {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    [data-theme="light"] select.form-control option:disabled {
+        color: #94a3b8;
     }
 
     .form-actions {
@@ -118,28 +147,36 @@
         @csrf
 
         <div class="form-group">
-            <label class="form-label">Kelas Yang Diajar</label>
-            <select name="kelas" class="form-control" required>
-                <option value="" disabled selected>-- Pilih Kelas --</option>
-                @foreach($kelasList as $k)
-                    @php
-                        $activeInThisClass = $allActiveSessions->get($k);
-                    @endphp
-                    <option value="{{ $k }}" style="{{ $activeInThisClass ? 'color: var(--accent);' : '' }}">
-                        {{ $k }} 
-                        @if($activeInThisClass)
-                            (Aktif: {{ $activeInThisClass->map(fn($s) => $s->guru->name)->join(', ') }})
-                        @endif
-                    </option>
-                @endforeach
-            </select>
+            <label class="form-label">Jadwal Pelajaran Hari Ini</label>
+            @if($jadwalHariIni->isEmpty())
+                <div style="padding: 12px; background: var(--red-soft); border: 1px solid rgba(248,113,113,0.2); border-radius: 8px; color: var(--red); font-size: 12px;">
+                    Anda tidak memiliki jadwal mengajar untuk hari ini.
+                </div>
+            @else
+                <select name="kd_jp" class="form-control" required>
+                    <option value="" disabled selected>-- Pilih Jadwal --</option>
+                    @foreach($jadwalHariIni as $j)
+                        @php
+                            $activeInThisClass = $allActiveSessions->get($j->kelas);
+                        @endphp
+                        <option value="{{ $j->kd_jp }}" style="{{ $activeInThisClass ? 'color: var(--accent);' : '' }}">
+                            {{ $j->jam_mulai }} - {{ $j->jam_selesai }} WIB | {{ $j->mapel->nama_mapel }} - {{ $j->kelas }}
+                            @if($activeInThisClass)
+                                (Aktif: {{ $activeInThisClass->map(fn($s) => $s->guru->name)->join(', ') }})
+                            @endif
+                        </option>
+                    @endforeach
+                </select>
+            @endif
         </div>
 
+        @if(!$jadwalHariIni->isEmpty())
         <div class="form-actions">
             <button type="submit" class="btn-submit">
                 <i class="bi bi-door-open-fill"></i> Buka Ruang Kelas
             </button>
         </div>
+        @endif
     </form>
 </div>
 

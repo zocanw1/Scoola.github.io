@@ -265,7 +265,7 @@
 {{-- PAGE HEADER --}}
 <div class="page-header">
     <div class="page-header-left">
-        <div class="page-title">Rekap Sesi — {{ $kelas }}</div>
+        <div class="page-title">Rekap Sesi — {{ $sesi->jadwal ? $sesi->jadwal->mapel->nama_mapel . ' (' . $kelas . ')' : $kelas }}</div>
         <div class="page-subtitle">
             <i class="bi bi-calendar3" style="margin-right:3px"></i>
             {{ \Carbon\Carbon::parse($sesi->created_at)->translatedFormat('l, d F Y') }} •

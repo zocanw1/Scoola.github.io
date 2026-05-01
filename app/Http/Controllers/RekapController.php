@@ -15,7 +15,7 @@ class RekapController extends Controller
      */
     public function index(Request $request)
     {
-        $query = SesiPresensi::with('guru')
+        $query = SesiPresensi::with(['guru', 'jadwal.mapel'])
             ->where('status', 'selesai')
             ->orderBy('updated_at', 'desc');
 
@@ -73,7 +73,7 @@ class RekapController extends Controller
      */
     public function show($id)
     {
-        $sesi = SesiPresensi::with('guru')->findOrFail($id);
+        $sesi = SesiPresensi::with(['guru', 'jadwal.mapel'])->findOrFail($id);
 
         $kelas = $sesi->kelas;
         $tanggal = $sesi->created_at->format('Y-m-d');
@@ -113,7 +113,7 @@ class RekapController extends Controller
     {
         $tanggal = $request->get('tanggal', Carbon::today()->format('Y-m-d'));
 
-        $sesiHari = SesiPresensi::with('guru')
+        $sesiHari = SesiPresensi::with(['guru', 'jadwal.mapel'])
             ->where('status', 'selesai')
             ->whereDate('created_at', $tanggal)
             ->orderBy('kelas')
@@ -163,7 +163,8 @@ class RekapController extends Controller
         $selectedKelas = $request->get('kelas', $kelasList->first());
 
         // Ambil semua sesi selesai di bulan+kelas ini
-        $sesiList = SesiPresensi::where('status', 'selesai')
+        $sesiList = SesiPresensi::with('jadwal.mapel')
+            ->where('status', 'selesai')
             ->whereBetween('created_at', [$bulan, $bulanAkhir])
             ->when($selectedKelas, fn($q) => $q->where('kelas', $selectedKelas))
             ->orderBy('created_at')
