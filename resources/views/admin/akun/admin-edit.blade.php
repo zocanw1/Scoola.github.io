@@ -45,23 +45,7 @@
         letter-spacing: .06em;
     }
 
-    .form-control {
-        width: 100%;
-        background: var(--navy3);
-        border: 1px solid var(--glass-border);
-        border-radius: 8px;
-        padding: 10px 14px;
-        color: var(--text1);
-        font-size: 13px;
-        font-family: 'Inter', sans-serif;
-        transition: all .2s;
-        outline: none;
-    }
-
-    .form-control:focus {
-        border-color: rgba(88,166,255,.4);
-        box-shadow: 0 0 0 3px rgba(88,166,255,.1);
-    }
+    /* Redundant styles removed to use global shared-components.blade.php */
 
     .form-actions {
         display: flex;

@@ -205,7 +205,7 @@
     .form-control,
     .form-select {
         width: 100%;
-        background: var(--input-bg);
+        background-color: var(--input-bg);
         border: 1px solid var(--glass-border);
         border-radius: var(--r-xs);
         padding: 11px 16px;
@@ -220,7 +220,7 @@
     .form-select:focus {
         border-color: var(--accent-glow);
         box-shadow: 0 0 0 3px rgba(96,165,250,0.1);
-        background: var(--navy3);
+        background-color: var(--navy3);
         color: var(--text1) !important;
     }
 
@@ -243,11 +243,11 @@
     select.form-control,
     .form-select {
         appearance: none;
+        background-repeat: no-repeat !important;
+        background-position: right 14px center !important;
+        background-size: 12px 12px !important;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 14px center;
-        background-size: 12px 12px;
-        padding-right: 42px;
+        padding-right: 42px !important;
         cursor: pointer;
     }
 
@@ -272,7 +272,10 @@
 
     [data-theme="light"] select.form-control,
     [data-theme="light"] .form-select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 14px center !important;
+        background-size: 12px 12px !important;
     }
 
     [data-theme="light"] select.form-control option,
