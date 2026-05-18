@@ -379,6 +379,21 @@ section,
 }
 
 /* ══════════════════════════════════════════════
+   RESPONSIVE CARD GRID (BENTO STYLE)
+   ══════════════════════════════════════════════ */
+.responsive-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* ══════════════════════════════════════════════
    GLOBAL MOBILE RESPONSIVE ENGINE (MAX 768PX)
    ══════════════════════════════════════════════ */
 @media (max-width: 768px) {
