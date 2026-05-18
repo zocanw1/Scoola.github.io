@@ -53,10 +53,11 @@ class AuthController extends Controller
         $role = Auth::user()->role;
 
         return match ($role) {
-            'admin' => redirect('/admin/dashboard'),
-            'guru'  => redirect('/guru/dashboard'),
-            'siswa' => redirect('/siswa/dashboard'),
-            default => abort(403)
+            'admin'    => redirect('/admin/dashboard'),
+            'guru'     => redirect('/guru/dashboard'),
+            'siswa'    => redirect('/siswa/dashboard'),
+            'kakonsli' => redirect('/admin/siswa'),
+            default    => abort(403)
         };
     }
 

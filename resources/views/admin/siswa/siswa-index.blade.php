@@ -73,7 +73,9 @@
                     <th>Kelas</th>
                     <th>Email</th>
                     <th>Status</th>
+                    @if(auth()->user()->role === 'admin')
                     <th style="text-align: right; padding-right: 40px;">Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody id="siswaTable">
@@ -89,6 +91,7 @@
                     <td data-label="Status">
                         <span class="badge-status bs-h">Aktif</span>
                     </td>
+                    @if(auth()->user()->role === 'admin')
                     <td data-label="Aksi" style="text-align: right; padding-right: 40px;">
                         <div style="display: flex; justify-content: flex-end; gap: 16px; align-items: center;">
                             <a href="{{ route('siswa.edit', $s->NIS) }}" class="btn-ghost" style="height: 32px; font-size: 11px; padding: 0 16px; display: inline-flex; align-items: center; text-decoration: none;">Edit</a>
@@ -98,10 +101,11 @@
                             </form>
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 120px; color: var(--color-stone);">Data tidak ditemukan.</td>
+                    <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" style="text-align: center; padding: 120px; color: var(--color-stone);">Data tidak ditemukan.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -139,6 +143,7 @@
     kelasFilter.addEventListener('change', filterTable);
 </script>
 
+    @if(auth()->user()->role === 'admin')
     <!-- FAB Action -->
     <div class="fab-container">
         <a href="{{ route('siswa.create') }}" class="btn-fab" title="Tambah Siswa">
@@ -146,5 +151,6 @@
             <span class="fab-label">Tambah Siswa Baru</span>
         </a>
     </div>
+    @endif
 
 @endsection

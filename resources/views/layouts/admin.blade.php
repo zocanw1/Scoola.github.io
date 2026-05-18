@@ -464,15 +464,18 @@
     </div>
 
     <div class="sb-nav">
+        @if(auth()->user()->role === 'admin')
         <div class="sb-section">Utama</div>
         <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
             <i class="bi bi-grid-fill"></i> Dashboard
         </a>
+        @endif
 
         <div class="sb-section">Data</div>
         <a href="{{ route('siswa.index') }}" class="nav-link {{ request()->routeIs('siswa.*') ? 'active' : '' }}">
             <i class="bi bi-people-fill"></i> Siswa
         </a>
+        @if(auth()->user()->role === 'admin')
         <a href="{{ route('guru.index') }}" class="nav-link {{ request()->routeIs('guru.*') ? 'active' : '' }}">
             <i class="bi bi-person-badge-fill"></i> Guru
         </a>
@@ -493,6 +496,7 @@
         <a href="{{ route('admin.akun.index') }}" class="nav-link {{ request()->routeIs('admin.akun.*') ? 'active' : '' }}">
             <i class="bi bi-shield-plus"></i> Kelola Admin
         </a>
+        @endif
     </div>
 
     <div class="sb-footer">

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle($request, Closure $next, $role)
+    public function handle($request, Closure $next, ...$roles)
     {
         // Belum login
         if (!Auth::check()) {
@@ -15,7 +15,7 @@ class RoleMiddleware
         }
 
         // Role tidak sesuai
-        if (Auth::user()->role !== $role) {
+        if (!in_array(Auth::user()->role, $roles)) {
             abort(403, 'Akses ditolak');
         }
 

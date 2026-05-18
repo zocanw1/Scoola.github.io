@@ -36,7 +36,16 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | ADMIN
+    | ADMIN & KAKONSLI SHARED
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('admin')->middleware('role:admin,kakonsli')->group(function () {
+        Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN ONLY
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:admin')->prefix('admin')->group(function () {
@@ -45,8 +54,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])
             ->name('admin.dashboard');
 
-        /* ===================== SISWA ===================== */
-        Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
+        /* ===================== SISWA (MANAGE: ADMIN ONLY) ===================== */
         Route::get('/siswa/create', [SiswaController::class, 'create'])->name('siswa.create');
         Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
         Route::get('/siswa/{nis}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
