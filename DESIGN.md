@@ -1,93 +1,93 @@
 ---
 version: 1.0
-name: Scoola Design System (Runway Editorial)
-description: A premium, high-contrast "Bento-style" interface designed for Scoola. It relies on a structural, editorial aesthetic featuring stark black-and-white elements against a neutral gray canvas. The design prioritizes typography (Inter), geometric precision, and spacious padding over shadows or gradients. 
+name: Sistem Desain Scoola (Runway Editorial)
+description: Antarmuka bergaya "Bento Grid" premium dengan kontras tinggi yang dirancang khusus untuk Scoola. Mengusung estetika editorial dan terstruktur yang menonjolkan elemen hitam-putih tegas di atas latar (canvas) abu-abu netral. Desain ini mengutamakan tipografi (Inter), presisi geometris, serta ruang padding yang lega tanpa mengandalkan bayangan (shadow) atau gradasi.
 
 ---
 
-## 🎨 Color Palette
+## 🎨 Palet Warna
 
-Scoola uses a restrained, high-contrast color palette to maintain a premium feel.
+Scoola menggunakan palet warna yang selektif dan berkontras tinggi untuk mempertahankan kesan premium dan elegan.
 
-### Surface & Canvas
-- **Canvas (`--color-canvas`):** `#C8C8C8` — A solid, neutral gray floor. This provides the contrast needed for white cards to pop without relying on drop shadows.
-- **Surface (`#ffffff`):** Pure white. Used for all primary cards, panels, and forms.
-- **Canvas Warm (`--color-canvas-warm`):** `#fefefe` — Used for subtle highlights, like mobile agenda time badges.
+### Permukaan & Latar (Surface & Canvas)
+- **Canvas (`--color-canvas`):** `#C8C8C8` — Latar abu-abu netral yang solid. Warna ini memberikan kontras yang tepat agar kotak (card) putih terlihat menonjol tanpa memerlukan efek bayangan (drop shadow).
+- **Surface (`#ffffff`):** Putih bersih. Digunakan untuk semua kotak (card) utama, panel, dan formulir.
+- **Canvas Warm (`--color-canvas-warm`):** `#fefefe` — Digunakan untuk sorotan halus, seperti latar badge waktu pada agenda di tampilan seluler.
 
-### Ink & Text
-- **Ink (`--color-ink`):** `#030303` — The primary text color for maximum readability.
-- **Ink Soft (`--color-ink-soft`):** `#1a1a1a` — Used for navigation links and slightly softened headers.
-- **Graphite (`--color-graphite`):** `#404040` — Standard body text.
-- **Slate (`--color-slate`):** `#676f7b` — Secondary metadata.
-- **Stone (`--color-stone`):** `#939393` — Used for micro-caps, eyebrows, and tertiary labels.
+### Tinta & Teks (Ink & Text)
+- **Ink (`--color-ink`):** `#030303` — Warna teks utama untuk keterbacaan maksimal.
+- **Ink Soft (`--color-ink-soft`):** `#1a1a1a` — Digunakan untuk tautan navigasi dan judul yang sedikit diperhalus.
+- **Graphite (`--color-graphite`):** `#404040` — Teks paragraf (body) standar.
+- **Slate (`--color-slate`):** `#676f7b` — Teks metadata sekunder.
+- **Stone (`--color-stone`):** `#939393` — Digunakan untuk teks berukuran kecil (micro-caps), eyebrow, dan label tersier.
 
-### Accents & Borders
-- **Primary (`--color-primary`):** `#000000` — Pure black for primary buttons and active states.
-- **On-Primary (`--color-on-primary`):** `#ffffff` — White text over primary black buttons.
-- **Hairline (`--color-hairline`):** `#e7eaf0` — The standard 1px border color used to define all structural boundaries (cards, tables, dividers).
-
----
-
-## 🔤 Typography
-
-Scoola exclusively uses **Inter** (`--font-family-base`) for a clean, modernist geometric feel.
-
-### Hierarchy
-- **Display Title (`.display-title`):** 48px, Weight 400, Tracking tight (-1.2px). Used for main page headers (e.g., "Data Kelas").
-- **Heading SM (`.text-heading-sm`):** 14px, Weight 700, Tracking 0.1em, Uppercase. Used for card titles.
-- **Eyebrow (`.eyebrow` / `.text-micro-caps`):** 11px, Weight 700 (or 500), Tracking 0.35px, Uppercase. Used above main titles or as small structural labels.
-- **Body (`.text-body`):** 16px, Weight 400, Line-height 1.5. Used for editorial descriptions.
-- **Meta (`.text-meta`):** 13px, Weight 400. Used for breadcrumbs and minor details.
+### Aksen & Garis Batas (Accents & Borders)
+- **Primary (`--color-primary`):** `#000000` — Hitam pekat untuk tombol utama dan status aktif.
+- **On-Primary (`--color-on-primary`):** `#ffffff` — Teks putih di atas tombol hitam utama.
+- **Hairline (`--color-hairline`):** `#e7eaf0` — Warna garis batas (border) 1px standar yang digunakan untuk memperjelas struktur komponen (kotak, tabel, pembatas).
 
 ---
 
-## 📐 Layout & Grid System (Bento Style)
+## 🔤 Tipografi
 
-Scoola's layout relies on distinct, bordered structural blocks (Bento Grid) with generous internal padding.
+Scoola secara eksklusif menggunakan **Inter** (`--font-family-base`) untuk memberikan kesan geometris, bersih, dan modernis.
+
+### Hierarki
+- **Display Title (`.display-title`):** 48px, Bobot 400, Spasi huruf rapat (-1.2px). Digunakan untuk judul utama halaman (contoh: "Data Kelas").
+- **Heading SM (`.text-heading-sm`):** 14px, Bobot 700, Spasi huruf 0.1em, Huruf Kapital. Digunakan untuk judul kotak (card).
+- **Eyebrow (`.eyebrow` / `.text-micro-caps`):** 11px, Bobot 700 (atau 500), Spasi huruf 0.35px, Huruf Kapital. Digunakan di atas judul utama atau sebagai label struktur kecil.
+- **Body (`.text-body`):** 16px, Bobot 400, Tinggi baris 1.5. Digunakan untuk deskripsi editorial.
+- **Meta (`.text-meta`):** 13px, Bobot 400. Digunakan untuk breadcrumb dan detail pendukung.
+
+---
+
+## 📐 Sistem Tata Letak & Grid (Bento Style)
+
+Tata letak Scoola mengandalkan blok-blok terstruktur dengan garis batas yang jelas (Bento Grid) serta padding internal yang lega.
 
 ### 1. Responsive Card Grid (`.responsive-card-grid`)
-- **Desktop:** Displays as a 2-column grid (`50% / 50%`) with a gap of `24px` (`var(--spacing-lg)`).
-- **Dynamic Asymmetry (Odd Count Rule):** If a list contains an odd number of items (e.g., 3 items), the **first item automatically spans full-width (100%)** as a hero element, while the subsequent 2 items sit side-by-side (50% / 50%).
-- **Mobile (`max-width: 768px`):** Automatically collapses to a single vertical column (`1fr`) with `100%` width, preventing horizontal overflow.
+- **Desktop:** Ditampilkan sebagai grid 2 kolom (`50% / 50%`) dengan jarak (gap) `24px` (`var(--spacing-lg)`).
+- **Asimetri Dinamis (Aturan Jumlah Ganjil):** Jika daftar berisi jumlah item ganjil (contoh: 3 item), **item pertama akan otomatis melebar penuh (100%)** sebagai elemen utama (hero), sedangkan 2 item berikutnya akan sejajar berdampingan (50% / 50%).
+- **Seluler / Mobile (`max-width: 768px`):** Otomatis berubah menjadi 1 kolom vertikal (`1fr`) dengan lebar `100%`, guna mencegah elemen terdorong keluar layar.
 
 ### 2. Stats Grid (`.stats-grid`)
-- **Desktop:** Displays as an `auto-fit` grid with a minimum width of `340px` per card.
-- **Mobile:** Collapses to a single vertical column.
+- **Desktop:** Ditampilkan sebagai grid `auto-fit` dengan lebar minimal `340px` per kotak.
+- **Seluler / Mobile:** Otomatis berubah menjadi 1 kolom vertikal.
 
-### 3. Spacing System
-- **Card Padding:** Generous padding is a signature of this design. Typically `32px` to `48px` on desktop, scaling down to `24px` on mobile.
-- **Gaps:** Standard grid gap is `var(--spacing-md)` (16px) or `var(--spacing-lg)` (24px).
-- **Section Margin:** Distance between major horizontal sections is `var(--spacing-section)` (64px).
-
----
-
-## 🧩 UI Components
-
-### 1. Cards
-Cards are the fundamental building blocks of the UI.
-- **Style:** Background `#ffffff`, Border `1px solid var(--color-hairline)`, Border Radius `12px` (or `16px` for larger structural panels).
-- **Depth:** **Zero drop shadows.** Depth is purely achieved through the contrast between the white card and the `#C8C8C8` canvas.
-
-### 2. Buttons
-- **Primary Button (`.btn-primary`):** Pure black (`#000000`), white text, fully rounded (`var(--rounded-full)` / pill shape), uppercase, bold. Hover effect uses a dramatic color inversion (`filter: invert(1)`).
-- **Ghost Button (`.btn-ghost`):** Transparent background, black border (`#030303`), black text. Fully rounded pill shape.
-- **FAB (Floating Action Button):** Fixed at bottom right. Black circle, expands to show text label on hover.
-
-### 3. Tables (`.data-table` / `.responsive-table`)
-- **Desktop:** Standard tabular layout with hairline bottom borders.
-- **Mobile (Max 768px):** Transforms entirely into a "Card List" format. The `<thead>` is hidden. Every `<tr>` becomes a bordered block, and every `<td>` becomes a flex row (`display: flex; justify-content: space-between`). The table headers are injected dynamically via the `data-label` attribute on each `<td>` using CSS pseudo-elements (`::before`).
-
-### 4. Agenda / List Items (`.agenda-list`)
-- **Desktop:** Horizontal flex layout. Time on the left, subject/details in the center (flex-1), and status/teacher on the right.
-- **Mobile (Max 768px):** Stacks vertically. The time element turns into a compact highlighted badge with a warm gray background (`--color-canvas-warm`).
+### 3. Sistem Spasi
+- **Padding Kotak (Card):** Padding yang luas dan lega adalah ciri khas desain ini. Umumnya `32px` hingga `48px` pada desktop, dan disesuaikan menjadi `24px` pada perangkat seluler.
+- **Jarak (Gap):** Jarak standar antar grid adalah `var(--spacing-md)` (16px) atau `var(--spacing-lg)` (24px).
+- **Margin Seksi:** Jarak vertikal antar bagian utama adalah `var(--spacing-section)` (64px).
 
 ---
 
-## 📱 Mobile Responsiveness (The 768px Rule)
+## 🧩 Komponen Antarmuka (UI Components)
 
-All mobile responsive behaviors are driven globally in `runway.css` under the `@media (max-width: 768px)` block to guarantee consistency without writing inline responsive classes in HTML.
+### 1. Kotak (Cards)
+Kotak (card) adalah fondasi utama pembentuk antarmuka.
+- **Gaya:** Latar `#ffffff`, Garis batas `1px solid var(--color-hairline)`, Sudut melengkung `12px` (atau `16px` untuk panel besar).
+- **Kedalaman:** **Tanpa bayangan (zero drop shadows).** Dimensi dan kedalaman murni dicapai melalui kontras antara kotak putih dan latar belakang abu-abu `#C8C8C8`.
 
-1.  **Padding Shrinkage:** Global page content padding reduces from `64px` to `32px 16px`. Card padding reduces to `24px`.
-2.  **Grid Flattening:** Any element using `.stats-grid`, `.responsive-card-grid`, or inline `display: grid` is forced to `grid-template-columns: 1fr !important`.
-3.  **Flex Wrapping:** Any horizontal `display: flex` container is forced to `flex-wrap: wrap` to prevent elements from bleeding off the screen edges.
-4.  **Typography Adjustments:** Huge `.display-title` headers shrink to `28px` to fit narrow mobile viewports.
+### 2. Tombol (Buttons)
+- **Tombol Utama (`.btn-primary`):** Hitam pekat (`#000000`), teks putih, melengkung penuh (`var(--rounded-full)` / bentuk pil), huruf kapital, tebal. Efek hover membalikkan warna secara dramatis (`filter: invert(1)`).
+- **Tombol Transparan (`.btn-ghost`):** Latar transparan, garis batas hitam (`#030303`), teks hitam. Bentuk pil melengkung penuh.
+- **FAB (Floating Action Button):** Posisi tetap di kanan bawah. Lingkaran hitam yang akan memanjang menampilkan teks label saat di-hover.
+
+### 3. Tabel (`.data-table` / `.responsive-table`)
+- **Desktop:** Tata letak tabel standar dengan garis batas bawah tipis.
+- **Seluler / Mobile (Max 768px):** Berubah total menjadi format "Daftar Kotak" (Card List). Bagian `<thead>` disembunyikan. Setiap baris `<tr>` menjadi kotak tersendiri, dan setiap kolom `<td>` menjadi baris fleksibel (`display: flex; justify-content: space-between`). Judul kolom disisipkan secara dinamis melalui atribut `data-label` pada setiap `<td>` menggunakan elemen pseudo CSS (`::before`).
+
+### 4. Item Agenda (`.agenda-list`)
+- **Desktop:** Tata letak horizontal. Waktu di kiri, subjek/detail di tengah (`flex-1`), dan status/pengajar di kanan.
+- **Seluler / Mobile (Max 768px):** Ditumpuk secara vertikal. Elemen waktu berubah menjadi badge ringkas berlatar abu-abu hangat (`--color-canvas-warm`).
+
+---
+
+## 📱 Responsivitas Seluler (Aturan 768px)
+
+Semua penyesuaian untuk tampilan seluler diatur secara global di dalam file `runway.css` pada blok `@media (max-width: 768px)`. Hal ini menjamin konsistensi di seluruh halaman tanpa perlu menulis kelas responsif secara manual di HTML.
+
+1.  **Penyesuaian Padding:** Padding konten halaman berkurang dari `64px` menjadi `32px 16px`. Padding pada kotak (card) disesuaikan menjadi `24px`.
+2.  **Penyederhanaan Grid:** Semua elemen yang menggunakan `.stats-grid`, `.responsive-card-grid`, atau `display: grid` dipaksa menjadi 1 kolom vertikal (`grid-template-columns: 1fr !important`).
+3.  **Pembungkusan Flex (Flex Wrap):** Semua kontainer `display: flex` horizontal dipaksa untuk membungkus (`flex-wrap: wrap`) agar elemen tidak melampaui batas lebar layar.
+4.  **Penyesuaian Tipografi:** Judul besar `.display-title` disesuaikan ukurannya menjadi `28px` agar pas di layar ponsel yang sempit.
