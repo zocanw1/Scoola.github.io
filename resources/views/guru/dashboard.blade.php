@@ -59,10 +59,10 @@
                 <tbody>
                     @forelse($absensiTerbaru as $absen)
                         <tr>
-                            <td style="font-weight: 600;">{{ $absen->siswa->nama_siswa ?? '-' }}</td>
-                            <td>{{ $absen->sesi->kelas ?? '-' }}</td>
-                            <td>{{ $absen->jam_masuk ?? '—' }}</td>
-                            <td>
+                            <td data-label="Siswa" style="font-weight: 600;">{{ $absen->siswa->nama_siswa ?? '-' }}</td>
+                            <td data-label="Kelas">{{ $absen->sesi->kelas ?? '-' }}</td>
+                            <td data-label="Waktu">{{ $absen->jam_masuk ?? '—' }}</td>
+                            <td data-label="Status">
                                 <span class="badge-status {{ $absen->status == 'Hadir' ? 'bs-h' : 'bs-a' }}">
                                     {{ $absen->status }}
                                 </span>
@@ -84,15 +84,15 @@
                 <a href="{{ route('guru.presensi.index') }}" class="btn-primary" style="height: 32px; font-size: 11px; padding: 0 16px;">Mulai Sesi</a>
             </div>
             
-            <div style="display: flex; flex-direction: column;">
+            <div class="agenda-list">
                 @foreach([['07:00','Matematika','X-A'],['08:30','Matematika','XI-B'],['12:30','Matematika','X-B']] as $j)
-                <div style="padding: 24px 0; display: flex; align-items: center; gap: var(--spacing-xl); border-bottom: 1px solid var(--color-hairline);">
-                    <div style="color: var(--color-stone); width: 100px; font-size: 13px; font-weight: 600;">{{ $j[0] }}</div>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 600; font-size: 16px; color: var(--color-ink);">{{ $j[1] }}</div>
-                        <div style="color: var(--color-slate); font-size: 12px; text-transform: uppercase; margin-top: 4px;">{{ $j[2] }}</div>
+                <div class="agenda-list-item">
+                    <div class="agenda-time">{{ $j[0] }}</div>
+                    <div class="agenda-details">
+                        <div class="agenda-subject">{{ $j[1] }}</div>
+                        <div class="agenda-class">{{ $j[2] }}</div>
                     </div>
-                    <div style="color: var(--color-graphite); font-size: 14px;">Aktif</div>
+                    <div class="agenda-teacher">Aktif</div>
                 </div>
                 @endforeach
             </div>

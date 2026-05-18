@@ -324,3 +324,225 @@ section,
   border: none;
 }
 
+/* ══════════════════════════════════════════════
+   AGENDA / SCHEDULE LIST
+   ══════════════════════════════════════════════ */
+.agenda-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.agenda-list-item {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
+  border-bottom: 1px solid var(--color-hairline);
+  transition: all 0.2s ease;
+}
+
+.agenda-list-item:last-child {
+  border-bottom: none;
+}
+
+.agenda-time {
+  color: var(--color-stone);
+  width: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.agenda-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.agenda-subject {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--color-ink);
+}
+
+.agenda-class {
+  color: var(--color-slate);
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.agenda-teacher {
+  color: var(--color-graphite);
+  font-size: 14px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════
+   GLOBAL MOBILE RESPONSIVE ENGINE (MAX 768PX)
+   ══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Layout Paddings */
+  .page-content {
+    padding: 32px 16px !important;
+  }
+  
+  .runway-topbar {
+    padding: 0 16px !important;
+  }
+  
+  .display-title {
+    font-size: 28px !important;
+    letter-spacing: -0.5px !important;
+    word-break: break-word !important;
+  }
+
+  /* Global Grid & Bento Transformations */
+  .stats-grid, 
+  .responsive-card-grid,
+  .dashboard-layout,
+  div[style*="display: grid"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    width: 100% !important;
+  }
+  
+  /* Prevent horizontal flex layouts from forcing screen overflow */
+  div[style*="display: flex"] {
+    flex-wrap: wrap !important;
+  }
+
+  /* Responsive Cards */
+  .card {
+    border-radius: 12px !important;
+    padding: 24px !important;
+    margin-bottom: 20px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  
+  /* Agenda List Responsive Style */
+  .agenda-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 20px 0;
+  }
+  
+  .agenda-time {
+    width: auto;
+    background-color: var(--color-canvas-warm);
+    color: var(--color-ink);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  
+  .agenda-details {
+    width: 100%;
+  }
+  
+  .agenda-subject {
+    white-space: normal;
+    font-size: 15px;
+  }
+  
+  .agenda-teacher {
+    text-align: left;
+    font-size: 12px;
+    margin-top: 4px;
+    color: var(--color-slate);
+  }
+  
+  /* Tables */
+  .table-container-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .responsive-table, 
+  .data-table {
+    background: transparent !important;
+    border-collapse: separate !important;
+    border-spacing: 0 16px !important;
+    width: 100% !important;
+    display: table !important;
+  }
+
+  .responsive-table thead,
+  .data-table thead {
+    display: none !important;
+  }
+
+  .responsive-table tbody, 
+  .responsive-table tr, 
+  .responsive-table td,
+  .data-table tbody,
+  .data-table tr,
+  .data-table td {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .responsive-table tr,
+  .data-table tr {
+    margin-bottom: 16px !important;
+    border: 1px solid var(--color-hairline) !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    background: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
+  }
+
+  .responsive-table td,
+  .data-table td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 8px 0 !important;
+    border: none !important;
+    text-align: right !important;
+    min-height: 40px;
+    background: transparent !important;
+  }
+
+  .responsive-table td::before,
+  .data-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--color-stone);
+    text-align: left;
+    padding-right: 16px;
+  }
+
+  /* Form Actions & Controls */
+  .form-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+    margin-top: 24px !important;
+    padding-top: 20px !important;
+  }
+
+  .form-actions button, 
+  .form-actions a {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+  }
+}
+
