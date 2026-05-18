@@ -2,364 +2,36 @@
 
 @section('content')
 
-<style>
-    /* ── PAGE HEADER ── */
-    .page-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        margin-bottom: 28px;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-
-    .page-header-left .page-title {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 22px;
-        font-weight: 800;
-        color: var(--text1);
-        line-height: 1.2;
-        letter-spacing: -0.02em;
-    }
-
-    .page-header-left .page-subtitle {
-        font-size: 13px;
-        color: var(--text2);
-        margin-top: 4px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    /* ── BREADCRUMB ── */
-    .breadcrumb-nav {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 20px;
-        font-size: 12.5px;
-    }
-
-    .breadcrumb-nav a {
-        color: var(--text3);
-        text-decoration: none;
-        font-weight: 500;
-        transition: color .2s;
-    }
-
-    .breadcrumb-nav a:hover { color: var(--accent); }
-
-    .breadcrumb-nav .sep {
-        color: var(--text3);
-        opacity: 0.4;
-        font-size: 10px;
-    }
-
-    .breadcrumb-nav .current {
-        color: var(--text1);
-        font-weight: 600;
-    }
-
-    /* ── FORM CARD ── */
-    .form-card {
-        background: var(--navy2);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--r);
-        max-width: 820px;
-        overflow: hidden;
-    }
-
-    .form-card-header {
-        padding: 20px 28px;
-        border-bottom: 1px solid var(--glass-border);
-        background: var(--glass);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .form-card-header-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: rgba(227,179,65,0.12);
-        color: var(--amber);
-        display: grid;
-        place-items: center;
-        font-size: 18px;
-        flex-shrink: 0;
-    }
-
-    .form-card-header-text h3 {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--text1);
-        margin: 0;
-    }
-
-    .form-card-header-text p {
-        font-size: 12px;
-        color: var(--text2);
-        margin: 2px 0 0;
-    }
-
-    .form-card-body {
-        padding: 28px;
-    }
-
-    /* Redundant styles removed to use global shared-components.blade.php */
-
-    /* ── ACTION BUTTONS ── */
-    .form-actions {
-        display: flex;
-        gap: 12px;
-        margin-top: 28px;
-        padding-top: 22px;
-        border-top: 1px solid var(--glass-border);
-    }
-
-    .btn-submit {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 11px 24px;
-        background: var(--gradient-accent, linear-gradient(135deg, #60a5fa, #818cf8));
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 700;
-        font-family: 'Inter', sans-serif;
-        cursor: pointer;
-        transition: all .25s;
-        box-shadow: 0 2px 10px rgba(96,165,250,0.25);
-    }
-
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 24px rgba(96,165,250,0.4);
-    }
-
-    .btn-cancel {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        padding: 11px 24px;
-        background: var(--navy3);
-        border: 1px solid var(--glass-border);
-        color: var(--text2);
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 600;
-        font-family: 'Inter', sans-serif;
-        text-decoration: none;
-        transition: all .25s;
-    }
-
-    .btn-cancel:hover {
-        background: var(--glass-hover);
-        color: var(--text1);
-        border-color: var(--text3);
-    }
-
-    /* ── GRID ── */
-    .grid-form {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0 24px;
-    }
-
-    /* ── ALERTS ── */
-    .alert-danger {
-        background: var(--red-soft, rgba(248,81,73,0.08));
-        border: 1px solid rgba(248,113,113,0.2);
-        border-radius: 12px;
-        padding: 16px 20px;
-        margin-bottom: 24px;
-        max-width: 820px;
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    .alert-danger-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        background: rgba(248,113,113,0.15);
-        color: var(--red);
-        display: grid;
-        place-items: center;
-        font-size: 14px;
-        flex-shrink: 0;
-    }
-
-    .alert-danger ul {
-        margin: 0;
-        padding-left: 16px;
-        color: var(--red);
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
-    .alert-warning-card {
-        background: rgba(227,179,65,0.06);
-        border: 1px solid rgba(227,179,65,0.2);
-        border-radius: 12px;
-        padding: 20px 24px;
-        margin-bottom: 24px;
-        max-width: 820px;
-    }
-
-    .alert-warning-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-
-    .alert-warning-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        background: rgba(227,179,65,0.15);
-        color: var(--amber);
-        display: grid;
-        place-items: center;
-        font-size: 14px;
-        flex-shrink: 0;
-    }
-
-    .alert-warning-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--amber);
-    }
-
-    .alert-warning-body {
-        font-size: 13px;
-        color: var(--text2);
-        margin-bottom: 16px;
-        padding-left: 42px;
-        line-height: 1.5;
-    }
-
-    .alert-warning-actions {
-        padding-left: 42px;
-    }
-
-    .btn-warning {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: var(--amber);
-        color: #1a1a2e;
-        border: none;
-        padding: 9px 18px;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all .2s;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .btn-warning:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 16px rgba(227,179,65,0.3);
-    }
-
-    /* ── CURRENT VALUE BADGE ── */
-    .current-value {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 10.5px;
-        font-weight: 600;
-        color: var(--accent);
-        background: var(--accent-soft, rgba(96,165,250,0.08));
-        padding: 3px 10px;
-        border-radius: 6px;
-        margin-left: auto;
-        text-transform: none;
-        letter-spacing: 0;
-    }
-
-    /* ── MOBILE ── */
-    @media (max-width: 768px) {
-        .grid-form {
-            grid-template-columns: 1fr;
-        }
-        .form-card-body {
-            padding: 20px 18px;
-        }
-        .form-actions {
-            flex-direction: column;
-        }
-        .btn-submit, .btn-cancel {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-
-    /* ── ANIMATION ── */
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(10px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    .fi { animation: fadeInUp .35s ease both; }
-    .fi.d1 { animation-delay: .05s; }
-    .fi.d2 { animation-delay: .1s; }
-</style>
-
-{{-- BREADCRUMB --}}
-<div class="breadcrumb-nav fi">
-    <a href="{{ route('jadwal.index') }}"><i class="bi bi-calendar3"></i> Jadwal</a>
-    <span class="sep"><i class="bi bi-chevron-right"></i></span>
-    <a href="{{ route('jadwal.kelas', $jadwal->kelas) }}">{{ $jadwal->kelas }}</a>
-    <span class="sep"><i class="bi bi-chevron-right"></i></span>
-    <span class="current">Edit Jadwal</span>
-</div>
-
-{{-- PAGE HEADER --}}
-<div class="page-header fi">
-    <div class="page-header-left">
-        <div class="page-title">Edit Jadwal Pelajaran</div>
-        <div class="page-subtitle">
-            <i class="bi bi-pencil-square"></i>
-            Perbarui jadwal untuk kelas {{ $jadwal->kelas }}
+<div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+    
+    <!-- Header Card -->
+    <div class="card" style="background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid var(--color-hairline);">
+        <div class="editorial-header" style="margin: 0;">
+            <span class="eyebrow" style="color: var(--color-stone); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; font-weight: 700;">Manajemen Akademik</span>
+            <h1 class="display-title" style="font-size: 48px; font-weight: 400; letter-spacing: var(--tracking-tighter); margin: 8px 0 24px 0; text-transform: uppercase;">Edit Jadwal</h1>
+            <p class="text-body" style="color: var(--color-graphite); max-width: 600px; font-size: 16px; line-height: 1.5; margin: 0;">
+                Memperbarui slot waktu atau pengajar untuk mata pelajaran yang telah dijadwalkan.
+            </p>
         </div>
     </div>
-</div>
 
-{{-- VALIDATION ERRORS --}}
-@if ($errors->any())
-    <div class="alert-danger fi d1">
-        <div class="alert-danger-icon"><i class="bi bi-exclamation-circle-fill"></i></div>
-        <div>
-            <ul>
+    {{-- VALIDATION ERRORS --}}
+    @if ($errors->any())
+        <div class="card" style="background: #ffffff; padding: 24px; border: 2px solid var(--color-ink); border-radius: 16px;">
+            <ul style="margin: 0; padding-left: 20px; color: var(--color-ink); font-size: 13px;">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
-    </div>
-@endif
+    @endif
 
-{{-- COLLISION WARNING --}}
-@if (session('confirm_replace'))
-    <div class="alert-warning-card fi d1">
-        <div class="alert-warning-header">
-            <div class="alert-warning-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
-            <div class="alert-warning-title">Peringatan Jadwal Bentrok</div>
-        </div>
-        <div class="alert-warning-body">
-            {{ session('confirm_replace') }}
-        </div>
-        <div class="alert-warning-actions">
-            <form action="{{ route('jadwal.update', $jadwal->kd_jp) }}" method="POST" style="display: inline-block;">
+    {{-- COLLISION WARNING --}}
+    @if (session('confirm_replace'))
+        <div class="card" style="background: #ffffff; padding: 32px; border: 2px solid var(--color-ink); border-radius: 16px; box-shadow: 0 12px 32px rgba(0,0,0,0.08);">
+            <div class="text-body-strong" style="margin-bottom: 8px; font-size: 18px; font-weight: 700;">Peringatan Jadwal Bentrok</div>
+            <p class="text-body" style="color: var(--color-graphite); margin-bottom: 24px;">{{ session('confirm_replace') }}</p>
+            <form action="{{ route('jadwal.update', $jadwal->id_jadwal) }}" method="POST" style="display: inline-block; width: 100%;">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="hari" value="{{ old('hari') }}">
@@ -369,121 +41,92 @@
                 <input type="hidden" name="kd_mapel" value="{{ old('kd_mapel') }}">
                 <input type="hidden" name="NIP" value="{{ old('NIP') }}">
                 <input type="hidden" name="force" value="1">
-                <button type="submit" class="btn-warning">
-                    <i class="bi bi-check-circle-fill"></i> Ya, Tetap Simpan & Ganti
-                </button>
+                <button type="submit" class="btn-primary" style="height: 56px; padding: 0 32px; width: 100%;">Ya, Tetap Simpan & Ganti</button>
             </form>
         </div>
-    </div>
-@endif
+    @endif
 
-{{-- FORM CARD --}}
-<div class="form-card fi d2">
-    <div class="form-card-header">
-        <div class="form-card-header-icon"><i class="bi bi-pencil-square"></i></div>
-        <div class="form-card-header-text">
-            <h3>Edit Detail Jadwal</h3>
-            <p>Kode Jadwal: <strong>{{ $jadwal->kd_jp }}</strong></p>
-        </div>
-    </div>
-
-    <div class="form-card-body">
-        <form action="{{ route('jadwal.update', $jadwal->kd_jp) }}" method="POST">
+    <!-- Form Card -->
+    <div class="card" style="background: #ffffff; padding: 48px; border-radius: 16px; border: 1px solid var(--color-hairline); margin-bottom: var(--spacing-section);">
+        <form action="{{ route('jadwal.update', $jadwal->id_jadwal) }}" method="POST">
             @csrf
             @method('PUT')
 
-            <div class="grid-form">
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="bi bi-calendar-event"></i> Hari
-                        <span class="current-value">{{ $jadwal->hari }}</span>
-                    </label>
-                    <select name="hari" class="form-control" required>
-                        @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'] as $h)
-                            <option value="{{ $h }}" @selected(old('hari', $jadwal->hari) == $h)>
-                                {{ $h }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="bi bi-building"></i> Kelas
-                        <span class="current-value">{{ $jadwal->kelas }}</span>
-                    </label>
-                    <select name="kelas" class="form-control" required>
-                        @php
-                            $tingkatan = ['XI'];
-                            $jurusan = 'SIJA';
-                            $rombel = [1, 2];
-                        @endphp
-                        @foreach ($tingkatan as $t)
-                            @foreach ($rombel as $r)
-                                @php $kls = "$t-$jurusan $r"; @endphp
-                                <option value="{{ $kls }}" @selected(old('kelas', $jadwal->kelas) == $kls)>
-                                    {{ $kls }}
-                                </option>
+            <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 64px; max-width: 900px;">
+                <div style="margin-bottom: 48px;">
+                    <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Hari</label>
+                    <div style="position: relative; border-bottom: 1px solid var(--color-hairline);">
+                        <select name="hari" class="form-field" required style="width: 100%; border: none; padding: 16px 0; font-family: var(--font-family-base); font-size: 18px; outline: none; background: transparent; cursor: pointer; appearance: none; color: var(--color-ink); font-weight: 500; text-transform: uppercase;">
+                            @foreach (['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'] as $h)
+                                <option value="{{ $h }}" {{ old('hari', $jadwal->hari) == $h ? 'selected' : '' }}>{{ $h }}</option>
                             @endforeach
-                        @endforeach
-                    </select>
+                        </select>
+                        <div style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 12px; color: var(--color-stone);">&darr;</div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label"><i class="bi bi-clock"></i> Jam Ke (Mulai)</label>
-                    <input type="number"
-                           name="jam_mulai"
-                           class="form-control"
-                           min="1"
-                           max="12"
-                           value="{{ old('jam_mulai', $jadwal->jam_mulai) }}"
-                           required>
+                <div style="margin-bottom: 48px;">
+                    <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Kelas</label>
+                    <div style="position: relative; border-bottom: 1px solid var(--color-hairline);">
+                        <select name="kelas" class="form-field" required style="width: 100%; border: none; padding: 16px 0; font-family: var(--font-family-base); font-size: 18px; outline: none; background: transparent; cursor: pointer; appearance: none; color: var(--color-ink); font-weight: 500; text-transform: uppercase;">
+                            @php
+                                $tingkatan = ['X', 'XI', 'XII'];
+                                $jurusan = 'SIJA';
+                                $rombel = [1, 2];
+                            @endphp
+                            @foreach ($tingkatan as $t)
+                                @foreach ($rombel as $r)
+                                    @php $kls = "$t-$jurusan $r"; @endphp
+                                    <option value="{{ $kls }}" {{ old('kelas', $jadwal->kelas) == $kls ? 'selected' : '' }}>{{ $kls }}</option>
+                                @endforeach
+                            @endforeach
+                        </select>
+                        <div style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 12px; color: var(--color-stone);">&darr;</div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label"><i class="bi bi-clock-history"></i> Jam Ke (Selesai)</label>
-                    <input type="number"
-                           name="jam_selesai"
-                           class="form-control"
-                           min="1"
-                           max="12"
-                           value="{{ old('jam_selesai', $jadwal->jam_selesai) }}"
-                           required>
+                <div style="margin-bottom: 48px;">
+                    <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Jam Ke (Mulai)</label>
+                    <input type="number" name="jam_mulai" class="form-field" min="1" max="12" value="{{ old('jam_mulai', $jadwal->jam_mulai) }}" required style="width: 100%; border: none; border-bottom: 1px solid var(--color-hairline); padding: 16px 0; font-family: var(--font-family-base); font-size: 18px; outline: none; background: transparent; color: var(--color-ink); font-weight: 500;">
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label"><i class="bi bi-book"></i> Mata Pelajaran</label>
-                    <select name="kd_mapel" class="form-control" required>
-                        @foreach($mapel as $m)
-                            <option value="{{ $m->kd_mapel }}" @selected(old('kd_mapel', $jadwal->kd_mapel) == $m->kd_mapel)>
-                                {{ $m->nama_mapel }}
-                            </option>
-                        @endforeach
-                    </select>
+                <div style="margin-bottom: 48px;">
+                    <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Jam Ke (Selesai)</label>
+                    <input type="number" name="jam_selesai" class="form-field" min="1" max="12" value="{{ old('jam_selesai', $jadwal->jam_selesai) }}" required style="width: 100%; border: none; border-bottom: 1px solid var(--color-hairline); padding: 16px 0; font-family: var(--font-family-base); font-size: 18px; outline: none; background: transparent; color: var(--color-ink); font-weight: 500;">
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label"><i class="bi bi-person-badge"></i> Guru Pengajar</label>
-                    <select name="NIP" class="form-control" required>
-                        @foreach($guru as $g)
-                            <option value="{{ $g->NIP }}" @selected(old('NIP', $jadwal->NIP) == $g->NIP)>
-                                {{ $g->nama_guru }}
-                            </option>
-                        @endforeach
-                    </select>
+                <div style="margin-bottom: 48px;">
+                    <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Mata Pelajaran</label>
+                    <div style="position: relative; border-bottom: 1px solid var(--color-hairline);">
+                        <select name="kd_mapel" class="form-field" required style="width: 100%; border: none; padding: 16px 0; font-family: var(--font-family-base); font-size: 18px; outline: none; background: transparent; cursor: pointer; appearance: none; color: var(--color-ink); font-weight: 500; text-transform: uppercase;">
+                            @foreach ($mapel as $m)
+                                <option value="{{ $m->kd_mapel }}" {{ old('kd_mapel', $jadwal->kd_mapel) == $m->kd_mapel ? 'selected' : '' }}>{{ $m->nama_mapel }}</option>
+                            @endforeach
+                        </select>
+                        <div style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 12px; color: var(--color-stone);">&darr;</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 48px;">
+                    <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Guru Pengajar</label>
+                    <div style="position: relative; border-bottom: 1px solid var(--color-hairline);">
+                        <select name="NIP" class="form-field" required style="width: 100%; border: none; padding: 16px 0; font-family: var(--font-family-base); font-size: 18px; outline: none; background: transparent; cursor: pointer; appearance: none; color: var(--color-ink); font-weight: 500; text-transform: uppercase;">
+                            @foreach ($guru as $g)
+                                <option value="{{ $g->NIP }}" {{ old('NIP', $jadwal->NIP) == $g->NIP ? 'selected' : '' }}>{{ $g->nama_guru }}</option>
+                            @endforeach
+                        </select>
+                        <div style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 12px; color: var(--color-stone);">&darr;</div>
+                    </div>
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-submit">
-                    <i class="bi bi-check2-circle"></i> Simpan Perubahan
-                </button>
-                <a href="{{ route('jadwal.index') }}" class="btn-cancel">
-                    <i class="bi bi-x-lg"></i> Batal
-                </a>
+                <button type="submit" class="btn-primary" style="height: 56px; padding: 0 48px; font-size: 15px;">Simpan Perubahan</button>
+                <a href="{{ route('jadwal.index') }}" class="btn-ghost" style="text-decoration: none; height: 56px; padding: 0 32px; display: inline-flex; align-items: center; font-size: 13px;">Batal</a>
             </div>
         </form>
     </div>
+
 </div>
 
 @push('scripts')
@@ -496,16 +139,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateGuruList(kdMapel, selectedNip = null) {
         if (!kdMapel) return;
 
-        guruSelect.innerHTML = '<option value="" disabled>-- Memuat Guru... --</option>';
+        guruSelect.innerHTML = '<option value="" disabled>MEMUAT GURU...</option>';
         guruSelect.disabled = true;
 
         fetch(`{{ url('admin/jadwal/get-guru-by-mapel') }}/${kdMapel}`)
             .then(response => response.json())
             .then(data => {
-                guruSelect.innerHTML = '<option value="" disabled>-- Pilih Guru --</option>';
+                guruSelect.innerHTML = '<option value="" disabled>PILIH GURU</option>';
                 
                 if (data.length === 0) {
-                    guruSelect.innerHTML = '<option value="" disabled selected>-- Tidak ada guru untuk mapel ini --</option>';
+                    guruSelect.innerHTML = '<option value="" disabled selected>TIDAK ADA GURU UNTUK MAPEL INI</option>';
                 } else {
                     data.forEach(guru => {
                         const option = document.createElement('option');
@@ -521,12 +164,11 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error fetching guru:', error);
-                guruSelect.innerHTML = '<option value="" disabled>-- Gagal memuat data --</option>';
+                guruSelect.innerHTML = '<option value="" disabled>GAGAL MEMUAT DATA</option>';
             });
     }
 
     if (mapelSelect && guruSelect) {
-        // Initial load for edit mode
         if (mapelSelect.value) {
             updateGuruList(mapelSelect.value, currentNip);
         }

@@ -2,204 +2,69 @@
 
 @section('content')
 
-<style>
-    /* ── PAGE HEADER ─────────────────────────── */
-    .page-header {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .btn-back {
-        width: 36px; height: 36px;
-        border-radius: 50%;
-        background: var(--navy3);
-        border: 1px solid var(--glass-border);
-        color: var(--text2);
-        display: grid; place-items: center;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-
-    .btn-back:hover {
-        background: var(--glass-hover);
-        color: var(--accent);
-        border-color: var(--accent);
-    }
-
-    .page-title {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 20px;
-        font-weight: 800;
-        color: var(--text1);
-        line-height: 1.2;
-    }
-
-    /* ── CARD ─────────────────────────── */
-    .card {
-        background: var(--navy2);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--r);
-        overflow: hidden;
-    }
-
-    .card-toolbar {
-        padding: 16px 20px;
-        border-bottom: 1px solid var(--glass-border);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .card-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--text1);
-    }
-
-    .count-badge {
-        font-size: 10px;
-        font-weight: 700;
-        background: rgba(88,166,255,.12);
-        color: var(--accent);
-        padding: 2px 8px;
-        border-radius: 10px;
-    }
-
-    /* ── TABLE ─────────────────────────── */
-    .tbl-wrap {
-        overflow-x: auto;
-    }
-
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .data-table th {
-        padding: 12px 20px;
-        text-align: left;
-        font-size: 10px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .1em;
-        color: var(--text3);
-        border-bottom: 1px solid var(--glass-border);
-        background: var(--navy2);
-    }
-
-    .data-table td {
-        padding: 14px 20px;
-        border-bottom: 1px solid var(--glass-border);
-        font-size: 13px;
-        color: var(--text2);
-        vertical-align: middle;
-    }
-
-    .data-table tbody tr:hover td {
-        background: var(--glass-hover);
-        color: var(--text1);
-    }
-
-    .cell-name {
-        font-weight: 600;
-        color: var(--text1);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .avatar-sm {
-        width: 32px; height: 32px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--accent), var(--purple));
-        display: grid; place-items: center;
-        font-size: 11px;
-        font-weight: 700;
-        color: #fff;
-        flex-shrink: 0;
-    }
-
-    .nis-badge {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--accent);
-        background: rgba(88,166,255,0.08);
-        padding: 3px 8px;
-        border-radius: 5px;
-    }
-
-    /* ── EMPTY STATE ─────────────────────────── */
-    .empty-state {
-        padding: 60px 20px;
-        text-align: center;
-        color: var(--text3);
-    }
-
-    .empty-state i {
-        font-size: 40px;
-        margin-bottom: 12px;
-        display: block;
-    }
-</style>
-
-<div class="page-header">
-    <a href="{{ route('admin.kelas.index') }}" class="btn-back">
-        <i class="bi bi-chevron-left"></i>
-    </a>
-    <div>
-        <div class="page-title">Siswa Kelas: {{ $kelas }}</div>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-toolbar">
-        <div class="card-label">Daftar Siswa</div>
-        <span class="count-badge">{{ $siswa->count() }} orang</span>
+<div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+    
+    <!-- Header Card -->
+    <div class="card" style="background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid var(--color-hairline);">
+        <div class="editorial-header" style="margin: 0;">
+            <span class="eyebrow" style="color: var(--color-stone); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; font-weight: 700;">Struktur Institusi</span>
+            <h1 class="display-title" style="font-size: 48px; font-weight: 400; letter-spacing: var(--tracking-tighter); margin: 8px 0 24px 0; text-transform: uppercase;">Siswa Kelas {{ $kelas }}</h1>
+            <p class="text-body" style="color: var(--color-graphite); max-width: 600px; font-size: 16px; line-height: 1.5; margin: 0;">
+                Daftar seluruh siswa yang terdaftar dalam rombongan belajar kelas {{ $kelas }}.
+            </p>
+        </div>
     </div>
 
-    <div class="tbl-wrap">
-        <table class="data-table">
+    <!-- Stats & Actions Card -->
+    <div class="stats-grid">
+        <div class="card" style="background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid var(--color-hairline); position: relative; overflow: hidden; display: flex; align-items: center; min-height: 140px;">
+            <div style="position: absolute; left: 16px; top: 40px; bottom: 40px; width: 4px; background: var(--color-ink); border-radius: 2px;"></div>
+            <div style="position: absolute; right: 16px; top: 40px; bottom: 40px; width: 4px; background: var(--color-ink); border-radius: 2px;"></div>
+            <div style="position: absolute; top: 24px; right: 32px; width: 48px; height: 48px; background: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-ink); border: 1px solid var(--color-hairline);">
+                <i class="bi bi-people" style="font-size: 20px;"></i>
+            </div>
+            <div style="padding-left: 12px;">
+                <div class="text-micro-caps" style="color: var(--color-stone); margin-bottom: 12px; font-weight: 800; letter-spacing: 0.25em; font-size: 10px;">TOTAL SISWA TERDAFTAR</div>
+                <div style="font-size: 56px; color: var(--color-ink); font-weight: 400; letter-spacing: var(--tracking-tighter); line-height: 1;">{{ $siswa->count() }} <span style="font-size: 24px; letter-spacing: 0;">Anggota</span></div>
+            </div>
+        </div>
+        <div class="card" style="background: #ffffff; padding: 0 40px; border-radius: 16px; border: 1px solid var(--color-hairline); display: flex; align-items: center; justify-content: center;">
+            <a href="{{ route('admin.kelas.index') }}" class="btn-ghost" style="text-decoration: none; height: 48px; display: flex; align-items: center; font-size: 11px;">&larr; KEMBALI KE DIREKTORI</a>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card table-container-card" style="margin-bottom: var(--spacing-section);">
+        <table class="data-table responsive-table" style="margin: 0; width: 100%;">
             <thead>
                 <tr>
-                    <th style="width:60px">#</th>
+                    <th style="padding-left: 40px; width: 60px;">#</th>
                     <th>NIS</th>
                     <th>Nama Lengkap</th>
                     <th>Email</th>
-                    <th style="text-align:center">Aksi (Siswa)</th>
+                    <th style="text-align: right; padding-right: 40px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($siswa as $index => $s)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td><span class="nis-badge">{{ $s->NIS }}</span></td>
-                    <td>
-                        <div class="cell-name">
-                            <div class="avatar-sm">{{ strtoupper(substr($s->nama_siswa, 0, 1)) }}</div>
-                            {{ $s->nama_siswa }}
-                        </div>
-                    </td>
-                    <td>{{ $s->user->email ?? '-' }}</td>
-                    <td style="text-align:center">
-                        <a href="{{ route('siswa.edit', $s->NIS) }}" class="btn-back" style="display:inline-grid; border-radius:8px; width:auto; padding:0 12px; font-size:11px; height:28px">
-                            Detail Siswa
-                        </a>
+                    <td data-label="#" style="padding-left: 40px; color: var(--color-stone);">{{ $index + 1 }}</td>
+                    <td data-label="NIS" style="font-family: monospace; color: var(--color-slate);">{{ $s->NIS }}</td>
+                    <td data-label="Nama Lengkap" style="font-weight: 600;">{{ $s->nama_siswa }}</td>
+                    <td data-label="Email" style="color: var(--color-graphite);">{{ $s->user->email ?? '-' }}</td>
+                    <td data-label="Aksi" style="text-align: right; padding-right: 40px;">
+                        <a href="{{ route('siswa.edit', $s->NIS) }}" class="btn-ghost" style="height: 32px; font-size: 11px; padding: 0 16px; text-decoration: none; display: inline-flex; align-items: center;">Detail</a>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="empty-state">
-                        <i class="bi bi-people"></i>
-                        Belum ada siswa yang terdaftar di kelas {{ $kelas }}.
-                    </td>
+                    <td colspan="5" style="text-align: center; padding: 120px; color: var(--color-stone);">Belum ada siswa yang terdaftar di kelas {{ $kelas }}.</td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+
 </div>
 
 @endsection

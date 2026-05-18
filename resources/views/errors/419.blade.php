@@ -1,64 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesi Berakhir — Scoola</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        :root {
+            --font-sans: 'Inter', system-ui, sans-serif;
+        }
 
-        <title>Page Expired</title>
+        body {
+            background-color: var(--color-canvas);
+            color: var(--color-ink);
+            font-family: var(--font-sans);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
 
-        <style>
-            /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
-            html { line-height: 1.15; -webkit-text-size-adjust: 100%; }
-            body { margin: 0; }
-            a { background-color: transparent; }
-            code { font-family: monospace, monospace; font-size: 1em; }
+        .error-container {
+            text-align: center;
+            padding: 48px;
+        }
 
-            body {
-                font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-            }
-        </style>
+        .error-code {
+            font-size: 120px;
+            font-weight: 400;
+            line-height: 1;
+            letter-spacing: -4px;
+            margin-bottom: 24px;
+            color: var(--color-ink);
+        }
 
-        <style>
-            .relative { position: relative; }
-            .flex { display: flex; }
-            .items-center { align-items: center; }
-            .justify-center { justify-content: center; }
-            .min-h-screen { min-height: 100vh; }
-            .antialiased { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-            .tracking-wider { letter-spacing: 0.05em; }
-            .text-gray-500 { color: #6b7280; }
-            .uppercase { text-transform: uppercase; }
-            .border-r { border-right-width: 1px; }
-            .border-gray-400 { border-color: #9ca3af; }
-            .px-4 { padding-left: 1rem; padding-right: 1rem; }
-            .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-            
-            /* Dark mode support to match your app */
-            [data-theme="dark"] body { background-color: #0c0c0c; color: #f0f0f0; }
-            [data-theme="dark"] .text-gray-500 { color: #9ca3af; }
-            [data-theme="dark"] .border-gray-400 { border-color: #4b5563; }
-        </style>
-    </head>
-    <body class="antialiased">
-        <script>
-            // Sync theme
-            const theme = localStorage.getItem('scoola-theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', theme);
+        .error-title {
+            font-size: 24px;
+            font-weight: 400;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
 
-            // Redirect to login after 1 second with expired flag
-            setTimeout(function() {
-                window.location.href = "{{ route('login') }}?expired=1";
-            }, 1000);
-        </script>
+        .error-desc {
+            font-size: 15px;
+            color: var(--color-stone);
+            max-width: 320px;
+            margin: 0 auto 48px;
+            line-height: 1.6;
+        }
 
-        <div class="relative flex items-center justify-center min-h-screen">
-            <div class="flex items-center">
-                <div class="px-4 text-lg text-gray-500 border-r border-gray-400 tracking-wider">
-                    419                </div>
+        .redirect-status {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--color-ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
 
-                <div class="px-4 text-lg text-gray-500 uppercase tracking-wider">
-                    Page Expired                </div>
-            </div>
-        </div>
-    </body>
+        .dot-pulse {
+            width: 4px;
+            height: 4px;
+            background: var(--color-ink);
+            border-radius: 50%;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 1; }
+            to { opacity: 0.2; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="error-container">
+    <div class="error-code">419</div>
+    <h1 class="error-title">Sesi Berakhir</h1>
+    <p class="error-desc">Keamanan sesi Anda telah kedaluwarsa. Kami akan mengarahkan Anda kembali ke halaman masuk.</p>
+    
+    <div class="redirect-status">
+        <div class="dot-pulse"></div>
+        Mengarahkan otomatis
+    </div>
+</div>
+
+<script>
+    setTimeout(function() {
+        window.location.href = "{{ route('login') }}?expired=1";
+    }, 2000);
+</script>
+
+</body>
 </html>

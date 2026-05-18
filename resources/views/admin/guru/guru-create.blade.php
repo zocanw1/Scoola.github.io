@@ -2,152 +2,76 @@
 
 @section('content')
 
-<style>
-    .page-header { margin-bottom: 24px; }
-
-    .page-title {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 20px; font-weight: 800;
-        color: var(--text1); line-height: 1.2;
-    }
-
-    .page-subtitle { font-size: 12px; color: var(--text2); margin-top: 4px; }
-
-    .form-card {
-        background: var(--navy2);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--r);
-        padding: 24px;
-        max-width: 600px;
-    }
-
-    .form-group { margin-bottom: 20px; }
-
-    .form-label {
-        display: block;
-        font-size: 11.5px; font-weight: 600;
-        color: var(--text2);
-        margin-bottom: 8px;
-        text-transform: uppercase;
-        letter-spacing: .06em;
-    }
-
-    /* Redundant styles removed to use global shared-components.blade.php */
-
-    .form-actions {
-        display: flex; gap: 12px;
-        margin-top: 28px; padding-top: 20px;
-        border-top: 1px solid var(--glass-border);
-    }
-
-    .btn-submit {
-        display: inline-flex; align-items: center; gap: 7px;
-        padding: 9px 18px;
-        background: var(--accent); color: #fff;
-        border: none; border-radius: 8px;
-        font-size: 12.5px; font-weight: 700;
-        font-family: 'Inter', sans-serif;
-        cursor: pointer; transition: all .2s;
-    }
-
-    .btn-submit:hover {
-        filter: brightness(1.15); color: #fff;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 14px rgba(88,166,255,0.3);
-    }
-
-    .btn-cancel {
-        display: inline-flex; align-items: center; justify-content: center;
-        padding: 9px 18px;
-        background: var(--navy3);
-        border: 1px solid var(--glass-border);
-        color: var(--text2);
-        border-radius: 8px;
-        font-size: 12.5px; font-weight: 500;
-        font-family: 'Inter', sans-serif;
-        text-decoration: none; transition: all .2s;
-    }
-
-    .btn-cancel:hover {
-        background: var(--glass-hover);
-        color: var(--text1);
-        border-color: var(--text3);
-    }
-
-    .alert-danger {
-        background: rgba(248,81,73,0.1);
-        border: 1px solid rgba(248,81,73,0.2);
-        border-radius: 8px;
-        padding: 14px 18px;
-        margin-bottom: 24px;
-        max-width: 600px;
-    }
-
-    .alert-danger ul {
-        margin: 0; padding-left: 20px;
-        color: var(--red); font-size: 12.5px;
-    }
-</style>
-
-<div class="page-header">
-    <div class="page-title">Tambah Data Guru</div>
-    <div class="page-subtitle">Masukkan informasi guru baru beserta akun loginnya</div>
-</div>
-
-@if ($errors->any())
-    <div class="alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+<div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+    
+    <!-- Header Card -->
+    <div class="card" style="background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid var(--color-hairline);">
+        <div class="editorial-header" style="margin: 0;">
+            <span class="eyebrow" style="color: var(--color-stone); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; font-weight: 700;">Manajemen Data</span>
+            <h1 class="display-title" style="font-size: 48px; font-weight: 400; letter-spacing: var(--tracking-tighter); margin: 8px 0 24px 0; text-transform: uppercase;">Pendaftaran Guru</h1>
+            <p class="text-body" style="color: var(--color-graphite); max-width: 600px; font-size: 16px; line-height: 1.5; margin: 0;">
+                Tambahkan tenaga pengajar baru ke dalam sistem Scoola. Pastikan data yang dimasukkan akurat untuk keperluan administrasi.
+            </p>
+        </div>
     </div>
-@endif
 
-<div class="form-card">
-    <form method="POST" action="{{ route('guru.store') }}">
-        @csrf
-
-        <div class="form-group">
-            <label class="form-label">NIP (Nomor Induk Pegawai)</label>
-            <input type="text" name="nip" class="form-control" placeholder="Contoh: 198501012010011001" required value="{{ old('nip') }}">
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Nama Lengkap</label>
-            <input type="text" name="nama" class="form-control" placeholder="Masukkan nama lengkap guru" required value="{{ old('nama') }}">
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Mata Pelajaran (Bisa pilih lebih dari satu)</label>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--navy3); padding: 12px; border-radius: 8px; border: 1px solid var(--glass-border);">
-                @foreach ($mapel as $m)
-                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); cursor: pointer;">
-                        <input type="checkbox" name="kd_mapel[]" value="{{ $m->kd_mapel }}" 
-                            @checked(is_array(old('kd_mapel')) && in_array($m->kd_mapel, old('kd_mapel')))>
-                        {{ $m->nama_mapel }}
-                    </label>
+    @if ($errors->any())
+        <div class="card" style="background: #ffffff; padding: 24px; border: 2px solid var(--color-ink); border-radius: 12px;">
+            <div class="text-micro-caps" style="color: var(--color-ink); margin-bottom: 16px; font-weight: 700;">Ditemukan Kesalahan Validasi:</div>
+            <ul style="margin: 0; padding-left: 20px; color: var(--color-ink); font-size: 14px; line-height: 1.8;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
                 @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- Form Card -->
+    <div class="card" style="background: #ffffff; padding: 48px; border-radius: 16px; border: 1px solid var(--color-hairline); margin-bottom: var(--spacing-section);">
+        <form method="POST" action="{{ route('guru.store') }}" style="max-width: 720px;">
+            @csrf
+
+            <div style="margin-bottom: 48px;">
+                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">NIP / Identitas Pegawai</label>
+                <input type="text" name="nip" class="form-field" placeholder="19XXXXXXXXXXXXXX" required value="{{ old('nip') }}">
             </div>
-        </div>
 
-        <div class="form-group">
-            <label class="form-label">Alamat Email</label>
-            <input type="email" name="email" class="form-control" placeholder="nama@sekolah.com" required value="{{ old('email') }}">
-        </div>
+            <div style="margin-bottom: 48px;">
+                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Nama Lengkap & Gelar</label>
+                <input type="text" name="nama" class="form-field" placeholder="Masukkan nama lengkap guru" required value="{{ old('nama') }}">
+            </div>
 
-        <div class="form-group">
-            <label class="form-label">Password Sementara</label>
-            <input type="password" name="password" class="form-control" placeholder="Minimal 6 karakter" required>
-        </div>
+            <div style="margin-bottom: 48px;">
+                <label class="text-micro-caps" style="display: block; margin-bottom: 16px; color: var(--color-stone); font-weight: 700;">Spesialisasi Mata Pelajaran</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 32px; border: 1px solid var(--color-hairline); background: var(--color-surface); border-radius: 8px;">
+                    @foreach ($mapel as $m)
+                        <label style="display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--color-ink); cursor: pointer; font-family: var(--font-family-base); font-weight: 500;">
+                            <input type="checkbox" name="kd_mapel[]" value="{{ $m->kd_mapel }}" 
+                                @checked(is_array(old('kd_mapel')) && in_array($m->kd_mapel, old('kd_mapel')))>
+                            {{ $m->nama_mapel }}
+                        </label>
+                    @endforeach
+                </div>
+            </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn-submit">
-                <i class="bi bi-save"></i> Simpan Data Guru
-            </button>
-            <a href="{{ route('guru.index') }}" class="btn-cancel">Batal</a>
-        </div>
-    </form>
+            <div style="margin-bottom: 48px;">
+                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Alamat Email Resmi</label>
+                <input type="email" name="email" class="form-field" placeholder="nama@sekolah.com" required value="{{ old('email') }}">
+            </div>
+
+            <div style="margin-bottom: 48px;">
+                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Kredensial Akses (Password)</label>
+                <input type="password" name="password" class="form-field" placeholder="••••••••" required>
+                <small style="color: var(--color-stone); margin-top: 12px; display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Minimum 8 karakter untuk keamanan</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary" style="height: 56px; padding: 0 48px; font-size: 15px;">Simpan Data Guru</button>
+                <a href="{{ route('guru.index') }}" class="btn-ghost" style="text-decoration: none; height: 56px; padding: 0 32px; display: inline-flex; align-items: center; font-size: 13px;">Batal</a>
+            </div>
+        </form>
+    </div>
+
 </div>
 
 @endsection

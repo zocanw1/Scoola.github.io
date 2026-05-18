@@ -26,4 +26,9 @@ class Mapel extends Model
     {
         return $this->belongsToMany(Guru::class, 'guru_mapel', 'kd_mapel', 'NIP');
     }
+
+    public function jadwal()
+    {
+        return $this->hasMany(JadwalPelajaran::class, 'kd_mapel', 'kd_mapel');
+    }
 }

@@ -7,26 +7,26 @@
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        margin-bottom: 28px;
-        gap: 16px;
+        margin-bottom: var(--spacing-xxl);
+        gap: var(--spacing-md);
         flex-wrap: wrap;
     }
 
-    .page-header-left .page-title,
     .page-header .page-title {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 22px;
-        font-weight: 800;
-        color: var(--text1);
-        line-height: 1.2;
-        letter-spacing: -0.02em;
+        font-family: var(--font-family-base);
+        font-size: 32px;
+        font-weight: 400;
+        color: var(--color-ink);
+        line-height: 1;
+        letter-spacing: var(--tracking-tight);
+        text-transform: uppercase;
     }
 
-    .page-header-left .page-subtitle,
     .page-header .page-subtitle {
-        font-size: 13px;
-        color: var(--text2);
-        margin-top: 4px;
+        font-size: 14px;
+        color: var(--color-slate);
+        margin-top: var(--spacing-xs);
+        max-width: 600px;
     }
 
     /* ══════════════════════════════════════════════
@@ -36,142 +36,84 @@
     .form-card,
     .schedule-container,
     .list-card {
-        background: var(--navy2);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--r);
-        transition: border-color var(--transition), box-shadow var(--transition);
+        background: var(--color-surface); /* Pure White #FFFFFF */
+        border: 1px solid var(--color-hairline);
+        border-radius: var(--rounded-none); /* Editorial sharp corners or minimal sm */
+        transition: border-color 0.2s;
     }
 
-    .card:hover { border-color: rgba(96,165,250,0.15); }
-
-    .card-inner { padding: 20px 22px; }
+    .card-inner { padding: 32px; }
 
     .card-title {
-        font-size: 13px; font-weight: 700;
-        color: var(--text1);
-        display: flex; align-items: center; gap: 8px;
-        margin-bottom: 16px;
-        letter-spacing: -0.01em;
+        font-family: var(--font-family-base);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-ink);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
-    .card-title-icon { font-size: 14px; }
     .card-title-action {
         margin-left: auto;
-        font-size: 11.5px;
-        color: var(--accent);
-        cursor: pointer;
-        font-weight: 500;
+        font-size: 11px;
+        color: var(--color-stone);
         text-decoration: none;
-        transition: color var(--transition);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
-    .card-title-action:hover { color: var(--text1); }
 
     /* ══════════════════════════════════════════════
        BUTTONS
        ══════════════════════════════════════════════ */
-    .btn-primary {
-        display: inline-flex; align-items: center; gap: 8px;
-        padding: 10px 20px;
-        background: var(--gradient-accent);
-        color: #fff;
-        border: none; border-radius: var(--r-sm);
-        font-size: 13px; font-weight: 700;
-        text-decoration: none;
-        transition: all var(--transition);
-        white-space: nowrap;
-        cursor: pointer;
-        font-family: 'Inter', sans-serif;
-        box-shadow: 0 2px 8px rgba(96,165,250,0.25);
-    }
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 24px rgba(96,165,250,0.4);
-        color: #fff;
-    }
-    .btn-primary:active { transform: translateY(0); }
-
+    /* Buttons already defined in runway.css but kept here for consistency if needed locally */
     .btn-submit {
-        display: inline-flex; align-items: center; gap: 8px;
-        padding: 10px 22px;
-        background: var(--gradient-accent);
-        color: #fff;
-        border: none; border-radius: var(--r-sm);
-        font-size: 13px; font-weight: 700;
-        font-family: 'Inter', sans-serif;
+        background: var(--color-primary);
+        color: var(--color-on-primary);
+        padding: 0 32px;
+        height: 48px;
+        border-radius: var(--rounded-full);
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         cursor: pointer;
-        transition: all var(--transition);
-        box-shadow: 0 2px 8px rgba(96,165,250,0.25);
+        transition: filter 0.2s;
     }
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 24px rgba(96,165,250,0.4);
-    }
-    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:hover { filter: invert(1); }
 
     .btn-cancel {
-        display: inline-flex; align-items: center; justify-content: center;
-        padding: 10px 22px;
-        background: var(--navy3);
-        border: 1px solid var(--glass-border);
-        color: var(--text2);
-        border-radius: var(--r-sm);
-        font-size: 13px; font-weight: 600;
-        font-family: 'Inter', sans-serif;
+        background: transparent;
+        color: var(--color-stone);
+        padding: 0 32px;
+        height: 48px;
+        border-radius: var(--rounded-full);
+        border: 1px solid var(--color-hairline);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         text-decoration: none;
-        transition: all var(--transition);
-        cursor: pointer;
-    }
-    .btn-cancel:hover {
-        background: var(--glass-hover);
-        color: var(--text1);
-        border-color: var(--text3);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .btn-edit {
-        display: inline-flex; align-items: center; gap: 5px;
-        padding: 6px 14px;
-        background: var(--accent-soft);
-        border: 1px solid rgba(96,165,250,0.15);
-        color: var(--accent);
-        border-radius: var(--r-xs);
-        font-size: 12px; font-weight: 600;
+    .btn-edit, .btn-danger {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 8px 16px;
+        border-radius: var(--rounded-xs);
         text-decoration: none;
-        transition: all var(--transition);
-        cursor: pointer;
-        font-family: 'Inter', sans-serif;
-    }
-    .btn-edit:hover {
-        background: var(--accent);
-        color: #fff;
-        border-color: var(--accent);
-        transform: translateY(-1px);
+        border: 1px solid var(--color-hairline);
     }
 
-    .btn-danger {
-        display: inline-flex; align-items: center; gap: 5px;
-        padding: 6px 14px;
-        background: var(--red-soft);
-        border: 1px solid rgba(248,113,113,0.15);
-        color: var(--red);
-        border-radius: var(--r-xs);
-        font-size: 12px; font-weight: 600;
-        text-decoration: none;
-        transition: all var(--transition);
-        cursor: pointer;
-        font-family: 'Inter', sans-serif;
-    }
-    .btn-danger:hover {
-        background: var(--red);
-        color: #fff;
-        border-color: var(--red);
-    }
-
-    .btn-back {
-        display: inline-flex; align-items: center; gap: 7px;
-        color: var(--text3); font-size: 12.5px; text-decoration: none;
-        margin-bottom: 18px; transition: color var(--transition); font-weight: 500;
-    }
-    .btn-back:hover { color: var(--accent); }
+    .btn-edit { color: var(--color-ink); }
+    .btn-danger { color: var(--color-slate); }
 
     /* ══════════════════════════════════════════════
        FORMS
@@ -185,46 +127,30 @@
 
     .form-label {
         display: block;
-        font-size: 11.5px;
+        font-size: 11px;
         font-weight: 700;
-        color: var(--text2);
+        color: var(--color-stone);
         margin-bottom: 8px;
         text-transform: uppercase;
-        letter-spacing: .07em;
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        letter-spacing: 0.1em;
     }
 
-    .form-label i {
-        font-size: 13px;
-        color: var(--accent);
-        opacity: .7;
-    }
-
-    .form-control,
-    .form-select {
+    .form-control, .form-select {
         width: 100%;
-        background-color: var(--input-bg);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--r-xs);
-        padding: 11px 16px;
-        color: var(--text1);
-        font-size: 13.5px;
-        font-family: 'Inter', sans-serif;
-        transition: all var(--transition);
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-hairline);
+        border-radius: var(--rounded-xs);
+        padding: 12px 16px;
+        color: var(--color-ink);
+        font-size: 14px;
+        font-family: var(--font-family-base);
         outline: none;
+        transition: border-color 0.2s;
     }
 
-    .form-control:focus,
-    .form-select:focus {
-        border-color: var(--accent-glow);
-        box-shadow: 0 0 0 3px rgba(96,165,250,0.1);
-        background-color: var(--navy3);
-        color: var(--text1) !important;
+    .form-control:focus, .form-select:focus {
+        border-color: var(--color-ink);
     }
-
-    .form-control::placeholder { color: var(--text2); opacity: 0.8; }
 
     /* Fix Autofill in Dark Mode */
     input:-webkit-autofill,
@@ -367,50 +293,44 @@
     }
 
     .data-table th {
-        padding: 14px 20px;
-        background: var(--glass);
+        padding: 16px 24px;
+        background: var(--color-surface);
         font-size: 11px;
         font-weight: 700;
-        color: var(--text3);
+        color: var(--color-stone);
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.15em;
         text-align: left;
-        border-bottom: 1px solid var(--glass-border);
+        border-bottom: 2px solid var(--color-ink);
     }
 
     .data-table td {
-        padding: 14px 20px;
-        border-bottom: 1px solid var(--glass-border);
-        color: var(--text2);
-        font-size: 13px;
-        transition: all var(--transition);
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--color-hairline);
+        color: var(--color-ink);
+        font-size: 14px;
     }
 
     .data-table tr:hover td {
-        background: var(--glass-hover);
-        color: var(--text1);
-    }
-
-    .data-table tr:last-child td { border-bottom: none; }
-
-    [data-theme="light"] .data-table td {
-        border-bottom-color: rgba(0,0,0,0.04);
+        background: var(--color-canvas-warm);
     }
 
     /* ══════════════════════════════════════════════
        BADGES
        ══════════════════════════════════════════════ */
     .badge-status {
-        font-size: 11px; font-weight: 600;
-        padding: 3px 10px; border-radius: 20px;
-        display: inline-block;
-        letter-spacing: 0.02em;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: var(--rounded-full);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border: 1px solid var(--color-hairline);
+        color: var(--color-ink);
     }
 
-    .bs-h { background: var(--green-soft);  color: var(--green); }
-    .bs-i { background: var(--amber-soft);  color: var(--amber); }
-    .bs-a { background: var(--red-soft);    color: var(--red); }
-    .bs-s { background: var(--purple-soft); color: var(--purple); }
+    .bs-h { background: #000; color: #fff; border-color: #000; } /* Hadir - Black */
+    .bs-a { background: transparent; color: var(--color-stone); } /* Alpha - Muted */
 
     .hari-badge {
         background: var(--accent-soft);
@@ -419,7 +339,7 @@
         border-radius: 8px;
         font-weight: 700;
         font-size: 12px;
-        border: 1px solid rgba(96,165,250,0.12);
+        border: 1px solid rgba(124,58,237,0.12);
     }
 
     .jam-badge {
@@ -435,11 +355,11 @@
     .nis-badge {
         display: inline-flex; align-items: center; gap: 7px;
         background: var(--accent-soft);
-        border: 1px solid rgba(96,165,250,0.12);
+        border: 1px solid rgba(124,58,237,0.12);
         color: var(--accent);
         padding: 9px 16px;
         border-radius: var(--r-xs);
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'Outfit', sans-serif;
         font-size: 14px; font-weight: 700;
         letter-spacing: .03em;
     }
@@ -474,7 +394,7 @@
         background: var(--gradient-accent);
         color: #fff;
         border-color: transparent;
-        box-shadow: 0 3px 12px rgba(96,165,250,0.3);
+        box-shadow: 0 3px 12px rgba(124,58,237,0.3);
     }
 
     /* ══════════════════════════════════════════════
@@ -575,50 +495,35 @@
     .stat-row {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 14px;
-        margin-bottom: 18px;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-xl);
     }
 
     .stat-mini {
-        background: var(--navy2);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--r);
-        padding: 18px 20px;
+        background: var(--color-surface);
+        border: 1px solid var(--color-hairline);
+        padding: 32px;
         display: flex;
-        align-items: center;
-        gap: 14px;
-        transition: all var(--transition);
+        flex-direction: column;
+        gap: 8px;
     }
-
-    .stat-mini:hover {
-        border-color: rgba(96,165,250,0.2);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .stat-mini-icon {
-        width: 42px; height: 42px;
-        border-radius: var(--r-sm);
-        display: grid; place-items: center;
-        font-size: 18px;
-        flex-shrink: 0;
-    }
-
-    .ic-blue   { background: var(--accent-soft); color: var(--accent); }
-    .ic-green  { background: var(--green-soft);  color: var(--green); }
-    .ic-amber  { background: var(--amber-soft);  color: var(--amber); }
-    .ic-red    { background: var(--red-soft);    color: var(--red); }
-    .ic-purple { background: var(--purple-soft); color: var(--purple); }
 
     .stat-mini-val {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 24px; font-weight: 800;
-        color: var(--text1);
+        font-family: var(--font-family-base);
+        font-size: 40px;
+        font-weight: 400;
+        color: var(--color-ink);
         line-height: 1;
-        letter-spacing: -0.02em;
+        letter-spacing: var(--tracking-tight);
     }
 
-    .stat-mini-lbl { font-size: 12px; color: var(--text2); margin-top: 3px; }
+    .stat-mini-lbl {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--color-stone);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
 
     .stat-trend { font-size: 11px; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
     .up { color: var(--green); } .dn { color: var(--red); } .nt { color: var(--text3); }
@@ -762,7 +667,7 @@
         justify-content: center;
         font-weight: 800;
         color: var(--text1);
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'Outfit', sans-serif;
         font-size: 13px;
     }
 
@@ -842,7 +747,7 @@
     }
 
     .ws-left h2 {
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'Outfit', sans-serif;
         font-size: 22px; font-weight: 800;
         color: var(--text1);
         letter-spacing: -0.02em;
@@ -851,7 +756,7 @@
     .ws-left p { font-size: 13px; color: var(--text2); margin-top: 3px; }
 
     .ws-time {
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'Outfit', sans-serif;
         font-size: 30px; font-weight: 800;
         color: var(--text1);
         letter-spacing: -0.03em;
@@ -982,4 +887,124 @@
             color: #333 !important;
         }
     }
+
+    /* ══════════════════════════════════════════════
+       BOOTSTRAP OVERRIDE — Force Scoola theme vars
+       This ensures all text/input colors follow the
+       Scoola design system in both Light & Dark mode.
+       ══════════════════════════════════════════════ */
+
+    /* Base text color override */
+    body,
+    .main-wrapper,
+    .page-body,
+    p, span, div, li, td, th, label, a {
+        color: var(--text1);
+    }
+
+    /* Muted/secondary text */
+    .text-muted,
+    small,
+    .form-text {
+        color: var(--text2) !important;
+    }
+
+    /* Headings */
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text1);
+    }
+
+    /* Links */
+    a {
+        color: var(--accent);
+        text-decoration: none;
+    }
+    a:hover {
+        color: var(--accent-light);
+    }
+
+    /* Form inputs — critical Bootstrap override */
+    input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]),
+    textarea,
+    select,
+    .form-control,
+    .form-select {
+        background-color: var(--input-bg) !important;
+        color: var(--text1) !important;
+        border-color: var(--glass-border) !important;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: var(--text3) !important;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus,
+    .form-control:focus,
+    .form-select:focus {
+        background-color: var(--navy3) !important;
+        color: var(--text1) !important;
+        border-color: var(--accent-glow) !important;
+        box-shadow: 0 0 0 3px rgba(124,58,237,0.1) !important;
+    }
+
+    /* Table cells */
+    .table, .table th, .table td,
+    table th, table td {
+        color: var(--text1);
+        border-color: var(--glass-border) !important;
+    }
+
+    /* Dropdown / Select option */
+    option {
+        background: var(--navy2-solid);
+        color: var(--text1);
+    }
+
+    /* Bootstrap card override */
+    .card {
+        background: var(--navy2);
+        border-color: var(--glass-border);
+        color: var(--text1);
+    }
+
+    /* Bootstrap modal */
+    .modal-content {
+        background: var(--navy2-solid);
+        color: var(--text1);
+        border-color: var(--glass-border);
+    }
+
+    /* Bootstrap badge text */
+    .badge {
+        color: inherit;
+    }
+
+    /* Autofill override for all browsers */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    select:-webkit-autofill {
+        -webkit-text-fill-color: var(--text1) !important;
+        -webkit-box-shadow: 0 0 0px 1000px var(--navy3) inset !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Alert override */
+    .alert {
+        color: var(--text1);
+    }
+
+    /* Button text (non-primary) */
+    .btn {
+        color: var(--text1);
+    }
+    .btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-info {
+        color: #fff;
+    }
+
 </style>
+

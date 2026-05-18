@@ -6,13 +6,13 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\AdminAkunController;
 use App\Http\Controllers\KelasController;
-use App\Http\Controllers\RekapController;
+
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\JadwalPelajaranController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\SiswaPresensiController;
 use App\Http\Controllers\AdminWaliKelasController;
-use App\Http\Controllers\WaliKelasController;
+
 
 
 /*
@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
         Route::get('/siswa/{nis}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
         Route::put('/siswa/{nis}', [SiswaController::class, 'update'])->name('siswa.update');
+        Route::delete('/siswa/{nis}', [SiswaController::class, 'destroy'])->name('siswa.destroy');
 
         /* ===================== GURU ===================== */
         Route::get('/guru', [GuruController::class, 'index'])->name('guru.index');
@@ -58,6 +59,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/guru', [GuruController::class, 'store'])->name('guru.store');
         Route::get('/guru/{nip}/edit', [GuruController::class, 'edit'])->name('guru.edit');
         Route::put('/guru/{nip}', [GuruController::class, 'update'])->name('guru.update');
+        Route::delete('/guru/{nip}', [GuruController::class, 'destroy'])->name('guru.destroy');
 
         /* ===================== ADMIN AKUN ===================== */
         Route::get('/admin', [AdminAkunController::class, 'index'])->name('admin.akun.index');
@@ -65,6 +67,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/admin', [AdminAkunController::class, 'store'])->name('admin.akun.store');
         Route::get('/admin/{id}/edit', [AdminAkunController::class, 'edit'])->name('admin.akun.edit');
         Route::put('/admin/{id}', [AdminAkunController::class, 'update'])->name('admin.akun.update');
+        Route::delete('/admin/{id}', [AdminAkunController::class, 'destroy'])->name('admin.akun.destroy');
 
         /* ===================== KELAS ===================== */
         Route::get('/kelas', [KelasController::class, 'index'])->name('admin.kelas.index');
@@ -77,11 +80,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/walikelas/{id}/edit', [AdminWaliKelasController::class, 'edit'])->name('admin.walikelas.edit');
         Route::put('/walikelas/{id}', [AdminWaliKelasController::class, 'update'])->name('admin.walikelas.update');
 
-        /* ===================== REKAP PRESENSI ===================== */
-        Route::get('/rekap', [RekapController::class, 'index'])->name('admin.rekap.index');
-        Route::get('/rekap/harian', [RekapController::class, 'harian'])->name('admin.rekap.harian');
-        Route::get('/rekap/bulanan', [RekapController::class, 'bulanan'])->name('admin.rekap.bulanan');
-        Route::get('/rekap/{id}', [RekapController::class, 'show'])->name('admin.rekap.show');
+
 
         /* ===================== MAPEL ===================== */
         Route::resource('mapel', MapelController::class)->except(['show', 'destroy']);
@@ -121,11 +120,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/presensi/ruang/{sesiId}/update-status/{nis}', [PresensiController::class, 'updateStatusSiswa'])
             ->name('guru.presensi.update-status');
 
-        /* ===================== WALI KELAS ===================== */
-        Route::get('/walikelas', [WaliKelasController::class, 'index'])->name('guru.walikelas.index');
-        Route::get('/walikelas/harian', [WaliKelasController::class, 'harian'])->name('guru.walikelas.harian');
-        Route::get('/walikelas/bulanan', [WaliKelasController::class, 'bulanan'])->name('guru.walikelas.bulanan');
-        Route::get('/walikelas/{id}', [WaliKelasController::class, 'show'])->name('guru.walikelas.show');
+
 
 
     });
@@ -151,4 +146,6 @@ Route::middleware('auth')->group(function () {
 | HOME
 |--------------------------------------------------------------------------
 */
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', fn () => view('welcome'));
+
+
