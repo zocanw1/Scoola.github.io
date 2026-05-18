@@ -39,14 +39,14 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($admin as $index => $a)
+            @foreach ($admins as $index => $a)
             <tr>
                 <td data-label="#" style="padding-left: 40px; color: var(--color-stone);">{{ $index + 1 }}</td>
-                <td data-label="Nama" style="font-weight: 600;">{{ $a->nama_admin }}</td>
-                <td data-label="Username" style="font-family: monospace; color: var(--color-slate);">{{ $a->username }}</td>
+                <td data-label="Nama" style="font-weight: 600;">{{ $a->name }}</td>
+                <td data-label="Username" style="font-family: monospace; color: var(--color-slate);">{{ explode('@', $a->email)[0] }}</td>
                 <td data-label="Email" style="color: var(--color-graphite);">{{ $a->email }}</td>
                 <td data-label="Aksi" style="text-align: right; padding-right: 40px;">
-                    <a href="{{ route('admin.akun.edit', $a->id_admin) }}" class="btn-ghost" style="height: 32px; font-size: 11px; padding: 0 16px; text-decoration: none; display: inline-flex; align-items: center;">Edit</a>
+                    <a href="{{ route('admin.akun.edit', $a->id) }}" class="btn-ghost" style="height: 32px; font-size: 11px; padding: 0 16px; text-decoration: none; display: inline-flex; align-items: center;">Edit</a>
                 </td>
             </tr>
             @endforeach
