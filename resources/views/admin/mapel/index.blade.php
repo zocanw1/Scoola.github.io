@@ -105,12 +105,4 @@ document.getElementById('mapelSearch').addEventListener('keyup', function() {
     </div>
 
 @endsection
-    <!-- FAB Action -->
-    <div class="fab-container">
-        <a href="{{ route('mapel.create') }}" class="btn-fab" title="Tambah Mapel">
-            <i class="bi bi-plus-lg" style="font-size: 28px;"></i>
-            <span class="fab-label">Tambah Mapel Baru</span>
-        </a>
-    </div>
 
-@endsection
