@@ -32,7 +32,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
     })
     ->create();
 
-if (isset($_ENV['VERCEL']) || isset($_ENV['NOW_REGION'])) {
+if (getenv('VERCEL') || getenv('NOW_REGION') || isset($_ENV['VERCEL']) || isset($_ENV['NOW_REGION'])) {
     $storagePath = '/tmp/storage';
     $bootstrapPath = '/tmp/bootstrap';
     $folders = [
