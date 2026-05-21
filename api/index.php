@@ -4,6 +4,11 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
+// Paksa mode debug agar kita bisa melihat error aslinya (bukan halaman 500 hitam)
+putenv('APP_DEBUG=true');
+$_ENV['APP_DEBUG'] = 'true';
+$_SERVER['APP_DEBUG'] = 'true';
+
 try {
     // Forward Vercel requests to Laravel's public/index.php
     require __DIR__ . '/../public/index.php';
