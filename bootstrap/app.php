@@ -2,7 +2,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Middleware;
 
-return Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
@@ -31,3 +31,27 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->create();
+
+if (isset($_ENV['VERCEL']) || isset($_ENV['NOW_REGION'])) {
+    $storagePath = '/tmp/storage';
+    $bootstrapPath = '/tmp/bootstrap';
+    $folders = [
+        $storagePath,
+        $storagePath . '/framework',
+        $storagePath . '/framework/views',
+        $storagePath . '/framework/cache',
+        $storagePath . '/framework/sessions',
+        $storagePath . '/logs',
+        $bootstrapPath,
+        $bootstrapPath . '/cache',
+    ];
+    foreach ($folders as $folder) {
+        if (!is_dir($folder)) {
+            mkdir($folder, 0777, true);
+        }
+    }
+    $app->useStoragePath($storagePath);
+    $app->useBootstrapPath($bootstrapPath);
+}
+
+return $app;
