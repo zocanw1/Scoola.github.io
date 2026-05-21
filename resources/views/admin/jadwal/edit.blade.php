@@ -70,7 +70,7 @@
                     <div style="position: relative; border-bottom: 1px solid var(--color-hairline);">
                         <select name="kelas" class="form-field" required style="width: 100%; border: none; padding: 16px 0; font-family: var(--font-family-base); font-size: 18px; outline: none; background: transparent; cursor: pointer; appearance: none; color: var(--color-ink); font-weight: 500; text-transform: uppercase;">
                             @php
-                                $tingkatan = ['X', 'XI', 'XII'];
+                                $tingkatan = ['XI'];
                                 $jurusan = 'SIJA';
                                 $rombel = [1, 2];
                             @endphp

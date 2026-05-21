@@ -32,7 +32,7 @@
     </script>
     <style>
         :root {
-            --color-canvas: #C8C8C8;
+            --color-canvas: #FFFFFF;
             --color-surface: #FFFFFF;
             --color-primary: #000000;
             --color-on-primary: #ffffff;

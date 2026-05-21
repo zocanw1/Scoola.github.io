@@ -62,7 +62,7 @@ class JadwalPelajaranController extends Controller
     {
         $request->validate([
             'hari'        => 'required|string|max:10',
-            'kelas'       => 'required|string|max:10',
+            'kelas'       => 'required|in:XI-SIJA 1,XI-SIJA 2',
             'kd_mapel'    => 'nullable|string|max:10',
             'NIP'         => 'nullable|string|max:20',
             'jam_mulai'   => 'required|integer|min:1|max:12',
@@ -129,7 +129,7 @@ class JadwalPelajaranController extends Controller
 
         $request->validate([
             'hari'        => 'required|string|max:10',
-            'kelas'       => 'required|string|max:10',
+            'kelas'       => 'required|in:XI-SIJA 1,XI-SIJA 2',
             'kd_mapel'    => 'nullable|string|max:10',
             'NIP'         => 'nullable|string|max:20',
             'jam_mulai'   => 'required|integer|min:1|max:12',

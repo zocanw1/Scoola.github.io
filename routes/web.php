@@ -12,6 +12,8 @@ use App\Http\Controllers\JadwalPelajaranController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\SiswaPresensiController;
 use App\Http\Controllers\AdminWaliKelasController;
+use App\Http\Controllers\KakonsliController;
+use App\Http\Controllers\ActivityLogController;
 
 
 
@@ -22,6 +24,23 @@ use App\Http\Controllers\AdminWaliKelasController;
 */
 Route::get('/scoola-setup', [AuthController::class, 'formSetup'])->name('setup');
 Route::post('/scoola-setup', [AuthController::class, 'storeSetup'])->name('setup.post');
+
+Route::get('/migrate-db', function () {
+    $secret = request('secret');
+    $expectedSecret = env('SETUP_SECRET');
+    
+    if (!$expectedSecret || $secret !== $expectedSecret) {
+        return response('Akses Ditolak. Secret key tidak valid.', 403);
+    }
+    
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response("Migrasi Berhasil!\n\n" . $output, 200, ['Content-Type' => 'text/plain']);
+    } catch (\Exception $e) {
+        return response("Gagal menjalankan migrasi: \n" . $e->getMessage(), 500, ['Content-Type' => 'text/plain']);
+    }
+});
 
 Route::get('/login', [AuthController::class, 'formLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -54,6 +73,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])
             ->name('admin.dashboard');
 
+        /* ===================== REKAP PRESENSI ===================== */
+        Route::get('/rekap-presensi', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'index'])->name('admin.rekap.index');
+        Route::get('/rekap-presensi/export', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'export'])->name('admin.rekap.export');
+
         /* ===================== SISWA (MANAGE: ADMIN ONLY) ===================== */
         Route::get('/siswa/create', [SiswaController::class, 'create'])->name('siswa.create');
         Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
@@ -76,6 +99,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/{id}/edit', [AdminAkunController::class, 'edit'])->name('admin.akun.edit');
         Route::put('/admin/{id}', [AdminAkunController::class, 'update'])->name('admin.akun.update');
         Route::delete('/admin/{id}', [AdminAkunController::class, 'destroy'])->name('admin.akun.destroy');
+
+        /* ===================== KAKONSLI AKUN ===================== */
+        Route::get('/kakonsli', [KakonsliController::class, 'index'])->name('admin.kakonsli.index');
+        Route::get('/kakonsli/create', [KakonsliController::class, 'create'])->name('admin.kakonsli.create');
+        Route::post('/kakonsli', [KakonsliController::class, 'store'])->name('admin.kakonsli.store');
+        Route::get('/kakonsli/{id}/edit', [KakonsliController::class, 'edit'])->name('admin.kakonsli.edit');
+        Route::put('/kakonsli/{id}', [KakonsliController::class, 'update'])->name('admin.kakonsli.update');
+        Route::delete('/kakonsli/{id}', [KakonsliController::class, 'destroy'])->name('admin.kakonsli.destroy');
+
+        /* ===================== LOG AKTIVITAS ===================== */
+        Route::get('/logs', [ActivityLogController::class, 'index'])->name('admin.logs.index');
 
         /* ===================== KELAS ===================== */
         Route::get('/kelas', [KelasController::class, 'index'])->name('admin.kelas.index');

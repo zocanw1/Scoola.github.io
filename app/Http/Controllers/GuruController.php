@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
+use App\Models\ActivityLog;
+
 class GuruController extends Controller
 {
     public function index()
@@ -53,6 +55,8 @@ class GuruController extends Controller
             $guru->mapels()->sync($request->kd_mapel);
         });
 
+        ActivityLog::log("Menambahkan data guru baru: {$request->nama} (NIP: {$request->nip})");
+
         return redirect()->route('guru.index')
             ->with('success', 'Guru berhasil ditambahkan');
     }
@@ -88,6 +92,8 @@ class GuruController extends Controller
             ]);
         });
 
+        ActivityLog::log("Memperbarui data guru: {$request->nama} (NIP: {$nip})");
+
         return redirect()->route('guru.index')
             ->with('success', 'Guru berhasil diperbarui');
     }
@@ -95,11 +101,14 @@ class GuruController extends Controller
     public function destroy($nip)
     {
         $guru = Guru::with('user')->findOrFail($nip);
+        $nama = $guru->nama_guru;
 
         DB::transaction(function () use ($guru) {
             $guru->user->delete();
             $guru->delete();
         });
+
+        ActivityLog::log("Menghapus data guru: {$nama} (NIP: {$nip})");
 
         return redirect()->route('guru.index')
             ->with('success', 'Guru berhasil dihapus');

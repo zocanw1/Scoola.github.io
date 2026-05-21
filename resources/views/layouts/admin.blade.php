@@ -491,10 +491,19 @@
         <a href="{{ route('jadwal.index') }}" class="nav-link {{ request()->routeIs('jadwal.*') ? 'active' : '' }}">
             <i class="bi bi-calendar3"></i> Jadwal Pelajaran
         </a>
+        <a href="{{ route('admin.rekap.index') }}" class="nav-link {{ request()->routeIs('admin.rekap.*') ? 'active' : '' }}">
+            <i class="bi bi-file-earmark-spreadsheet-fill"></i> Rekap Mingguan
+        </a>
 
         <div class="sb-section">Sistem</div>
         <a href="{{ route('admin.akun.index') }}" class="nav-link {{ request()->routeIs('admin.akun.*') ? 'active' : '' }}">
             <i class="bi bi-shield-plus"></i> Kelola Admin
+        </a>
+        <a href="{{ route('admin.kakonsli.index') }}" class="nav-link {{ request()->routeIs('admin.kakonsli.*') ? 'active' : '' }}">
+            <i class="bi bi-shield-check"></i> Kelola Kakonsli
+        </a>
+        <a href="{{ route('admin.logs.index') }}" class="nav-link {{ request()->routeIs('admin.logs.*') ? 'active' : '' }}">
+            <i class="bi bi-journal-text"></i> Log Aktivitas
         </a>
         @endif
     </div>

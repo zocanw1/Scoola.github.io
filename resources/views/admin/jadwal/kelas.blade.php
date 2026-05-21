@@ -11,7 +11,7 @@
 </div>
 
 @php
-    $tingkatan = ['X', 'XI', 'XII'];
+    $tingkatan = ['XI'];
     $jurusan = 'SIJA';
     $rombel = [1, 2];
     $totalItems = count($tingkatan) * count($rombel);

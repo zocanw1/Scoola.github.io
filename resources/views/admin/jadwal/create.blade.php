@@ -70,7 +70,7 @@
                         <select name="kelas" class="form-field" required>
                             <option value="" disabled {{ old('kelas', request('kelas')) ? '' : 'selected' }}>PILIH KELAS</option>
                             @php
-                                $tingkatan = ['X', 'XI', 'XII'];
+                                $tingkatan = ['XI'];
                                 $jurusan = 'SIJA';
                                 $rombel = [1, 2];
                             @endphp

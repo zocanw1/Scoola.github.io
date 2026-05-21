@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
+use App\Models\ActivityLog;
+
 class SiswaController extends Controller
 {
     public function index()
@@ -26,7 +28,7 @@ class SiswaController extends Controller
         $request->validate([
             'nis'      => 'required|string|max:50|unique:siswa,NIS',
             'nama'     => 'required|string|max:255',
-            'kelas'    => 'required|string|max:50',
+            'kelas'    => 'required|in:XI-SIJA 1,XI-SIJA 2',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6',
         ]);
@@ -48,6 +50,8 @@ class SiswaController extends Controller
             ]);
         });
 
+        ActivityLog::log("Menambahkan data siswa baru: {$request->nama} (NIS: {$request->nis})");
+
         return redirect()->route('siswa.index')
             ->with('success', 'Siswa berhasil ditambahkan');
     }
@@ -64,7 +68,7 @@ class SiswaController extends Controller
 
         $request->validate([
             'nama'  => 'required|string|max:255',
-            'kelas' => 'required|string|max:50',
+            'kelas' => 'required|in:XI-SIJA 1,XI-SIJA 2',
             'email' => 'required|email|unique:users,email,' . $siswa->user_id,
         ]);
 
@@ -80,6 +84,8 @@ class SiswaController extends Controller
             ]);
         });
 
+        ActivityLog::log("Memperbarui data siswa: {$request->nama} (NIS: {$nis})");
+
         return redirect()->route('siswa.index')
             ->with('success', 'Data siswa berhasil diperbarui');
     }
@@ -87,11 +93,14 @@ class SiswaController extends Controller
     public function destroy($nis)
     {
         $siswa = Siswa::with('user')->findOrFail($nis);
+        $nama = $siswa->nama_siswa;
 
         DB::transaction(function () use ($siswa) {
             $siswa->user->delete();
             $siswa->delete();
         });
+
+        ActivityLog::log("Menghapus data siswa: {$nama} (NIS: {$nis})");
 
         return redirect()->route('siswa.index')
             ->with('success', 'Siswa berhasil dihapus');

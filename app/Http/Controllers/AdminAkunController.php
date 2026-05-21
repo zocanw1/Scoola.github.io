@@ -34,6 +34,8 @@ class AdminAkunController extends Controller
             'role'     => 'admin',
         ]);
 
+        \App\Models\ActivityLog::log("Menambahkan akun Admin baru: {$request->name} ({$request->email})");
+
         return redirect()->route('admin.akun.index')
             ->with('success', 'Admin berhasil ditambahkan');
     }
@@ -63,6 +65,8 @@ class AdminAkunController extends Controller
             $admin->update(['password' => Hash::make($request->password)]);
         }
 
+        \App\Models\ActivityLog::log("Memperbarui akun Admin: {$admin->name} ({$admin->email})");
+
         return redirect()->route('admin.akun.index')
             ->with('success', 'Admin berhasil diperbarui');
     }
@@ -75,7 +79,11 @@ class AdminAkunController extends Controller
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
+        $email = $admin->email;
+        $name = $admin->name;
         $admin->delete();
+
+        \App\Models\ActivityLog::log("Menghapus akun Admin: {$name} ({$email})");
 
         return redirect()->route('admin.akun.index')
             ->with('success', 'Admin berhasil dihapus');
