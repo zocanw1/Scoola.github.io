@@ -3,6 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Scoola - Editorial platform for academic management. Experience high-contrast, distraction-free educational software designed for clarity and focus.">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://scoola.app/">
+    <meta property="og:title" content="Scoola — Editorial Platform">
+    <meta property="og:description" content="Experience a new standard in educational software. Scoola delivers a high-contrast, editorial interface designed for absolute clarity and focus. No distractions, just data.">
+    <meta property="og:image" content="https://scoola.app/og-image.jpg">
+    <meta property="og:site_name" content="Scoola">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://scoola.app/">
+    <meta property="twitter:title" content="Scoola — Editorial Platform">
+    <meta property="twitter:description" content="Experience a new standard in educational software. Scoola delivers a high-contrast, editorial interface designed for absolute clarity and focus. No distractions, just data.">
+    <meta property="twitter:image" content="https://scoola.app/og-image.jpg">
     <title>Scoola — Editorial Platform</title>
     
     <!-- Google Fonts: Inter -->
@@ -25,7 +40,7 @@
             };
             
             setTheme(getTheme());
-
+            
             window.toggleTheme = function() {
                 const html = document.documentElement;
                 const current = html.getAttribute('data-theme') || 'light';
@@ -183,20 +198,22 @@
     </style>
 </head>
 <body>
+    <!-- Skip to content link for keyboard navigation -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
 
     <nav class="runway-nav">
         <div>
             <a href="/" class="brand-logo">scoola.</a>
         </div>
         <div class="nav-links" style="position: relative; z-index: 1000;">
-            <button type="button" onclick="window.toggleTheme()" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: none; background: transparent; font-size: 20px; color: var(--color-ink); cursor: pointer; border-radius: 50%;" title="Toggle Theme">
+            <button type="button" onclick="window.toggleTheme()" aria-label="Toggle theme between light and dark mode" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: none; background: transparent; font-size: 20px; color: var(--color-ink); cursor: pointer; border-radius: 50%;">
                 <i class="bi bi-moon-stars" style="pointer-events: none;"></i>
             </button>
             <a href="{{ route('login') }}" style="color: var(--color-ink); font-weight: 600;">Sign In &rarr;</a>
         </div>
     </nav>
 
-    <section class="hero">
+    <section class="hero" id="main-content">
         <h1 class="display-huge">Academic management,<br>refined.</h1>
         <p class="hero-desc">
             Experience a new standard in educational software. Scoola delivers a high-contrast, editorial interface designed for absolute clarity and focus. No distractions, just data.

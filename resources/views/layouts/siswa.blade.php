@@ -190,8 +190,6 @@
 
         <nav class="nav-links">
             <a href="{{ route('siswa.dashboard') }}" class="{{ request()->routeIs('siswa.dashboard') ? 'active' : '' }}">Dashboard</a>
-            <a href="#">Jadwal</a>
-            <a href="#">Nilai</a>
         </nav>
 
         <div class="nav-right" style="position: relative; z-index: 9999;">

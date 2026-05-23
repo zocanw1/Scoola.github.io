@@ -68,11 +68,6 @@
                     <td style="text-align: right; padding-right: 40px;">
                         <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center;">
                             <a href="{{ route('guru.presensi.edit', $p->kd_presensi) }}" class="btn-ghost" style="height: 32px; font-size: 11px; padding: 0 16px; text-decoration: none; display: inline-flex; align-items: center;">Edit</a>
-                            <form action="{{ route('guru.presensi.destroy', $p->kd_presensi) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button onclick="return confirm('Yakin hapus?')" class="btn-ghost" style="height: 32px; font-size: 11px; padding: 0 16px; color: var(--color-primary);">Hapus</button>
-                            </form>
                         </div>
                     </td>
                 </tr>

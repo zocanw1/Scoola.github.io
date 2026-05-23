@@ -67,13 +67,6 @@
                         <a href="{{ route('admin.kakonsli.edit', $kakonsli->id) }}" class="btn-primary" style="height: 44px; padding: 0 24px; font-size: 13px; font-weight: 600; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.2s;">
                             Edit Profil
                         </a>
-                        <form action="{{ route('admin.kakonsli.destroy', $kakonsli->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun Kakonsli eksklusif ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" style="background: transparent; color: #e53e3e; border: 1px solid rgba(229, 62, 62, 0.2); height: 44px; padding: 0 24px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; transition: all 0.2s; gap: 8px;" onmouseover="this.style.background='rgba(229, 62, 62, 0.05)'" onmouseout="this.style.background='transparent'">
-                                <i class="bi bi-trash"></i> Hapus Akun
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>

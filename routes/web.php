@@ -82,7 +82,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
         Route::get('/siswa/{nis}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
         Route::put('/siswa/{nis}', [SiswaController::class, 'update'])->name('siswa.update');
-        Route::delete('/siswa/{nis}', [SiswaController::class, 'destroy'])->name('siswa.destroy');
 
         /* ===================== GURU ===================== */
         Route::get('/guru', [GuruController::class, 'index'])->name('guru.index');
@@ -90,7 +89,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/guru', [GuruController::class, 'store'])->name('guru.store');
         Route::get('/guru/{nip}/edit', [GuruController::class, 'edit'])->name('guru.edit');
         Route::put('/guru/{nip}', [GuruController::class, 'update'])->name('guru.update');
-        Route::delete('/guru/{nip}', [GuruController::class, 'destroy'])->name('guru.destroy');
 
         /* ===================== ADMIN AKUN ===================== */
         Route::get('/admin', [AdminAkunController::class, 'index'])->name('admin.akun.index');
@@ -98,7 +96,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/admin', [AdminAkunController::class, 'store'])->name('admin.akun.store');
         Route::get('/admin/{id}/edit', [AdminAkunController::class, 'edit'])->name('admin.akun.edit');
         Route::put('/admin/{id}', [AdminAkunController::class, 'update'])->name('admin.akun.update');
-        Route::delete('/admin/{id}', [AdminAkunController::class, 'destroy'])->name('admin.akun.destroy');
 
         /* ===================== KAKONSLI AKUN ===================== */
         Route::get('/kakonsli', [KakonsliController::class, 'index'])->name('admin.kakonsli.index');
@@ -106,7 +103,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/kakonsli', [KakonsliController::class, 'store'])->name('admin.kakonsli.store');
         Route::get('/kakonsli/{id}/edit', [KakonsliController::class, 'edit'])->name('admin.kakonsli.edit');
         Route::put('/kakonsli/{id}', [KakonsliController::class, 'update'])->name('admin.kakonsli.update');
-        Route::delete('/kakonsli/{id}', [KakonsliController::class, 'destroy'])->name('admin.kakonsli.destroy');
 
         /* ===================== LOG AKTIVITAS ===================== */
         Route::get('/logs', [ActivityLogController::class, 'index'])->name('admin.logs.index');
@@ -132,7 +128,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/jadwal/get-guru-by-mapel/{kd_mapel}', [JadwalPelajaranController::class, 'getGuruByMapel'])->name('jadwal.get-guru');
         Route::resource('jadwal', JadwalPelajaranController::class)
             ->parameters(['jadwal' => 'kd_jp'])
-            ->except(['show']);
+            ->except(['show', 'destroy']);
     });
 
     /*

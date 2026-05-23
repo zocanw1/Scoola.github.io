@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Colorful Style Guide - Interactive Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sakura: #FF7675;
+            --cyber: #00CEC9;
+            --cosmo: #6C5CE7;
+            --gold: #FDCB6E;
+            --midnight: #1E1B29;
+            --mochi: #FAF9FF;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--mochi);
+            color: var(--midnight);
+            background-image: radial-gradient(var(--cosmo) 0.5px, transparent 0);
+            background-size: 32px 32px;
+            background-attachment: fixed;
+        }
+
+        .neo-brutalism {
+            border: 3px solid var(--midnight);
+            box-shadow: 6px 6px 0px 0px var(--midnight);
+            transition: all 0.2s ease;
+        }
+
+        .neo-brutalism:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px 0px var(--midnight);
+        }
+
+        .neo-brutalism:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px var(--midnight);
+        }
+
+        .fredoka { font-family: 'Fredoka One', cursive; }
+        .poppins { font-family: 'Poppins', sans-serif; }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .sidebar-link.active {
+            background-color: var(--cyber);
+            color: white;
+            transform: translateX(8px);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: var(--mochi);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--midnight);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+
+    <!-- Chosen Palette: Manga-Pop Vibe (Sakura, Cyber, Cosmo, Gold) -->
+    <!-- Application Structure Plan: 
+        1. Navigasi Sidebar: Memungkinkan perpindahan antar bagian (Palet, Tipografi, Komponen, Data).
+        2. Dashboard Utama: Layout grid responsif untuk visualisasi interaktif.
+        3. Interaksi Utama: Fitur klik-untuk-salin warna, preview font real-time, dan grafik distribusi mood.
+        4. Mengapa struktur ini? User dapat langsung bereksperimen dengan elemen desain (UI Lab) daripada sekadar membaca dokumen teks statis.
+    -->
+    <!-- Visualization & Content Choices: 
+        1. Color Cards -> Interactive Swatches -> Memudahkan pengambilan aset desain (Copy Hex).
+        2. Typography Lab -> Input dynamic text -> Memberikan feel langsung bagaimana font bekerja.
+        3. Mood Distribution -> Chart.js Polar Area -> Memvisualisasikan 'vibe' psikologis dari setiap warna utama.
+        4. Neobrutalism UI Showcase -> Komponen aktif -> Menunjukkan implementasi shadow & border sesuai standar anime.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <div class="flex flex-col lg:flex-row min-h-screen">
+        
+        <!-- Sidebar Navigation -->
+        <nav class="lg:w-64 w-full bg-white border-b-4 lg:border-b-0 lg:border-r-4 border-[#1E1B29] p-6 z-50">
+            <div class="mb-8">
+                <h1 class="fredoka text-3xl text-[#6C5CE7] leading-none mb-2">Style<br>Guide.</h1>
+                <p class="text-xs font-bold uppercase tracking-widest text-gray-400">Anime Edition v1.0</p>
+            </div>
+            
+            <div class="space-y-4">
+                <button onclick="scrollToSection('palette')" class="sidebar-link w-full text-left p-3 neo-brutalism bg-white font-bold flex items-center gap-2">
+                    🎨 Palet Warna
+                </button>
+                <button onclick="scrollToSection('typography')" class="sidebar-link w-full text-left p-3 neo-brutalism bg-white font-bold flex items-center gap-2">
+                    🔤 Tipografi
+                </button>
+                <button onclick="scrollToSection('visuals')" class="sidebar-link w-full text-left p-3 neo-brutalism bg-white font-bold flex items-center gap-2">
+                    ✨ Elemen Visual
+                </button>
+                <button onclick="scrollToSection('analytics')" class="sidebar-link w-full text-left p-3 neo-brutalism bg-white font-bold flex items-center gap-2">
+                    📊 Vibe Analytics
+                </button>
+            </div>
+
+            <div class="mt-12 p-4 bg-[#FDCB6E] neo-brutalism text-sm font-bold leading-tight">
+                (≧◡≦) <br> "Desain yang ceria membuat user betah!"
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 lg:p-10 custom-scrollbar overflow-y-auto max-h-screen">
+            
+            <!-- Hero Section -->
+            <section class="mb-12">
+                <div class="bg-[#6C5CE7] neo-brutalism p-8 text-white relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h2 class="fredoka text-5xl mb-4">Wujudkan Vibe Anime-mu! ✨</h2>
+                        <p class="max-w-2xl text-lg font-medium opacity-90">
+                            Selamat datang di dasbor interaktif Panduan Referensi Desain. Gunakan alat ini untuk mengeksplorasi palet warna Manga-Pop, menguji font Kawaii, dan memahami prinsip Neobrutalism.
+                        </p>
+                    </div>
+                    <div class="absolute right-[-20px] bottom-[-20px] opacity-20 text-[150px] fredoka select-none pointer-events-none">
+                        KAWAII
+                    </div>
+                </div>
+            </section>
+
+            <!-- Palette Section -->
+            <section id="palette" class="mb-16">
+                <div class="flex items-center gap-4 mb-6">
+                    <h3 class="fredoka text-3xl">1. Palet Warna Utama</h3>
+                    <div class="h-1 flex-1 bg-[#1E1B29] rounded-full"></div>
+                </div>
+                <p class="mb-8 text-gray-600 font-semibold italic">Setiap warna mewakili emosi dalam dunia anime. Klik kotak warna untuk menyalin kode Hex!</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="color-grid">
+                    <!-- Color cards injected by JS -->
+                </div>
+            </section>
+
+            <!-- Typography Section -->
+            <section id="typography" class="mb-16 bg-white neo-brutalism p-8">
+                <div class="flex items-center gap-4 mb-6">
+                    <h3 class="fredoka text-3xl text-[#FF7675]">2. Lab Tipografi</h3>
+                </div>
+                <p class="mb-6 font-semibold">Uji keterbacaan font modern ini secara langsung. Ketik sesuatu di bawah!</p>
+                
+                <div class="mb-8">
+                    <input type="text" id="font-tester" placeholder="Ketik kalimatmu di sini..." 
+                        class="w-full p-4 border-4 border-[#1E1B29] neo-brutalism text-xl outline-none"
+                        oninput="updateFontPreview(this.value)">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="p-6 border-2 border-dashed border-[#1E1B29] rounded-xl">
+                        <span class="text-xs font-bold bg-[#6C5CE7] text-white px-2 py-1 mb-2 inline-block">FREDOKA ONE (Heading)</span>
+                        <div id="preview-heading" class="fredoka text-4xl leading-tight">Halo, Ini Judul Anime Anda!</div>
+                    </div>
+                    <div class="p-6 border-2 border-dashed border-[#1E1B29] rounded-xl">
+                        <span class="text-xs font-bold bg-[#00CEC9] text-white px-2 py-1 mb-2 inline-block">NUNITO (Body Text)</span>
+                        <div id="preview-body" class="text-lg leading-relaxed">Ini adalah contoh teks paragraf yang sangat mudah dibaca meskipun berukuran kecil. Cocok untuk deskripsi karakter atau artikel blog.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Visual Elements Section -->
+            <section id="visuals" class="mb-16">
+                <div class="flex items-center gap-4 mb-6">
+                    <h3 class="fredoka text-3xl">3. Elemen Visual (Neobrutalism)</h3>
+                    <div class="h-1 flex-1 bg-[#1E1B29] rounded-full"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="space-y-6">
+                        <div class="bg-white neo-brutalism p-6">
+                            <h4 class="font-bold mb-2">Tombol Primer</h4>
+                            <button class="w-full py-3 bg-[#FF7675] text-white neo-brutalism font-extrabold uppercase tracking-widest">
+                                Klik Aku! ✨
+                            </button>
+                        </div>
+                        <div class="bg-white neo-brutalism p-6">
+                            <h4 class="font-bold mb-2">Tombol Sekunder</h4>
+                            <button class="w-full py-3 bg-[#00CEC9] text-white neo-brutalism font-extrabold uppercase tracking-widest">
+                                Explore Mode
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="md:col-span-2 bg-[#1E1B29] p-8 neo-brutalism text-white">
+                        <h4 class="fredoka text-2xl mb-4 text-[#FDCB6E]">The 3px Rule</h4>
+                        <ul class="space-y-4 font-medium opacity-90">
+                            <li class="flex items-start gap-2">
+                                <span class="text-[#FDCB6E]">⚡</span> Gunakan border minimal 3px untuk efek outline manga.
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-[#FDCB6E]">⚡</span> Shadow harus solid (bukan blur) dengan warna gelap kontras.
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-[#FDCB6E]">⚡</span> Jangan takut menabrakkan warna kontras tinggi (Cyber vs Sakura).
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="mb-16">
+                <div class="bg-white neo-brutalism p-8">
+                    <h3 class="fredoka text-3xl mb-2">4. Vibe Analytics</h3>
+                    <p class="mb-8 font-semibold text-gray-500">Visualisasi distribusi energi dari palet "Manga-Pop Vibe".</p>
+                    
+                    <div class="chart-container">
+                        <canvas id="vibeChart"></canvas>
+                    </div>
+                    
+                    <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="p-4 bg-[#FF7675] bg-opacity-10 rounded-lg">
+                            <div class="text-2xl font-black text-[#FF7675]">85%</div>
+                            <div class="text-xs font-bold uppercase">Energy</div>
+                        </div>
+                        <div class="p-4 bg-[#00CEC9] bg-opacity-10 rounded-lg">
+                            <div class="text-2xl font-black text-[#00CEC9]">70%</div>
+                            <div class="text-xs font-bold uppercase">Digital</div>
+                        </div>
+                        <div class="p-4 bg-[#6C5CE7] bg-opacity-10 rounded-lg">
+                            <div class="text-2xl font-black text-[#6C5CE7]">90%</div>
+                            <div class="text-xs font-bold uppercase">Magic</div>
+                        </div>
+                        <div class="p-4 bg-[#FDCB6E] bg-opacity-10 rounded-lg">
+                            <div class="text-2xl font-black text-[#FDCB6E]">100%</div>
+                            <div class="text-xs font-bold uppercase">Fun</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="text-center py-10 opacity-50 font-bold">
+                Dibuat dengan semangat Anime (✿◡‿◡) &bull; 2024
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-10 right-10 bg-[#1E1B29] text-white px-6 py-3 neo-brutalism font-bold translate-y-[200%] transition-transform z-[100]">
+        Berhasil disalin! 复制成功!
+    </div>
+
+    <script>
+        // Data Palet Warna
+        const colors = [
+            { name: "Sakura Burst", hex: "#FF7675", desc: "Energi, Cinta, Manis" },
+            { name: "Cyber Oasis", hex: "#00CEC9", desc: "Masa Depan, Teknologi, Segar" },
+            { name: "Cosmo Violet", hex: "#6C5CE7", desc: "Sihir, Modern, Kontras" },
+            { name: "Chibi Gold", hex: "#FDCB6E", desc: "Bahagia, Harta, Sorotan" }
+        ];
+
+        // Injeksi Kartu Warna
+        const colorGrid = document.getElementById('color-grid');
+        colors.forEach(color => {
+            const card = document.createElement('div');
+            card.className = "bg-white neo-brutalism overflow-hidden cursor-pointer group";
+            card.onclick = () => copyToClipboard(color.hex);
+            card.innerHTML = `
+                <div style="background-color: ${color.hex}" class="h-32 border-b-4 border-[#1E1B29] transition-transform group-hover:scale-105"></div>
+                <div class="p-4">
+                    <h4 class="fredoka text-xl mb-1">${color.name}</h4>
+                    <div class="flex justify-between items-center">
+                        <span class="font-mono font-bold text-gray-500">${color.hex}</span>
+                        <span class="text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">Copy</span>
+                    </div>
+                    <p class="text-xs mt-2 font-semibold text-gray-400 italic">${color.desc}</p>
+                </div>
+            `;
+            colorGrid.appendChild(card);
+        });
+
+        // Fitur Copy to Clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            const toast = document.getElementById('toast');
+            toast.style.transform = "translateY(0)";
+            setTimeout(() => {
+                toast.style.transform = "translateY(200%)";
+            }, 2000);
+        }
+
+        // Font Tester Logic
+        function updateFontPreview(text) {
+            const previewHeading = document.getElementById('preview-heading');
+            const previewBody = document.getElementById('preview-body');
+            const val = text || "Halo, Ini Judul Anime Anda!";
+            previewHeading.innerText = val;
+            previewBody.innerText = val === "Halo, Ini Judul Anime Anda!" ? 
+                "Ini adalah contoh teks paragraf yang sangat mudah dibaca meskipun berukuran kecil. Cocok untuk deskripsi karakter atau artikel blog." : 
+                `Contoh penggunaan "${val}" dalam sebuah paragraf naratif yang panjang untuk memastikan tipografi tetap nyaman di mata user.`;
+        }
+
+        // Scroll Logic
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize Charts
+        window.onload = function() {
+            const ctx = document.getElementById('vibeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Sakura (Love)', 'Cyber (Digital)', 'Cosmo (Magic)', 'Gold (Joy)'],
+                    datasets: [{
+                        data: [85, 70, 90, 100],
+                        backgroundColor: [
+                            'rgba(255, 118, 117, 0.7)',
+                            'rgba(0, 206, 201, 0.7)',
+                            'rgba(108, 92, 231, 0.7)',
+                            'rgba(253, 203, 110, 0.7)'
+                        ],
+                        borderColor: '#1E1B29',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: 'Nunito',
+                                    weight: 'bold',
+                                    size: 14
+                                },
+                                color: '#1E1B29'
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            ticks: { display: false },
+                            grid: { color: '#1E1B29' }
+                        }
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>

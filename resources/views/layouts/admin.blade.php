@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scoola — Admin</title>
     
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=Poppins:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -34,7 +33,6 @@
                 html.setAttribute('data-theme', newTheme);
                 try { localStorage.setItem(storageKey, newTheme); } catch (e) {}
                 
-                // Diagnostic check
                 console.log('Theme toggled to:', newTheme);
             };
         })();
@@ -45,12 +43,25 @@
 
     <style>
         :root {
-            --font-sans: 'Inter', system-ui, sans-serif;
+            /* Definisi Palet Warna Resmi Manga-Pop */
+            --sakura: #FF7675;
+            --cyber: #00CEC9;
+            --cosmo: #6C5CE7;
+            --gold: #FDCB6E;
+            --midnight: #1E1B29;
+            --mochi: #FAF9FF;
+            --white: #FFFFFF;
+            --font-sans: 'Nunito', 'Inter', system-ui, sans-serif;
         }
 
         body {
-            background-color: var(--color-canvas);
-            color: var(--color-ink);
+            /* Latar Belakang Komik Titik-Titik Pop (Mochi Cream + Radial Cosmo Violet Dots) */
+            background-color: var(--mochi);
+            background-image: radial-gradient(var(--cosmo) 0.6px, transparent 0);
+            background-size: 32px 32px;
+            background-attachment: fixed;
+            
+            color: var(--midnight);
             font-family: var(--font-sans);
             margin: 0;
             -webkit-font-smoothing: antialiased;
@@ -58,16 +69,17 @@
             min-height: 100vh;
         }
 
-        /* Sidebar - Runway Style */
+        /* Sidebar - Panel Komik Manga-Pop Style */
         .runway-sidebar {
             width: 260px;
-            background-color: var(--color-surface);
-            border-right: 1px solid var(--color-hairline);
+            background-color: var(--white);
+            /* Garis pembatas tinta tebal khas panel manga */
+            border-right: 4px solid var(--midnight);
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
             z-index: 1000;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
         }
 
         @media (max-width: 992px) {
@@ -88,16 +100,18 @@
             display: flex;
             align-items: center;
             padding: 0 24px;
-            border-bottom: 1px solid var(--color-hairline);
+            border-bottom: 4px solid var(--midnight);
+            background-color: var(--gold); /* Header brand bernuansa ceria */
         }
 
         .brand-logo {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--color-ink);
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 22px;
+            color: var(--midnight);
             text-decoration: none;
-            letter-spacing: var(--tracking-tight);
+            letter-spacing: -0.5px;
             text-transform: lowercase;
+            text-shadow: 2px 2px 0px var(--white);
         }
 
         .sb-nav {
@@ -107,11 +121,12 @@
         }
 
         .sb-section {
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 0.35px;
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
-            color: var(--color-stone);
+            color: var(--midnight);
+            opacity: 0.8;
             margin-bottom: 12px;
             margin-top: 24px;
             padding: 0 8px;
@@ -121,64 +136,76 @@
             margin-top: 0;
         }
 
+        /* Tombol Navigasi Efek Hover Mekanis Neo-Brutalism */
         .nav-link {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 8px 12px;
-            border-radius: var(--rounded-md);
+            padding: 10px 14px;
+            border-radius: 12px;
             font-size: 14px;
-            font-weight: 500;
-            color: var(--color-ink-soft);
+            font-weight: 800;
+            color: var(--midnight);
             text-decoration: none;
-            transition: all 0.2s;
-            margin-bottom: 4px;
+            border: 3px solid transparent;
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 8px;
         }
 
+        /* Efek Timbul & Melayang Solid Khas Neobrutalism */
         .nav-link:hover, .nav-link.active {
-            color: var(--color-on-primary);
-            background-color: var(--color-primary); /* Pure Black on light mode */
+            color: var(--midnight) !important;
+            background-color: var(--cyber) !important; /* Cyber Oasis */
+            border-color: var(--midnight) !important;
+            box-shadow: 4px 4px 0px var(--midnight) !important;
+            transform: translate(-3px, -3px);
+        }
+
+        /* Efek Tekan yang Memuaskan saat Di-klik */
+        .nav-link:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px var(--midnight) !important;
         }
 
         .nav-link i {
-            font-size: 14px;
-            color: var(--color-slate);
-        }
-        
-        .nav-link.active i, .nav-link:hover i {
-            color: var(--color-on-primary);
+            font-size: 16px;
+            color: var(--midnight);
+            transition: transform 0.2s;
         }
 
-        [data-theme="dark"] .nav-link:hover, [data-theme="dark"] .nav-link.active {
-            background-color: var(--color-primary); /* Pure White on dark mode */
-            color: var(--color-on-primary);
+        .nav-link:hover i {
+            transform: scale(1.15) rotate(-5deg);
         }
 
         .sb-footer {
             padding: 16px;
-            border-top: 1px solid var(--color-hairline);
+            border-top: 4px solid var(--midnight);
+            background-color: var(--white);
         }
 
         .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
+            padding: 4px;
         }
 
         .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: var(--rounded-full);
-            background-color: var(--color-primary);
-            color: var(--color-on-primary);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background-color: var(--sakura); /* Sakura Burst */
+            color: var(--midnight);
+            border: 3px solid var(--midnight);
+            box-shadow: 3px 3px 0px var(--midnight);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 14px;
         }
 
-        /* Main Content */
+        /* Main Content Wrapper */
         .main-wrapper {
             flex: 1;
             display: flex;
@@ -192,31 +219,33 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 32px;
-            border-bottom: 1px solid var(--color-hairline);
-            background-color: var(--color-surface);
+            border-bottom: 4px solid var(--midnight);
+            background-color: var(--white);
         }
 
         .page-content {
             flex: 1;
-            padding: 80px 64px;
+            padding: 40px 40px;
             overflow-y: auto;
-            background-color: var(--color-canvas);
+            /* Dibuat transparent agar pola titik komik latar belakang menembus sempurna */
+            background-color: transparent; 
         }
 
+        /* Responsive Engine untuk Kartu & Tabel Mengambang */
         @media (max-width: 768px) {
             .page-content {
-                padding: 32px 20px !important;
+                padding: 24px 16px !important;
             }
             .runway-topbar {
                 padding: 0 16px !important;
             }
             .display-title {
+                font-family: 'Fredoka One', sans-serif !important;
                 font-size: 28px !important;
                 letter-spacing: -0.5px !important;
                 word-break: break-word !important;
             }
 
-            /* Global Floating Card Engine */
             .table-container-card {
                 background: transparent !important;
                 border: none !important;
@@ -230,7 +259,7 @@
                 border-collapse: separate !important;
                 border-spacing: 0 32px !important;
                 width: 100% !important;
-                display: table !important; /* Keep table but manage children */
+                display: table !important;
             }
 
             .responsive-table thead {
@@ -246,11 +275,11 @@
 
             .responsive-table tr {
                 margin-bottom: 32px !important;
-                border: 1px solid var(--color-hairline) !important;
+                border: 4px solid var(--midnight) !important;
                 border-radius: 16px !important;
-                padding: 32px !important;
-                background: #ffffff !important;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.04) !important;
+                padding: 24px !important;
+                background: var(--white) !important;
+                box-shadow: 6px 6px 0px var(--midnight) !important;
             }
 
             .responsive-table td {
@@ -265,16 +294,16 @@
 
             .responsive-table td::before {
                 content: attr(data-label);
-                font-weight: 700;
+                font-family: 'Fredoka One', sans-serif;
                 text-transform: uppercase;
-                font-size: 10px;
-                letter-spacing: 0.1em;
-                color: var(--color-stone);
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                color: var(--midnight);
+                opacity: 0.7;
                 text-align: left;
                 padding-right: 16px;
             }
 
-            /* Global Grid Transformation */
             .stats-grid, 
             .responsive-card-grid,
             div[style*="display: grid"] {
@@ -285,9 +314,11 @@
             }
 
             .card {
+                border: 4px solid var(--midnight) !important;
                 border-radius: 16px !important;
-                padding: 32px !important;
+                padding: 24px !important;
                 margin-bottom: 24px !important;
+                box-shadow: 6px 6px 0px var(--midnight) !important;
             }
 
             .form-actions {
@@ -318,7 +349,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.3);
+            background: rgba(30, 27, 41, 0.4);
             backdrop-filter: blur(4px);
             z-index: 999;
         }
@@ -332,11 +363,17 @@
             height: 44px;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--color-hairline);
-            background: var(--color-surface);
+            border: 3px solid var(--midnight);
+            background: var(--white);
             border-radius: 50%;
             cursor: pointer;
-            color: var(--color-ink);
+            color: var(--midnight);
+            box-shadow: 3px 3px 0px var(--midnight);
+            transition: all 0.2s;
+        }
+        .menu-toggle:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px var(--midnight);
         }
 
         @media (max-width: 992px) {
@@ -351,45 +388,47 @@
         }
 
         .eyebrow {
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 0.35px;
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
-            color: var(--color-stone);
+            color: var(--cosmo);
             margin-bottom: 12px;
             display: block;
         }
 
         .display-title {
-            font-size: 48px;
-            font-weight: 400;
-            line-height: 1;
-            letter-spacing: -1.2px;
-            color: var(--color-ink);
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 42px;
+            line-height: 1.1;
+            color: var(--midnight);
             margin-bottom: 24px;
         }
 
-        /* Force White Form Fields */
+        /* Form Input Bergaya Komik Panel Neobrutalism */
         input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
         select,
         textarea {
-            background-color: #ffffff !important;
-            background: #ffffff !important;
-            color: var(--color-ink) !important;
-            border: 1px solid var(--color-hairline) !important;
-            border-radius: 8px !important;
-            padding: 10px 14px !important;
+            background-color: var(--white) !important;
+            color: var(--midnight) !important;
+            border: 4px solid var(--midnight) !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
             font-family: var(--font-sans) !important;
             font-size: 14px !important;
+            font-weight: 700 !important;
             outline: none !important;
+            box-shadow: 4px 4px 0px var(--midnight) !important;
+            transition: all 0.15s ease !important;
         }
 
         input:focus, select:focus, textarea:focus {
-            border-color: var(--color-primary) !important;
-            box-shadow: 0 0 0 3px rgba(0,0,0,0.05) !important;
+            transform: translate(-2px, -2px) !important;
+            box-shadow: 6px 6px 0px var(--midnight) !important;
+            border-color: var(--cosmo) !important;
         }
 
-        /* Floating Action Button (FAB) - WhatsApp Style */
+        /* Floating Action Button (FAB) - Neo Brutalism Pop Style */
         .fab-container {
             position: fixed !important;
             bottom: 40px !important;
@@ -402,18 +441,18 @@
         }
 
         .btn-fab {
-            width: 64px !important;
-            height: 64px !important;
+            width: 60px !important;
+            height: 60px !important;
             border-radius: 50% !important;
-            background-color: var(--color-ink) !important; /* Premium Ink Black */
-            color: #ffffff !important;
+            background-color: var(--gold) !important; 
+            color: var(--midnight) !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.25) !important;
+            border: 4px solid var(--midnight) !important;
+            box-shadow: 5px 5px 0px var(--midnight) !important;
             cursor: pointer !important;
-            border: none !important;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
             text-decoration: none !important;
             animation: fab-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
         }
@@ -424,33 +463,63 @@
         }
 
         .btn-fab:hover {
-            transform: translateY(-8px) scale(1.1) !important;
-            background-color: var(--color-primary) !important; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+            transform: translateY(-4px) scale(1.05) !important;
+            box-shadow: 8px 8px 0px var(--midnight) !important;
+            background-color: var(--sakura) !important; 
+        }
+        
+        .btn-fab:active {
+            transform: translateY(2px) scale(0.95) !important;
+            box-shadow: 2px 2px 0px var(--midnight) !important;
         }
 
         .fab-label {
             position: absolute !important;
             right: 80px !important;
-            background: #030303 !important;
-            color: #ffffff !important;
-            padding: 10px 20px !important;
+            background: var(--white) !important;
+            color: var(--midnight) !important;
+            border: 3px solid var(--midnight) !important;
+            padding: 8px 16px !important;
             border-radius: 12px !important;
-            font-size: 13px !important;
-            font-weight: 700 !important;
+            font-family: 'Fredoka One', sans-serif !important;
+            font-size: 12px !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.1em !important;
             white-space: nowrap !important;
             opacity: 0 !important;
             transform: translateX(20px) !important;
             pointer-events: none !important;
             transition: all 0.3s ease !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+            box-shadow: 4px 4px 0px var(--midnight) !important;
         }
 
         .btn-fab:hover .fab-label {
             opacity: 1 !important;
             transform: translateX(0) !important;
+        }
+
+        /* Utilitas Button Utama Bergaya Neobrutalism Berani (Manga-Pop Action Button) */
+        .btn-primary {
+            font-family: 'Fredoka One', sans-serif !important;
+            background-color: var(--sakura) !important; /* Sakura Burst */
+            color: var(--midnight) !important;
+            border: 3px solid var(--midnight) !important;
+            border-radius: 12px !important;
+            box-shadow: 4px 4px 0px var(--midnight) !important;
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 7px 7px 0px var(--midnight) !important;
+            background-color: #ff5252 !important; /* Sedikit lebih menyala saat hover */
+        }
+        .btn-primary:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px var(--midnight) !important;
         }
     </style>
 </head>
@@ -460,7 +529,7 @@
 
 <aside class="runway-sidebar" id="mainSidebar">
     <div class="sb-brand">
-        <a href="/" class="brand-logo">scoola admin</a>
+        <a href="/" class="brand-logo">scoola admin ✨</a>
     </div>
 
     <div class="sb-nav">
@@ -512,8 +581,8 @@
         <div class="user-info">
             <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
             <div style="overflow:hidden">
-                <div style="font-size: 13px; font-weight: 600; color: var(--color-ink);">{{ auth()->user()->name ?? auth()->user()->email }}</div>
-                <div style="font-size: 11px; color: var(--color-stone);">{{ auth()->user()->role }}</div>
+                <div style="font-size: 13px; font-weight: 800; color: var(--midnight);">{{ auth()->user()->name ?? auth()->user()->email }}</div>
+                <div style="font-size: 11px; font-weight: 700; color: var(--cosmo);">{{ auth()->user()->role }}</div>
             </div>
         </div>
     </div>
@@ -525,23 +594,24 @@
             <button type="button" class="menu-toggle" onclick="toggleMobileMenu()">
                 <i class="bi bi-list" style="font-size: 24px;"></i>
             </button>
-            <span class="text-meta" style="color: var(--color-stone);">Admin / @yield('breadcrumb', 'Overview')</span>
+            <span class="text-meta" style="font-weight: 800; color: var(--midnight); opacity: 0.7;">Admin / @yield('breadcrumb', 'Overview')</span>
         </div>
 
-        <div style="display: flex; gap: 24px; align-items: center; position: relative; z-index: 9999;">
+        <div style="display: flex; gap: 20px; align-items: center; position: relative; z-index: 9999;">
             <button type="button" 
                     id="theme-toggle-btn"
                     onclick="window.toggleTheme()" 
-                    style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--color-hairline); background: var(--color-canvas); font-size: 20px; color: var(--color-ink); cursor: pointer; border-radius: 50%; transition: all 0.2s;" 
-                    onmouseover="this.style.background='var(--color-canvas-warm)'; this.style.borderColor='var(--color-ink)';"
-                    onmouseout="this.style.background='var(--color-canvas)'; this.style.borderColor='var(--color-hairline)';"
+                    style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 3px solid var(--midnight); background: var(--white); font-size: 20px; color: var(--midnight); cursor: pointer; border-radius: 50%; box-shadow: 3px 3px 0px var(--midnight); transition: all 0.15s;" 
+                    onmouseover="this.style.background='var(--mochi)';"
+                    onmouseout="this.style.background='var(--white)';"
                     title="Toggle Theme">
                 <i class="bi bi-moon-stars" style="pointer-events: none;"></i>
             </button>
+            
             <form action="{{ route('logout') }}" method="POST" class="m-0">
                 @csrf
-                <button type="submit" class="btn-primary" style="height: 36px; padding: 0 16px; font-size: 13px;">
-                    Logout
+                <button type="submit" class="btn-primary" style="height: 40px; padding: 0 16px; font-size: 13px;">
+                    Keluar (′·_·`)
                 </button>
             </form>
         </div>
