@@ -59,6 +59,8 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
+                \PDO::ATTR_TIMEOUT => (int) env('DB_CONNECT_TIMEOUT', 5),
+                \PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', false),
                 (defined('Pdo\Mysql::ATTR_SSL_CA') ? constant('Pdo\Mysql::ATTR_SSL_CA') : (defined('PDO::MYSQL_ATTR_SSL_CA') ? PDO::MYSQL_ATTR_SSL_CA : 1009)) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
@@ -79,6 +81,8 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
+                \PDO::ATTR_TIMEOUT => (int) env('DB_CONNECT_TIMEOUT', 5),
+                \PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', false),
                 (defined('Pdo\Mysql::ATTR_SSL_CA') ? constant('Pdo\Mysql::ATTR_SSL_CA') : (defined('PDO::MYSQL_ATTR_SSL_CA') ? PDO::MYSQL_ATTR_SSL_CA : 1009)) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
@@ -100,6 +104,10 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'require'),
+            'options' => extension_loaded('pdo_pgsql') ? array_filter([
+                \PDO::ATTR_TIMEOUT => (int) env('DB_CONNECT_TIMEOUT', 5),
+                \PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', false),
+            ]) : [],
         ],
 
         'sqlsrv' => [
