@@ -15,13 +15,27 @@ class JadwalPelajaranController extends Controller
      * ============================== */
     public function index()
     {
+        $allClasses = JadwalPelajaran::query()
+            ->distinct()
+            ->orderBy('kelas')
+            ->pluck('kelas');
+
+        if ($allClasses->isEmpty()) {
+            $allClasses = collect(['XI-SIJA 1', 'XI-SIJA 2']);
+        }
+
+        $countsByClass = JadwalPelajaran::query()
+            ->selectRaw('kelas, count(*) as total')
+            ->groupBy('kelas')
+            ->pluck('total', 'kelas');
+
         $jadwal = JadwalPelajaran::with(['guru', 'mapel'])
             ->orderBy('kelas')
             ->orderBy('hari')
             ->orderBy('jam_mulai')
             ->get();
 
-        return view('admin.jadwal.index', compact('jadwal'));
+        return view('admin.jadwal.index', compact('jadwal', 'allClasses', 'countsByClass'));
     }
 
     /* ==============================
@@ -29,6 +43,15 @@ class JadwalPelajaranController extends Controller
      * ============================== */
     public function kelas(string $kelas, string $hari = null)
     {
+        $allClasses = JadwalPelajaran::query()
+            ->distinct()
+            ->orderBy('kelas')
+            ->pluck('kelas');
+
+        if ($allClasses->isEmpty()) {
+            $allClasses = collect(['XI-SIJA 1', 'XI-SIJA 2']);
+        }
+
         $query = JadwalPelajaran::with(['guru', 'mapel'])
             ->where('kelas', $kelas)
             ->orderBy('jam_mulai');
@@ -40,8 +63,13 @@ class JadwalPelajaranController extends Controller
         }
 
         $jadwal = $query->get();
+        $countsByDay = JadwalPelajaran::query()
+            ->where('kelas', $kelas)
+            ->selectRaw('hari, count(*) as total')
+            ->groupBy('hari')
+            ->pluck('total', 'hari');
 
-        return view('admin.jadwal.index', compact('jadwal', 'kelas', 'hari'));
+        return view('admin.jadwal.index', compact('jadwal', 'kelas', 'hari', 'allClasses', 'countsByDay'));
     }
 
     /* ==============================

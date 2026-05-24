@@ -421,18 +421,6 @@
             transform: translate(-4px, -4px);
             box-shadow: 12px 12px 0 var(--midnight);
         }
-        .empty-placeholder-base,
-        #jsEmptyMessage {
-            padding: 0 !important;
-            margin: 0 !important;
-            border: none !important;
-            box-shadow: none !important;
-            background: transparent !important;
-        }
-        .empty-placeholder-base:hover,
-        #jsEmptyMessage:hover {
-            transform: none !important;
-        }
         .anime-table tbody tr:hover td {
             background: var(--white);
         }
@@ -582,7 +570,7 @@
             </div>
             <div class="stats-label">Total Siswa</div>
             <div class="stats-number">
-                {{ $siswa->count() }}
+                {{ $totalSiswa }}
             </div>
         </div>
 
@@ -595,34 +583,39 @@
             </div>
             <div class="stats-label">Kelas Aktif</div>
             <div class="stats-number">
-                {{ $siswa->unique('kelas')->count() }}
+                {{ $totalKelasAktif }}
             </div>
         </div>
     </div>
 
-    <div class="neo-card filter-card">
+    <form method="GET" action="{{ route('siswa.index') }}" class="neo-card filter-card">
         <div class="filter-grid">
             <div>
                 <label class="input-label">Pencarian</label>
                 <input
                     type="text"
-                    id="searchInput"
+                    name="q"
                     class="anime-input"
+                    value="{{ request('q') }}"
                     placeholder="Cari nama siswa / NIS kamu di sini... 🔎"
                 >
             </div>
 
             <div>
                 <label class="input-label">Filter Kelas</label>
-                <select id="kelasFilter" class="anime-input">
+                <select name="kelas" class="anime-input">
                     <option value="">Semua Kelas</option>
-                    @foreach($siswa->unique('kelas')->pluck('kelas')->sort() as $kls)
-                        <option value="{{ $kls }}">{{ $kls }}</option>
+                    @foreach($kelasOptions as $kls)
+                        <option value="{{ $kls }}" @selected(request('kelas') === $kls)>{{ $kls }}</option>
                     @endforeach
                 </select>
             </div>
         </div>
-    </div>
+        <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="submit" class="edit-btn">Terapkan Filter</button>
+            <a href="{{ route('siswa.index') }}" class="edit-btn" style="background: var(--white);">Reset</a>
+        </div>
+    </form>
 
     <div class="neo-card table-wrapper">
         <table class="anime-table">
@@ -638,14 +631,9 @@
                     @endif
                 </tr>
             </thead>
-            <tbody id="siswaTable">
+            <tbody>
                 @forelse($siswa as $s)
-                <tr
-                    class="student-row"
-                    data-name="{{ strtolower($s->nama_siswa) }}"
-                    data-nis="{{ strtolower($s->NIS) }}"
-                    data-kelas="{{ $s->kelas }}"
-                >
+                <tr>
                     <td data-label="NIS" class="student-nis-cell"><span class="mobile-field-label">Nomor Induk</span><span class="student-id-chip">{{ $s->NIS }}</span></td>
                     <td data-label="Nama Lengkap" class="student-name-cell"><span class="mobile-field-label">Profil Siswa</span><span class="student-name-text">{{ $s->nama_siswa }}</span></td>
                     <td data-label="Kelas" class="student-detail-cell student-kelas-cell"><span class="mobile-field-label">Kelas</span><span class="mobile-field-value">{{ $s->kelas }}</span></td>
@@ -671,14 +659,11 @@
                     </td>
                 </tr>
                 @endforelse
-
-                <tr id="jsEmptyMessage" style="display: none;">
-                    <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" class="table-empty-cell">
-                        Duh, siswa yang kamu cari nggak ketemu... (╥﹏╥)
-                    </td>
-                </tr>
             </tbody>
         </table>
+    </div>
+    <div style="padding: 20px;">
+        {{ $siswa->links() }}
     </div>
 
 </div>
@@ -689,45 +674,7 @@
 </a>
 @endif
 
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const kelasFilter = document.getElementById('kelasFilter');
-    const rows = document.querySelectorAll('.student-row');
-    const jsEmptyMessage = document.getElementById('jsEmptyMessage');
-
-    function filterTable() {
-        const q = searchInput.value.toLowerCase().trim();
-        const k = kelasFilter.value;
-        let visibleRowsCount = 0;
-
-        rows.forEach(row => {
-            const name = row.dataset.name;
-            const nis = row.dataset.nis;
-            const kelas = row.dataset.kelas;
-
-            const matchSearch = !q || name.includes(q) || nis.includes(q);
-            const matchKelas = !k || kelas === k;
-
-            if (matchSearch && matchKelas) {
-                row.style.display = '';
-                visibleRowsCount++;
-            } else {
-                row.style.display = 'none';
-            }
-        });
-
-        // Tampilkan pesan "nggak ketemu" jika pencarian menghasilkan 0 baris data
-        if (rows.length > 0) {
-            if (visibleRowsCount === 0) {
-                jsEmptyMessage.style.display = '';
-            } else {
-                jsEmptyMessage.style.display = 'none';
-            }
-        }
-    }
-
-    searchInput.addEventListener('input', filterTable);
-    kelasFilter.addEventListener('change', filterTable);
-</script>
-
 @endsection
+
+
+

@@ -13,10 +13,30 @@ use App\Models\ActivityLog;
 
 class GuruController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $guru = Guru::with('user', 'mapels')->orderBy('nama_guru')->get();
-        return view('admin.guru.guru-index', compact('guru'));
+        $query = Guru::with(['user', 'mapels'])->orderBy('nama_guru');
+
+        if ($request->filled('q')) {
+            $keyword = trim($request->q);
+            $query->where(function ($builder) use ($keyword) {
+                $builder->where('nama_guru', 'like', '%' . $keyword . '%')
+                    ->orWhere('NIP', 'like', '%' . $keyword . '%');
+            });
+        }
+
+        if ($request->filled('mapel')) {
+            $query->whereHas('mapels', function ($builder) use ($request) {
+                $builder->where('guru_mapel.kd_mapel', $request->mapel);
+            });
+        }
+
+        $guru = $query->paginate(20)->withQueryString();
+        $totalGuru = Guru::count();
+        $totalGuruAktif = Guru::whereNotNull('user_id')->count();
+        $allMapels = Mapel::orderBy('nama_mapel')->get();
+
+        return view('admin.guru.guru-index', compact('guru', 'totalGuru', 'totalGuruAktif', 'allMapels'));
     }
 
     public function create()

@@ -2,10 +2,6 @@
 
 @section('content')
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-
 <style>
     /* Variabel Warna Manga-Pop */
     :root {
@@ -206,16 +202,14 @@
             transform: translate(-4px, -4px);
             box-shadow: 12px 12px 0 var(--midnight);
         }
-        .guru-empty-row,
-        #guruEmptyMessage {
+        .guru-empty-row {
             padding: 0 !important;
             margin: 0 !important;
             border: none !important;
             box-shadow: none !important;
             background: transparent !important;
         }
-        .guru-empty-row:hover,
-        #guruEmptyMessage:hover {
+        .guru-empty-row:hover {
             transform: none !important;
         }
         .manga-table tr:hover td {
@@ -371,7 +365,7 @@
             <div>
                 <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; background: var(--white); display: inline-block; padding: 4px 8px; border: 2px solid var(--midnight); border-radius: 6px; margin-bottom: 8px;">TOTAL DATA GURU</div>
                 <div class="font-anime-title" style="font-size: 56px; color: var(--white); text-shadow: 4px 4px 0px var(--midnight); -webkit-text-stroke: 2px var(--midnight); line-height: 1;">
-                    {{ $guru->count() }}
+                    {{ $totalGuru }}
                 </div>
             </div>
         </div>
@@ -383,35 +377,36 @@
             <div>
                 <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; background: var(--white); display: inline-block; padding: 4px 8px; border: 2px solid var(--midnight); border-radius: 6px; margin-bottom: 8px;">AKSES SISTEM AKTIF</div>
                 <div class="font-anime-title" style="font-size: 56px; color: var(--white); text-shadow: 4px 4px 0px var(--midnight); -webkit-text-stroke: 2px var(--midnight); line-height: 1;">
-                    {{ $guru->whereNotNull('user_id')->count() }}
+                    {{ $totalGuruAktif }}
                 </div>
             </div>
         </div>
     </div>
 
 
-    <div class="manga-card" style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end;">
+    <form method="GET" action="{{ route('guru.index') }}" class="manga-card" style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end;">
         <span style="position: absolute; top: -16px; left: -16px; background: var(--sakura); color: var(--white); border: 3px solid var(--midnight); font-weight: 800; font-size: 12px; padding: 6px 12px; border-radius: 8px; transform: rotate(-5deg); box-shadow: 3px 3px 0px var(--midnight);">
             🔍 Let's Search!
         </span>
 
         <div style="flex: 1; min-width: 250px;">
             <label style="font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 12px; color: var(--midnight);">Pencarian Direktori</label>
-            <input type="text" id="searchInput" class="manga-input" placeholder="CARI NAMA ATAU NIP...">
+            <input type="text" name="q" value="{{ request('q') }}" class="manga-input" placeholder="CARI NAMA ATAU NIP...">
         </div>
         <div style="width: 100%; max-width: 320px;">
             <label style="font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 12px; color: var(--midnight);">Spesialisasi</label>
-            <select id="mapelFilter" class="manga-input" style="cursor: pointer; appearance: none;">
+            <select name="mapel" class="manga-input" style="cursor: pointer; appearance: none;">
                 <option value="">✨ Semua Mata Pelajaran</option>
-                @php
-                    $allMapels = $guru->flatMap(fn($g) => $g->mapels)->unique('kd_mapel');
-                @endphp
-                @foreach ($allMapels->sortBy('nama_mapel') as $m)
-                    <option value="{{ $m->kd_mapel }}">{{ $m->nama_mapel }}</option>
+                @foreach ($allMapels as $m)
+                    <option value="{{ $m->kd_mapel }}" @selected(request('mapel') === $m->kd_mapel)>{{ $m->nama_mapel }}</option>
                 @endforeach
             </select>
         </div>
-    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="submit" class="manga-btn-edit">Terapkan Filter</button>
+            <a href="{{ route('guru.index') }}" class="manga-btn-edit" style="background: var(--white); color: var(--midnight);">Reset</a>
+        </div>
+    </form>
 
     <div class="manga-card guru-table-card" style="padding: 0; overflow: hidden;">
         <div class="manga-table-wrap">
@@ -425,13 +420,9 @@
                         <th style="text-align: center; padding-right: 32px;">Aksi</th>
                     </tr>
                 </thead>
-                <tbody id="guruBody">
+                <tbody>
                     @forelse ($guru as $g)
-                    <tr class="guru-row" 
-                        data-name="{{ strtolower($g->nama_guru) }}" 
-                        data-nip="{{ strtolower($g->NIP) }}"
-                        data-mapels="{{ json_encode($g->mapels->pluck('kd_mapel')) }}">
-                        
+                    <tr>
                         <td data-label="NIP" class="guru-nip-cell" style="padding-left: 32px; font-family: monospace; font-size: 16px;"><span class="mobile-field-label">Nomor Induk</span><span class="guru-id-chip">{{ $g->NIP }}</span></td>
                         <td data-label="Nama Guru" class="guru-name-cell" style="font-weight: 800; font-size: 17px;"><span class="mobile-field-label">Profil Guru</span><span class="guru-name-text">{{ $g->nama_guru }}</span></td>
                         <td data-label="Mata Pelajaran" class="guru-mapel-cell">
@@ -456,52 +447,16 @@
                         </td>
                     </tr>
                     @endforelse
-                    <tr id="guruEmptyMessage" style="display: none;">
-                        <td colspan="5" class="guru-empty-cell">
-                            Data guru yang kamu cari nggak ada.
-                        </td>
-                    </tr>
                 </tbody>
             </table>
+        </div>
+        <div style="padding: 20px;">
+            {{ $guru->links() }}
         </div>
     </div>
 
 </div>
 
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const mapelFilter = document.getElementById('mapelFilter');
-    const rows = document.querySelectorAll('.guru-row');
-    const guruEmptyMessage = document.getElementById('guruEmptyMessage');
-
-    function filterTable() {
-        const q = searchInput.value.toLowerCase().trim();
-        const mapel = mapelFilter.value;
-        let visibleRowsCount = 0;
-
-        rows.forEach(row => {
-            const name = row.dataset.name;
-            const nip = row.dataset.nip;
-            const mapels = JSON.parse(row.dataset.mapels);
-
-            const matchSearch = !q || name.includes(q) || nip.includes(q);
-            const matchMapel = !mapel || mapels.includes(mapel);
-
-            if(matchSearch && matchMapel) {
-                row.style.display = '';
-                visibleRowsCount++;
-            } else {
-                row.style.display = 'none';
-            }
-        });
-
-        if (rows.length > 0) {
-            guruEmptyMessage.style.display = visibleRowsCount === 0 ? '' : 'none';
-        }
-    }
-
-    searchInput.addEventListener('input', filterTable);
-    mapelFilter.addEventListener('change', filterTable);
-</script>
-
 @endsection
+
+

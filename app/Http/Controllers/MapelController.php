@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mapel;
+use App\Models\Guru;
 use Illuminate\Http\Request;
 
 class MapelController extends Controller
@@ -13,7 +14,9 @@ class MapelController extends Controller
     public function index()
     {
         $mapel = Mapel::orderBy('nama_mapel')->get();
-        return view('admin.mapel.index', compact('mapel'));
+        $totalGuru = Guru::count();
+
+        return view('admin.mapel.index', compact('mapel', 'totalGuru'));
     }
 
     /**

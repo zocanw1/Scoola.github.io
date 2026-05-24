@@ -12,10 +12,28 @@ use App\Models\ActivityLog;
 
 class SiswaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $siswa = Siswa::with('user')->orderBy('nama_siswa')->get();
-        return view('admin.siswa.siswa-index', compact('siswa'));
+        $query = Siswa::with('user')->orderBy('nama_siswa');
+
+        if ($request->filled('q')) {
+            $keyword = trim($request->q);
+            $query->where(function ($builder) use ($keyword) {
+                $builder->where('nama_siswa', 'like', '%' . $keyword . '%')
+                    ->orWhere('NIS', 'like', '%' . $keyword . '%');
+            });
+        }
+
+        if ($request->filled('kelas')) {
+            $query->where('kelas', $request->kelas);
+        }
+
+        $siswa = $query->paginate(25)->withQueryString();
+        $totalSiswa = Siswa::count();
+        $totalKelasAktif = Siswa::distinct('kelas')->count('kelas');
+        $kelasOptions = Siswa::query()->distinct()->orderBy('kelas')->pluck('kelas');
+
+        return view('admin.siswa.siswa-index', compact('siswa', 'totalSiswa', 'totalKelasAktif', 'kelasOptions'));
     }
 
     public function create()

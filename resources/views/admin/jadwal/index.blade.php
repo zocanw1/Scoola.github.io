@@ -16,13 +16,6 @@
         </section>
     </div>
 
-    @php
-        $allClasses = \App\Models\JadwalPelajaran::distinct()->pluck('kelas')->sort()->values();
-        if ($allClasses->isEmpty()) {
-            $allClasses = collect(['XI-SIJA 1', 'XI-SIJA 2']);
-        }
-    @endphp
-
     <section class="mp-card">
         <div class="mp-tabs">
             <a href="{{ route('jadwal.index') }}" class="mp-tab {{ !isset($kelas) ? 'active' : '' }}">Semua Unit</a>
@@ -35,7 +28,7 @@
     @if(!isset($kelas))
         <section class="mp-selection-grid">
             @foreach($allClasses as $c)
-                @php $count = \App\Models\JadwalPelajaran::where('kelas', $c)->count(); @endphp
+                @php $count = $countsByClass[$c] ?? 0; @endphp
                 <a href="{{ route('jadwal.kelas', $c) }}" class="mp-select-card mp-hover">
                     <span class="mp-badge">Kelas</span>
                     <div class="mp-select-title">{{ $c }}</div>
@@ -50,7 +43,7 @@
         @php $daysList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']; @endphp
         <section class="mp-selection-grid">
             @foreach($daysList as $d)
-                @php $countDay = \App\Models\JadwalPelajaran::where('kelas', $kelas)->where('hari', $d)->count(); @endphp
+                @php $countDay = $countsByDay[$d] ?? 0; @endphp
                 <a href="{{ route('jadwal.kelas', ['kelas' => $kelas, 'hari' => $d]) }}" class="mp-select-card mp-hover">
                     <span class="mp-badge">{{ $kelas }}</span>
                     <div class="mp-select-title">{{ $d }}</div>

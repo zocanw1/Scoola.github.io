@@ -6,89 +6,108 @@ use App\Models\Siswa;
 use App\Models\Presensi;
 use App\Models\SesiPresensi;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GuruDashboardController extends Controller
 {
     public function index()
     {
-        $today = Carbon::today()->format('Y-m-d');
+        $today = Carbon::today();
+        $todayString = $today->toDateString();
         $guruId = auth()->id();
 
-        // Cari sesi presensi yang dikelola guru ini HARI INI
         $sesiHariIni = SesiPresensi::where('guru_id', $guruId)
-            ->whereDate('created_at', $today)
-            ->get();
-        
-        $kelasSesiHariIni = $sesiHariIni->pluck('kelas')->unique();
-        $totalKelasDiajar = $kelasSesiHariIni->count();
+            ->whereDate('created_at', $todayString)
+            ->get(['id', 'kelas']);
 
-        // Hitung total siswa yang seharusnya absen di kelas-kelas tsb
+        $kelasSesiHariIni = $sesiHariIni->pluck('kelas')->unique()->values();
+        $totalKelasDiajar = $kelasSesiHariIni->count();
         $siswaHarusAbsen = Siswa::whereIn('kelas', $kelasSesiHariIni)->count();
 
-        // Absensi HARI INI khusus untuk sesi guru ini
         $sesiIds = $sesiHariIni->pluck('id');
-        $hadirHariIni = Presensi::whereIn('sesi_id', $sesiIds)->where('status', 'Hadir')->count();
-        $izinSakitHariIni = Presensi::whereIn('sesi_id', $sesiIds)->whereIn('status', ['Izin', 'Sakit'])->count();
-        
-        $alpaHariIni = max(0, $siswaHarusAbsen - ($hadirHariIni + $izinSakitHariIni));
+        $statusCounts = Presensi::query()
+            ->select('status', DB::raw('count(*) as total'))
+            ->whereIn('sesi_id', $sesiIds)
+            ->whereIn('status', ['Hadir', 'Izin', 'Sakit'])
+            ->groupBy('status')
+            ->pluck('total', 'status');
 
+        $hadirHariIni = (int) ($statusCounts['Hadir'] ?? 0);
+        $izinSakitHariIni = (int) (($statusCounts['Izin'] ?? 0) + ($statusCounts['Sakit'] ?? 0));
+        $alpaHariIni = max(0, $siswaHarusAbsen - ($hadirHariIni + $izinSakitHariIni));
         $persentaseHadir = $siswaHarusAbsen > 0 ? round(($hadirHariIni / $siswaHarusAbsen) * 100, 1) : 0;
 
-        // Absensi Masuk Terbaru (khusus sesi guru ini)
         $absensiTerbaru = Presensi::with(['siswa', 'sesi.guru'])
             ->whereIn('sesi_id', $sesiIds)
             ->orderBy('created_at', 'desc')
             ->take(6)
             ->get();
 
-        // Kehadiran Per Kelas (untuk hari ini, khusus sesi guru ini)
-        $kelasBreakdown = [];
-        foreach ($sesiHariIni as $sesi) {
-            $ts = Siswa::where('kelas', $sesi->kelas)->count();
-            $hd = Presensi::where('sesi_id', $sesi->id)->where('status', 'Hadir')->count();
-            
-            $pct = $ts > 0 ? round(($hd / $ts) * 100) : 0;
-            
-            // Hindari duplikasi kalau buka sesi 2x di kelas yang sama
-            if (!isset($kelasBreakdown[$sesi->kelas])) {
-                $kelasBreakdown[$sesi->kelas] = (object)[
-                    'nama' => $sesi->kelas,
-                    'persentase' => $pct
-                ];
-            }
-        }
-        $kelasBreakdown = array_values($kelasBreakdown);
+        $siswaByKelas = Siswa::query()
+            ->select('kelas', DB::raw('count(*) as total'))
+            ->whereIn('kelas', $kelasSesiHariIni)
+            ->groupBy('kelas')
+            ->pluck('total', 'kelas');
 
-        // Tren 7 hari terakhir (khusus guru ini)
+        $hadirByKelas = Presensi::query()
+            ->join('sesi_presensis', 'sesi_presensis.id', '=', 'presensi.sesi_id')
+            ->select('sesi_presensis.kelas', DB::raw('count(*) as total'))
+            ->where('sesi_presensis.guru_id', $guruId)
+            ->whereDate('sesi_presensis.created_at', $todayString)
+            ->where('presensi.status', 'Hadir')
+            ->groupBy('sesi_presensis.kelas')
+            ->pluck('total', 'kelas');
+
+        $kelasBreakdown = $kelasSesiHariIni->map(function ($kelas) use ($siswaByKelas, $hadirByKelas) {
+            $ts = (int) ($siswaByKelas[$kelas] ?? 0);
+            $hd = (int) ($hadirByKelas[$kelas] ?? 0);
+
+            return (object) [
+                'nama' => $kelas,
+                'persentase' => $ts > 0 ? round(($hd / $ts) * 100) : 0,
+            ];
+        })->all();
+
+        $dateKeys = collect(range(6, 0))->map(fn ($i) => $today->copy()->subDays($i)->toDateString());
+        $sesiPerHari = SesiPresensi::query()
+            ->selectRaw('date(created_at) as tanggal, kelas')
+            ->where('guru_id', $guruId)
+            ->whereBetween('created_at', [$today->copy()->subDays(6)->startOfDay(), $today->copy()->endOfDay()])
+            ->groupByRaw('date(created_at), kelas')
+            ->get()
+            ->groupBy('tanggal');
+
+        $presensiPerHari = Presensi::query()
+            ->join('sesi_presensis', 'sesi_presensis.id', '=', 'presensi.sesi_id')
+            ->selectRaw("date(sesi_presensis.created_at) as tanggal, sum(case when presensi.status = 'Hadir' then 1 else 0 end) as hadir")
+            ->selectRaw("sum(case when presensi.status in ('Izin', 'Sakit') then 1 else 0 end) as izin_sakit")
+            ->where('sesi_presensis.guru_id', $guruId)
+            ->whereBetween('sesi_presensis.created_at', [$today->copy()->subDays(6)->startOfDay(), $today->copy()->endOfDay()])
+            ->groupByRaw('date(sesi_presensis.created_at)')
+            ->get()
+            ->keyBy('tanggal');
+
         $trendData = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::today()->subDays($i);
-            $dStr = $date->format('Y-m-d');
-            
-            $sesiDay = SesiPresensi::where('guru_id', $guruId)->whereDate('created_at', $dStr)->get();
-            $sesiDayIds = $sesiDay->pluck('id');
-            $klsDay = $sesiDay->pluck('kelas')->unique();
-            $tSiswaDay = Siswa::whereIn('kelas', $klsDay)->count();
-            
-            $hDay = Presensi::whereIn('sesi_id', $sesiDayIds)->where('status', 'Hadir')->count();
-            $izDay = Presensi::whereIn('sesi_id', $sesiDayIds)->whereIn('status', ['Izin', 'Sakit'])->count();
-            
+        foreach ($dateKeys as $dateKey) {
+            $date = Carbon::parse($dateKey);
+            $kelasHariIni = collect($sesiPerHari->get($dateKey, []))->pluck('kelas')->unique()->values();
+            $tSiswaDay = Siswa::whereIn('kelas', $kelasHariIni)->count();
+            $dailyCounts = $presensiPerHari->get($dateKey);
+            $hDay = (int) ($dailyCounts->hadir ?? 0);
+            $izDay = (int) ($dailyCounts->izin_sakit ?? 0);
             $alpDay = max(0, $tSiswaDay - ($hDay + $izDay));
-
             $totalActivity = $hDay + $izDay + $alpDay;
             $pctH = $totalActivity > 0 ? ($hDay / $totalActivity) * 100 : 0;
             $pctI = $totalActivity > 0 ? ($izDay / $totalActivity) * 100 : 0;
             $pctA = $totalActivity > 0 ? ($alpDay / $totalActivity) * 100 : 0;
-
             $hariIndo = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
-            $trendData[] = (object)[
+            $trendData[] = (object) [
                 'hari' => $date->isToday() ? 'Today' : $hariIndo[$date->dayOfWeek],
                 'pct_hadir' => $pctH,
                 'pct_izin' => $pctI,
                 'pct_alpa' => $pctA,
-                'is_empty' => $totalActivity == 0
+                'is_empty' => $totalActivity == 0,
             ];
         }
 

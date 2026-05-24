@@ -29,7 +29,7 @@
             <div class="mp-stat-icon"><i class="bi bi-person-workspace"></i></div>
             <div>
                 <div class="mp-stat-label">Pengajar Tersedia</div>
-                <div class="mp-stat-value">{{ App\Models\Guru::count() }}</div>
+                <div class="mp-stat-value">{{ $totalGuru }}</div>
             </div>
         </section>
     </div>
