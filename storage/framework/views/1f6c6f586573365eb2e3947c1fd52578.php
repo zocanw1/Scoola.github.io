@@ -56,12 +56,12 @@
 <body class="min-h-screen">
 
     <nav class="flex items-center justify-between px-10 py-6 bg-white border-b-[4px] border-[var(--midnight)] sticky top-0 z-50">
-        <a href="{{ url('/') }}" class="fredoka text-3xl text-[var(--cosmo)] tracking-tight">Scoola.</a>
+        <a href="<?php echo e(url('/')); ?>" class="fredoka text-3xl text-[var(--cosmo)] tracking-tight">Scoola.</a>
         <div class="flex gap-4 items-center">
-            <a href="{{ route('portfolio') }}" class="font-bold uppercase tracking-wider text-sm hover:text-[var(--sakura)] hidden sm:inline-block">Tim Kami</a>
+            <a href="<?php echo e(route('portfolio')); ?>" class="font-bold uppercase tracking-wider text-sm hover:text-[var(--sakura)] hidden sm:inline-block">Tim Kami</a>
             <a href="#fitur" class="font-bold uppercase tracking-wider text-sm hover:text-[var(--sakura)] hidden sm:inline-block">Fitur</a>
             <a href="#faq" class="font-bold uppercase tracking-wider text-sm hover:text-[var(--sakura)] hidden sm:inline-block mr-4">FAQ</a>
-            <a href="{{ route('login') }}" class="neo-brutalism px-5 py-2 bg-[var(--gold)] font-bold uppercase text-sm">Masuk ✨</a>
+            <a href="<?php echo e(route('login')); ?>" class="neo-brutalism px-5 py-2 bg-[var(--gold)] font-bold uppercase text-sm">Masuk ✨</a>
         </div>
     </nav>
 
@@ -77,7 +77,7 @@
             <p class="text-xl font-semibold max-w-lg bg-[rgba(30,27,41,0.5)] p-6 border-[3px] border-[var(--midnight)] mb-8">
                 Platform kehadiran modern yang menggabungkan keseriusan profesional dan sentuhan visual anime yang ceria! (✿◡‿◡)
             </p>
-            <a href="{{ route('login') }}" class="inline-block bg-[var(--sakura)] text-white font-bold px-8 py-4 text-lg neo-brutalism uppercase tracking-wider">
+            <a href="<?php echo e(route('login')); ?>" class="inline-block bg-[var(--sakura)] text-white font-bold px-8 py-4 text-lg neo-brutalism uppercase tracking-wider">
                 Akses Sistem Sekarang! 🚀
             </a>
         </div>
@@ -137,10 +137,10 @@
                 Tinggalkan metode pencatatan manual yang rentan hilang dan melelahkan. Daftarkan lembaga pendidikan Anda sekarang juga!
             </p>
             <div class="flex gap-4 flex-wrap justify-center">
-                <a href="{{ route('login') }}" class="inline-block bg-[var(--midnight)] text-white font-bold px-8 py-4 text-base neo-brutalism uppercase tracking-wider">
+                <a href="<?php echo e(route('login')); ?>" class="inline-block bg-[var(--midnight)] text-white font-bold px-8 py-4 text-base neo-brutalism uppercase tracking-wider">
                     Coba Gratis 🌟
                 </a>
-                <a href="{{ route('portfolio') }}" class="inline-block bg-white text-[var(--midnight)] font-bold px-8 py-4 text-base neo-brutalism uppercase tracking-wider">
+                <a href="<?php echo e(route('portfolio')); ?>" class="inline-block bg-white text-[var(--midnight)] font-bold px-8 py-4 text-base neo-brutalism uppercase tracking-wider">
                     Lihat Tim Kami
                 </a>
             </div>
@@ -152,7 +152,7 @@
             © 2026 Scoola Academic Systems. Seluruh Hak Cipta Dilindungi.
         </div>
         <div class="flex gap-6 font-bold text-sm">
-            <a href="{{ route('portfolio') }}" class="hover:text-[var(--cosmo)] underline">Tim Kami</a>
+            <a href="<?php echo e(route('portfolio')); ?>" class="hover:text-[var(--cosmo)] underline">Tim Kami</a>
             <a href="#" class="hover:text-[var(--cosmo)] underline">Kebijakan Privasi</a>
             <a href="#" class="hover:text-[var(--cosmo)] underline">Ketentuan Layanan</a>
             <a href="#" class="hover:text-[var(--cosmo)] underline">Hubungi Kami</a>
@@ -160,4 +160,4 @@
     </footer>
 
 </body>
-</html>
+</html><?php /**PATH C:\coding\laravel\Scoola\resources\views/welcome.blade.php ENDPATH**/ ?>

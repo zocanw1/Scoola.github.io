@@ -1,6 +1,4 @@
-@extends('layouts.admin')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,7 +144,7 @@
     </div>
 
     <div class="fab-container">
-        <a href="{{ route('guru.create') }}" class="btn-fab" title="Tambah Guru">
+        <a href="<?php echo e(route('guru.create')); ?>" class="btn-fab" title="Tambah Guru">
             <i class="bi bi-plus-lg" style="font-size: 28px;"></i>
             <span class="fab-label">Tambah Guru Baru</span>
         </a>
@@ -160,7 +158,8 @@
             <div>
                 <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; background: var(--white); display: inline-block; padding: 4px 8px; border: 2px solid var(--midnight); border-radius: 6px; margin-bottom: 8px;">TOTAL DATA GURU</div>
                 <div class="font-anime-title" style="font-size: 56px; color: var(--white); text-shadow: 4px 4px 0px var(--midnight); -webkit-text-stroke: 2px var(--midnight); line-height: 1;">
-                    {{ $guru->count() }}
+                    <?php echo e($guru->count()); ?>
+
                 </div>
             </div>
         </div>
@@ -172,7 +171,8 @@
             <div>
                 <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; background: var(--white); display: inline-block; padding: 4px 8px; border: 2px solid var(--midnight); border-radius: 6px; margin-bottom: 8px;">AKSES SISTEM AKTIF</div>
                 <div class="font-anime-title" style="font-size: 56px; color: var(--white); text-shadow: 4px 4px 0px var(--midnight); -webkit-text-stroke: 2px var(--midnight); line-height: 1;">
-                    {{ $guru->whereNotNull('user_id')->count() }}
+                    <?php echo e($guru->whereNotNull('user_id')->count()); ?>
+
                 </div>
             </div>
         </div>
@@ -192,12 +192,12 @@
             <label style="font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 12px; color: var(--midnight);">Spesialisasi</label>
             <select id="mapelFilter" class="manga-input" style="cursor: pointer; appearance: none;">
                 <option value="">✨ Semua Mata Pelajaran</option>
-                @php
+                <?php
                     $allMapels = $guru->flatMap(fn($g) => $g->mapels)->unique('kd_mapel');
-                @endphp
-                @foreach ($allMapels->sortBy('nama_mapel') as $m)
-                    <option value="{{ $m->kd_mapel }}">{{ $m->nama_mapel }}</option>
-                @endforeach
+                ?>
+                <?php $__currentLoopData = $allMapels->sortBy('nama_mapel'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($m->kd_mapel); ?>"><?php echo e($m->nama_mapel); ?></option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </select>
         </div>
     </div>
@@ -215,35 +215,35 @@
                     </tr>
                 </thead>
                 <tbody id="guruBody">
-                    @forelse ($guru as $g)
+                    <?php $__empty_1 = true; $__currentLoopData = $guru; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $g): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr class="guru-row" 
-                        data-name="{{ strtolower($g->nama_guru) }}" 
-                        data-nip="{{ strtolower($g->NIP) }}"
-                        data-mapels="{{ json_encode($g->mapels->pluck('kd_mapel')) }}">
+                        data-name="<?php echo e(strtolower($g->nama_guru)); ?>" 
+                        data-nip="<?php echo e(strtolower($g->NIP)); ?>"
+                        data-mapels="<?php echo e(json_encode($g->mapels->pluck('kd_mapel'))); ?>">
                         
-                        <td style="padding-left: 32px; font-family: monospace; font-size: 16px;">{{ $g->NIP }}</td>
-                        <td style="font-weight: 800; font-size: 17px;">{{ $g->nama_guru }}</td>
+                        <td style="padding-left: 32px; font-family: monospace; font-size: 16px;"><?php echo e($g->NIP); ?></td>
+                        <td style="font-weight: 800; font-size: 17px;"><?php echo e($g->nama_guru); ?></td>
                         <td>
                             <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                @foreach ($g->mapels as $m)
-                                    <span class="manga-badge">{{ $m->nama_mapel }}</span>
-                                @endforeach
+                                <?php $__currentLoopData = $g->mapels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <span class="manga-badge"><?php echo e($m->nama_mapel); ?></span>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </div>
                         </td>
-                        <td style="color: #4A5568;">{{ $g->user->email ?? '-' }}</td>
+                        <td style="color: #4A5568;"><?php echo e($g->user->email ?? '-'); ?></td>
                         <td style="text-align: center; padding-right: 32px;">
-                            <a href="{{ route('guru.edit', $g->NIP) }}" class="manga-btn-edit">
+                            <a href="<?php echo e(route('guru.edit', $g->NIP)); ?>" class="manga-btn-edit">
                                 Edit ✏️
                             </a>
                         </td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="5" style="text-align: center; padding: 80px; font-weight: 800; font-size: 18px; color: #718096; background: var(--mochi);">
                             (′·_·`) Belum ada data guru ditemukan.
                         </td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -280,4 +280,5 @@
     mapelFilter.addEventListener('change', filterTable);
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\coding\laravel\Scoola\resources\views/admin/guru/guru-index.blade.php ENDPATH**/ ?>

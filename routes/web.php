@@ -14,8 +14,20 @@ use App\Http\Controllers\SiswaPresensiController;
 use App\Http\Controllers\AdminWaliKelasController;
 use App\Http\Controllers\KakonsliController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\PortfolioController;
 
 
+
+/*
+|--------------------------------------------------------------------------
+| PUBLIC PAGES
+|--------------------------------------------------------------------------
+*/
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+
+Route::get('/portfolio', [PortfolioController::class, 'show'])->name('portfolio');
 
 /*
 |--------------------------------------------------------------------------

@@ -1,327 +1,341 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=Poppins:wght@700;900&display=swap');
+
 :root {
-  /* Colors - Runway Editorial Scale */
-  --color-primary: #000000;
-  --color-on-primary: #ffffff;
-  --color-ink: #030303;
-  --color-ink-soft: #1a1a1a;
-  --color-graphite: #404040;
-  --color-slate: #676f7b;
-  --color-stone: #939393;
-  --color-hairline: #e7eaf0;
-  --color-hairline-soft: #d1d5db;
+  /* 🎨 PALET WARNA UTAMA (THE MANGA PALETTE) */
+  --midnight: #1E1B29;     /* Warna garis luar (border), teks utama, dan bayangan solid */
+  --sakura: #FF7675;       /* Warna aksen merah muda cerah (Tombol Utama / CTA) */
+  --cyber: #00CEC9;        /* Warna cyan futuristik untuk lencana/status aktif */
+  --cosmo: #6C5CE7;        /* Warna latar belakang panel magis */
+  --gold: #FDCB6E;         /* Warna kuning emas penarik perhatian / dekorasi */
+  --mochi: #FAF9FF;        /* Warna latar belakang halaman utama */
+  --white: #FFFFFF;        /* Warna kartu kontainer utama (surface) */
 
-  /* Canvas & Surface - Adjusted for #C8C8C8 */
-  --color-canvas: #C8C8C8;
-  /* The floor */
-  --color-canvas-warm: #fefefe;
-  --color-surface: #ffffff;
-  /* The cards/elements */
-  --color-scrim: #1a1a1a;
-  --color-footer: #030303;
-
-  /* Typography */
-  --font-family-base: 'Inter', system-ui, sans-serif;
-  --tracking-tight: -0.03em;
-  --tracking-tighter: -0.05em;
-
-  /* Rounded - Editorial Scale (Sharper) */
-  --rounded-none: 0px;
-  --rounded-xs: 2px;
-  --rounded-sm: 4px;
-  --rounded-md: 6px;
-  --rounded-lg: 12px;
-  --rounded-full: 9999px;
-
-  /* Spacing - 8px Base */
-  --spacing-xxs: 4px;
-  --spacing-xs: 8px;
-  --spacing-sm: 12px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-xxl: 48px;
-  --spacing-section: 64px;
-  --spacing-section-lg: 96px;
+  /* 🔤 SISTEM TIPOGRAFI */
+  --font-heading: 'Fredoka One', cursive;
+  --font-body: 'Nunito', 'Poppins', sans-serif;
 }
 
+/* Pemaksaan Tema Gelap Manga-Pop (Tetap menjaga Kontras Tinggi khas Neobrutalism) */
 :root[data-theme="dark"] {
-  --color-canvas: #0a0a0a;
-  --color-surface: #141414;
-  --color-ink: #f5f5f5;
-  --color-ink-soft: #e5e5e5;
-  --color-graphite: #a3a3a3;
-  --color-stone: #737373;
-  --color-hairline: #262626;
-  --color-hairline-soft: #404040;
-  --color-on-primary: #000000;
-  --color-primary: #ffffff;
-  /* Primary action becomes white on dark */
+  --mochi: #13111C;
+  --white: #1E1B29;
+  --midnight: #FAF9FF;
 }
 
-/* Base Styles */
+/* ══════════════════════════════════════════════
+   BASE STYLES & BACKGROUND TITIK-TITIK SCOOLA
+   ══════════════════════════════════════════════ */
 body {
-  background-color: var(--color-canvas);
-  color: var(--color-graphite);
-  font-family: var(--font-family-base);
+  background-color: var(--mochi);
+  color: var(--midnight);
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
   margin: 0;
   -webkit-font-smoothing: antialiased;
+  
+  /* Pola Titik-Titik Latar Belakang Sesuai Panduan */
+  background-image: radial-gradient(var(--cosmo) 1px, transparent 0);
+  background-size: 24px 24px;
+  background-attachment: fixed;
 }
 
-/* Typography Classes */
+/* ══════════════════════════════════════════════
+   TYPOGRAPHY CLASSES (MANGA-POP VERSION)
+   ══════════════════════════════════════════════ */
 .text-display {
+  font-family: var(--font-heading);
   font-size: 48px;
   font-weight: 400;
-  line-height: 1;
-  letter-spacing: var(--tracking-tighter);
+  line-height: 1.05;
+  color: var(--white);
+  -webkit-text-stroke: 2px var(--midnight);
+  text-shadow: 5px 5px 0px var(--midnight);
 }
 
 .text-display-sm {
+  font-family: var(--font-heading);
   font-size: 40px;
   font-weight: 400;
-  line-height: 1;
-  letter-spacing: var(--tracking-tight);
+  line-height: 1.1;
+  -webkit-text-stroke: 1.5px var(--midnight);
+  text-shadow: 4px 4px 0px var(--midnight);
 }
 
 .text-heading-md {
+  font-family: var(--font-heading);
   font-size: 36px;
   font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: var(--tracking-tight);
+  line-height: 1.2;
+  text-shadow: 2px 2px 0px var(--cyber);
 }
 
 .text-heading-sm {
+  font-family: var(--font-heading);
   font-size: 24px;
   font-weight: 400;
-  line-height: 1;
+  line-height: 1.3;
 }
 
 .text-subtitle {
+  font-family: var(--font-body);
   font-size: 20px;
-  font-weight: 400;
-  line-height: 1;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
-.text-body {
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
-}
-
-.text-body-strong {
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.5;
-}
-
+.text-body,
+.text-body-strong,
 .text-body-tight {
+  font-family: var(--font-body);
   font-size: 16px;
-  font-weight: 400;
-  line-height: 1.3;
-  letter-spacing: -0.16px;
+  font-weight: 600; /* Tebal semi-bold/bold untuk memperkuat kontras teks */
+  line-height: 1.6;
 }
 
 .text-link-sm {
+  font-family: var(--font-body);
   font-size: 14px;
-  font-weight: 600;
-  line-height: 1.43;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .text-meta {
+  font-family: var(--font-body);
   font-size: 13px;
-  font-weight: 400;
-  line-height: 1.3;
-  letter-spacing: -0.26px;
+  font-weight: 700;
+  color: var(--midnight);
+  opacity: 0.8;
 }
 
-.text-eyebrow {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.43;
-  letter-spacing: 0.35px;
-  text-transform: uppercase;
-}
-
+.text-eyebrow,
 .text-micro-caps {
-  font-size: 11px;
-  font-weight: 450;
-  line-height: 1.3;
-  letter-spacing: 0.2px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 800;
   text-transform: uppercase;
+  letter-spacing: 1.5px;
 }
 
 .text-button {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.43;
+  font-family: var(--font-heading);
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-/* Component Classes */
+/* ══════════════════════════════════════════════
+   COMPONENT CLASSES (THE NEOBRUTALISM RULES)
+   ══════════════════════════════════════════════ */
+
+/* 1. Aturan Garis Tepi Tebal & Bayangan Solid (Tombol Primer) */
 .btn-primary {
-  background-color: var(--color-primary);
-  color: var(--color-on-primary);
-  font-family: var(--font-family-base);
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: var(--rounded-full);
-  padding: 0 24px;
-  height: 44px;
-  border: none;
+  background-color: var(--sakura);
+  color: var(--white);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 3px solid var(--midnight);
+  border-radius: 14px;
+  padding: 0 32px;
+  height: 52px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 0.2s;
+  box-shadow: 5px 5px 0px var(--midnight);
+  text-shadow: 2px 2px 0px var(--midnight);
+  transition: all 0.2s ease;
 }
 
+/* Interaksi Efek Hover Mekanis Bergeser */
 .btn-primary:hover {
-  filter: invert(1);
-  /* Flip color on hover for dramatic effect */
+  filter: none;
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0px var(--midnight);
+  background-color: #ff5e5d;
 }
 
+.btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--midnight);
+}
+
+/* Tombol Sekunder / Ghost */
 .btn-ghost {
-  background-color: transparent;
-  color: var(--color-ink);
-  font-family: var(--font-family-base);
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: var(--rounded-full);
-  padding: 0 24px;
-  height: 44px;
-  border: 1px solid var(--color-ink);
+  background-color: var(--cyber);
+  color: var(--midnight);
+  font-family: var(--font-heading);
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 3px solid var(--midnight);
+  border-radius: 14px;
+  padding: 0 32px;
+  height: 52px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  box-shadow: 4px 4px 0px var(--midnight);
+  transition: all 0.2s ease;
 }
 
 .btn-ghost:hover {
-  background-color: var(--color-ink);
-  color: var(--color-surface);
+  background-color: var(--white);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--midnight);
 }
 
+.btn-ghost:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--midnight);
+}
+
+/* Navigasi */
 .nav-bar {
-  background-color: var(--color-canvas);
-  color: var(--color-ink);
-  height: 64px;
+  background-color: var(--white);
+  color: var(--midnight);
+  height: 70px;
   padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 4px solid var(--midnight);
 }
 
 .nav-link {
-  color: var(--color-ink-soft);
+  color: var(--midnight);
+  font-family: var(--font-body);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 800;
   text-decoration: none;
-  padding: 8px;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
 }
 
+.nav-link:hover {
+  color: var(--cosmo);
+  transform: rotate(-1deg);
+}
+
+/* Kartu Penampung Utama (Card Container) */
+.card {
+  background-color: var(--white) !important;
+  border: 4px solid var(--midnight) !important;
+  border-radius: 20px !important;
+  box-shadow: 8px 8px 0px 0px var(--midnight) !important;
+  padding: 32px !important;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* Kartu Harga / Side Item */
 .pricing-card {
-  background-color: var(--color-canvas);
-  color: var(--color-ink);
-  padding: 24px;
-  border-radius: var(--rounded-none);
-  border-right: 1px solid var(--color-hairline-soft);
+  background-color: var(--white);
+  color: var(--midnight);
+  padding: 32px;
+  border: 4px solid var(--midnight);
+  border-radius: 16px;
+  box-shadow: 6px 6px 0px var(--midnight);
 }
 
 .pricing-card-featured {
-  background-color: var(--color-hairline);
-  color: var(--color-ink);
-  padding: 24px;
-  border-radius: var(--rounded-none);
-  border-right: 1px solid var(--color-hairline-soft);
+  background-color: var(--gold);
+  color: var(--midnight);
+  padding: 32px;
+  border: 4px solid var(--midnight);
+  border-radius: 16px;
+  box-shadow: 6px 6px 0px var(--midnight);
+  transform: scale(1.02);
 }
 
+/* Hero Panel Pop-Art */
 .hero-photo {
-  background-color: var(--color-scrim);
-  color: var(--color-on-primary);
+  background-color: var(--cosmo);
+  color: var(--white);
   padding: 48px;
-  border-radius: var(--rounded-lg);
+  border: 4px solid var(--midnight);
+  border-radius: 20px;
+  box-shadow: 8px 8px 0px var(--midnight);
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
+/* Kolom Input Form bergaya Komik */
 .form-field {
-  background-color: var(--color-surface);
-  color: var(--color-ink);
-  padding: 12px 16px;
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--rounded-sm);
   width: 100%;
+  padding: 16px;
+  border: 3px solid var(--midnight);
+  border-radius: 12px;
+  background: var(--mochi);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
   outline: none;
-  font-family: inherit;
-  font-size: 14px;
-  transition: border-color 0.2s;
+  color: var(--midnight);
+  box-shadow: 4px 4px 0px 0px var(--midnight);
+  transition: all 0.2s ease;
 }
 
 .form-field:focus {
-  border-color: var(--color-ink);
+  background: var(--white);
+  border-color: var(--cosmo);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--midnight);
 }
 
-.card {
-  background-color: #ffffff !important;
-  border: 1px solid var(--color-hairline);
-  border-radius: 12px !important;
-  /* Premium rounded corners */
-  transition: all 0.3s ease;
-}
-
-[data-theme="dark"] .card {
-  border-color: var(--color-hairline-soft);
-}
-
-/* Global Table & Card Spacing Enhancements */
+/* Tabel Data Neobrutalism */
 table {
-  background-color: var(--color-surface);
-  border-radius: var(--rounded-md);
+  background-color: var(--white);
+  border: 4px solid var(--midnight);
+  border-radius: 16px;
   overflow: hidden;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table th {
+  background-color: var(--gold);
+  color: var(--midnight);
+  font-family: var(--font-heading);
+  font-weight: 400;
+  text-transform: uppercase;
+  border-bottom: 4px solid var(--midnight);
+}
+
+table td {
+  border-bottom: 3px solid var(--midnight);
+  font-weight: 600;
 }
 
 table th,
 table td {
-  padding: 24px 16px !important;
+  padding: 18px 20px !important;
 }
 
+table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Margin Jarak Section */
 section,
 .editorial-header {
-  margin-bottom: var(--spacing-xxl) !important;
+  margin-bottom: 48px !important;
 }
 
-.btn-primary,
-.btn-ghost {
-  height: 48px;
-  padding: 0 32px;
-}
-
+/* Bagian Kaki (Footer) */
 .footer {
-  background-color: var(--color-footer);
-  color: var(--color-on-primary);
-  padding: 64px 24px;
-}
-
-/* Utilities */
-.section-gutter {
-  padding-top: var(--spacing-section);
-  padding-bottom: var(--spacing-section);
-}
-
-.section-gutter-lg {
-  padding-top: var(--spacing-section-lg);
-  padding-bottom: var(--spacing-section-lg);
-}
-
-.hairline-divider {
-  height: 1px;
-  background-color: var(--color-hairline);
-  border: none;
+  background-color: var(--white);
+  color: var(--midnight);
+  border-top: 4px solid var(--midnight);
+  padding: 48px 24px;
+  text-align: center;
+  font-weight: 800;
 }
 
 /* ══════════════════════════════════════════════
@@ -330,27 +344,36 @@ section,
 .agenda-list {
   display: flex;
   flex-direction: column;
+  background: var(--white);
+  border: 3px solid var(--midnight);
+  border-radius: 16px;
+  padding: 12px 24px;
 }
 
 .agenda-list-item {
-  padding: 24px 0;
+  padding: 20px 0;
   display: flex;
   align-items: center;
-  gap: var(--spacing-xl);
-  border-bottom: 1px solid var(--color-hairline);
-  transition: all 0.2s ease;
+  gap: 24px;
+  border-bottom: 3px dashed var(--midnight);
 }
 
 .agenda-list-item:last-child {
   border-bottom: none;
 }
 
+/* Lencana Stiker Waktu Terputar */
 .agenda-time {
-  color: var(--color-stone);
-  width: 100px;
-  font-size: 13px;
-  font-weight: 600;
+  background-color: var(--cyber);
+  color: var(--midnight);
+  border: 3px solid var(--midnight);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
   flex-shrink: 0;
+  box-shadow: 3px 3px 0px var(--midnight);
+  transform: rotate(-2deg);
 }
 
 .agenda-details {
@@ -359,137 +382,72 @@ section,
 }
 
 .agenda-subject {
-  font-weight: 600;
-  font-size: 16px;
-  color: var(--color-ink);
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--midnight);
 }
 
 .agenda-class {
-  color: var(--color-slate);
+  color: var(--cosmo);
+  font-weight: 800;
   font-size: 12px;
   text-transform: uppercase;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .agenda-teacher {
-  color: var(--color-graphite);
-  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--midnight);
+  font-weight: 700;
   text-align: right;
   flex-shrink: 0;
 }
 
 /* ══════════════════════════════════════════════
-   RESPONSIVE CARD GRID (BENTO STYLE)
-   ══════════════════════════════════════════════ */
-.responsive-card-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-lg);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: var(--spacing-md);
-}
-
-/* ══════════════════════════════════════════════
-   GLOBAL MOBILE RESPONSIVE ENGINE (MAX 768PX)
+   RESPONSIVE LAYOUT ENGINE (MOBILE TRANSFORMATION)
    ══════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* Layout Paddings */
   .page-content {
-    padding: 32px 16px !important;
-  }
-  
-  .runway-topbar {
-    padding: 0 16px !important;
+    padding: 24px 16px !important;
   }
   
   .display-title {
-    font-size: 28px !important;
-    letter-spacing: -0.5px !important;
-    word-break: break-word !important;
+    font-size: 32px !important;
+    -webkit-text-stroke: 1.5px var(--midnight);
+    text-shadow: 3px 3px 0px var(--midnight);
   }
 
-  /* Global Grid & Bento Transformations */
+  /* Mengubah Bento Grid Menjadi Stack Vertikal Tetap Rapi */
   .stats-grid, 
   .responsive-card-grid,
   .dashboard-layout,
   div[style*="display: grid"] {
-    display: grid !important;
     grid-template-columns: 1fr !important;
-    gap: 24px !important;
-    width: 100% !important;
-  }
-  
-  /* Prevent horizontal flex layouts from forcing screen overflow */
-  div[style*="display: flex"] {
-    flex-wrap: wrap !important;
+    gap: 20px !important;
   }
 
-  /* Responsive Cards */
   .card {
-    border-radius: 12px !important;
     padding: 24px !important;
-    margin-bottom: 20px !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
+    box-shadow: 6px 6px 0px 0px var(--midnight) !important;
   }
   
-  /* Agenda List Responsive Style */
+  /* Transformasi List Agenda di Layar Kecil */
   .agenda-list-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
-    padding: 20px 0;
   }
   
   .agenda-time {
-    width: auto;
-    background-color: var(--color-canvas-warm);
-    color: var(--color-ink);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-  
-  .agenda-details {
-    width: 100%;
-  }
-  
-  .agenda-subject {
-    white-space: normal;
-    font-size: 15px;
+    transform: rotate(0deg);
   }
   
   .agenda-teacher {
     text-align: left;
-    font-size: 12px;
-    margin-top: 4px;
-    color: var(--color-slate);
+    margin-top: 2px;
   }
   
-  /* Tables */
-  .table-container-card {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    overflow: visible !important;
-  }
-
-  .responsive-table, 
-  .data-table {
-    background: transparent !important;
-    border-collapse: separate !important;
-    border-spacing: 0 16px !important;
-    width: 100% !important;
-    display: table !important;
-  }
-
+  /* Transformasi Tabel Menjadi Tumpukan Kartu Komik */
   .responsive-table thead,
   .data-table thead {
     display: none !important;
@@ -507,12 +465,12 @@ section,
 
   .responsive-table tr,
   .data-table tr {
-    margin-bottom: 16px !important;
-    border: 1px solid var(--color-hairline) !important;
-    border-radius: 12px !important;
-    padding: 20px !important;
-    background: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
+    margin-bottom: 20px !important;
+    border: 3px solid var(--midnight) !important;
+    border-radius: 14px !important;
+    padding: 16px !important;
+    background: var(--white) !important;
+    box-shadow: 4px 4px 0px var(--midnight) !important;
   }
 
   .responsive-table td,
@@ -520,44 +478,24 @@ section,
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    padding: 8px 0 !important;
+    padding: 10px 0 !important;
     border: none !important;
-    text-align: right !important;
-    min-height: 40px;
-    background: transparent !important;
+    border-bottom: 2px dashed var(--mochi) !important;
+  }
+  
+  .responsive-table td:last-child,
+  .data-table td:last-child {
+    border-bottom: none !important;
   }
 
+  /* Inject label dari atribut data-label */
   .responsive-table td::before,
   .data-table td::before {
     content: attr(data-label);
-    font-weight: 700;
+    font-family: var(--font-body);
+    font-weight: 800;
     text-transform: uppercase;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--color-stone);
-    text-align: left;
-    padding-right: 16px;
-  }
-
-  /* Form Actions & Controls */
-  .form-actions {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    align-items: stretch !important;
-    margin-top: 24px !important;
-    padding-top: 20px !important;
-  }
-
-  .form-actions button, 
-  .form-actions a {
-    width: 100% !important;
-    justify-content: center !important;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr !important;
-    gap: 0 !important;
+    font-size: 11px;
+    color: var(--cosmo);
   }
 }
-

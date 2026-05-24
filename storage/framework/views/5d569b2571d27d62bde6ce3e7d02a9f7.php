@@ -1,6 +1,4 @@
-@extends('layouts.admin')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -80,19 +78,21 @@
             </p>
         </div>
 
-        @if(session('error'))
+        <?php if(session('error')): ?>
             <div class="neo-card" style="background: rgba(255, 118, 117, 0.15); padding: 16px 20px; font-weight: 800; font-size: 14px; border-color: #1E1B29;">
-                ❌ {{ session('error') }}
-            </div>
-        @endif
+                ❌ <?php echo e(session('error')); ?>
 
-        @if(session('success'))
+            </div>
+        <?php endif; ?>
+
+        <?php if(session('success')): ?>
             <div class="neo-card" style="background: rgba(0, 206, 201, 0.15); padding: 16px 20px; font-weight: 800; font-size: 14px; border-color: #1E1B29;">
-                ⚡ {{ session('success') }}
-            </div>
-        @endif
+                ⚡ <?php echo e(session('success')); ?>
 
-        @if ($kakonsli)
+            </div>
+        <?php endif; ?>
+
+        <?php if($kakonsli): ?>
             <div class="neo-card" style="padding: 40px; background: #FFFFFF;">
                 
                 <span class="fredoka" style="position: absolute; top: -20px; right: 30px; background: #FF7675; color: #FFFFFF; border: 3px solid #1E1B29; padding: 4px 16px; font-size: 14px; border-radius: 8px; box-shadow: 3px 3px 0px #1E1B29; transform: rotate(4deg);">
@@ -112,31 +112,34 @@
 
                     <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
                         <div class="fredoka" style="width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, #FDCB6E 0%, #6C5CE7 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 38px; border: 4px solid #1E1B29; box-shadow: 5px 5px 0px #1E1B29; text-shadow: 2px 2px 0px #1E1B29;">
-                            {{ strtoupper(substr($kakonsli->name, 0, 1)) }}
+                            <?php echo e(strtoupper(substr($kakonsli->name, 0, 1))); ?>
+
                         </div>
 
                         <div style="display: flex; flex-direction: column; gap: 4px;">
                             <h2 class="fredoka" style="font-size: 32px; margin: 0; color: #1E1B29; text-shadow: 2px 2px 0px #00CEC9;">
-                                {{ $kakonsli->name }}
+                                <?php echo e($kakonsli->name); ?>
+
                             </h2>
                             <span style="font-family: monospace; font-size: 15px; color: #1E1B29; font-weight: 700; background: #FAF9FF; border: 2px solid #1E1B29; padding: 2px 8px; border-radius: 6px; display: inline-block; box-shadow: 2px 2px 0px #1E1B29;">
-                                {{ $kakonsli->email }}
+                                <?php echo e($kakonsli->email); ?>
+
                             </span>
                         </div>
                     </div>
 
                     <div style="border-top: 3px solid #1E1B29; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                         <div style="font-size: 14px; font-weight: 700; color: #1E1B29;">
-                            Terdaftar sejak: <span style="color: #6C5CE7; background: rgba(108, 92, 231, 0.1); padding: 2px 6px; border-radius: 4px;">{{ $kakonsli->created_at->format('d M Y H:i') }}</span>
+                            Terdaftar sejak: <span style="color: #6C5CE7; background: rgba(108, 92, 231, 0.1); padding: 2px 6px; border-radius: 4px;"><?php echo e($kakonsli->created_at->format('d M Y H:i')); ?></span>
                         </div>
                         
-                        <a href="{{ route('admin.kakonsli.edit', $kakonsli->id) }}" class="neo-btn-primary" style="height: 48px; padding: 0 28px; font-size: 14px;">
+                        <a href="<?php echo e(route('admin.kakonsli.edit', $kakonsli->id)); ?>" class="neo-btn-primary" style="height: 48px; padding: 0 28px; font-size: 14px;">
                             Edit Profil 🛠️
                         </a>
                     </div>
                 </div>
             </div>
-        @else
+        <?php else: ?>
             <div class="neo-card" style="background: #FFFFFF; padding: 60px 32px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 24px;">
                 
                 <div style="width: 90px; height: 90px; border-radius: 20px; background: #FAF9FF; color: #1E1B29; display: flex; align-items: center; justify-content: center; border: 3px solid #1E1B29; box-shadow: 5px 5px 0px #1E1B29; transform: rotate(-4deg);">
@@ -153,12 +156,12 @@
                 </div>
                 
                 <div style="margin-top: 10px;">
-                    <a href="{{ route('admin.kakonsli.create') }}" class="neo-btn-primary" style="height: 54px; padding: 0 36px; font-size: 15px; background: #00CEC9;">
+                    <a href="<?php echo e(route('admin.kakonsli.create')); ?>" class="neo-btn-primary" style="height: 54px; padding: 0 36px; font-size: 15px; background: #00CEC9;">
                         Daftarkan Kakonsli ✨
                     </a>
                 </div>
             </div>
-        @endif
+        <?php endif; ?>
 
         <div class="fredoka" style="text-align: center; margin-top: 20px; opacity: 0.6; font-size: 14px; color: #1E1B29;">
             (✿◡‿◡) &bull; Presensi Jadi Lebih Menyenangkan!
@@ -166,4 +169,5 @@
 
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\coding\laravel\Scoola\resources\views/admin/kakonsli/index.blade.php ENDPATH**/ ?>

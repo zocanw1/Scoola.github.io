@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Scoola — Masuk</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -445,7 +445,7 @@
     <!-- Form Panel (Sisi Kanan) -->
     <div class="form-panel">
         <div class="login-card">
-            <a href="{{ url('/') }}" class="btn-back">
+            <a href="<?php echo e(url('/')); ?>" class="btn-back">
                 ← Kembali ke Landing Page
             </a>
 
@@ -455,38 +455,54 @@
             </div>
 
             <!-- Pesan Sesi Selesai / Info -->
-            @if(session('info') || request()->has('expired'))
+            <?php if(session('info') || request()->has('expired')): ?>
                 <div class="alert-minimal">
-                    ⚡ {{ session('info') ?? 'Sesi Anda telah berakhir. Silakan login kembali.' }}
+                    ⚡ <?php echo e(session('info') ?? 'Sesi Anda telah berakhir. Silakan login kembali.'); ?>
+
                 </div>
-            @endif
+            <?php endif; ?>
 
             <!-- Pesan Error Umum -->
-            @if(session('error'))
+            <?php if(session('error')): ?>
                 <div class="alert-minimal alert-error">
-                    ❌ {{ session('error') }}
+                    ❌ <?php echo e(session('error')); ?>
+
                 </div>
-            @endif
+            <?php endif; ?>
 
             <form method="POST" action="/login">
-                @csrf
+                <?php echo csrf_field(); ?>
 
                 <!-- Input Email -->
                 <div class="input-group">
                     <label class="input-label">Email Address</label>
-                    <input type="email" name="email" value="{{ old('email') }}" required autofocus class="input-field" placeholder="nama@sekolah.com">
-                    @error('email')
-                        <span class="error-message">⚠️ {{ $message }}</span>
-                    @enderror
+                    <input type="email" name="email" value="<?php echo e(old('email')); ?>" required autofocus class="input-field" placeholder="nama@sekolah.com">
+                    <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="error-message">⚠️ <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <!-- Input Password -->
                 <div class="input-group">
                     <label class="input-label">Password</label>
                     <input type="password" name="password" required class="input-field" placeholder="••••••••">
-                    @error('password')
-                        <span class="error-message">⚠️ {{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="error-message">⚠️ <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <!-- Tombol Submit -->
@@ -504,4 +520,4 @@
 </div>
 
 </body>
-</html>
+</html><?php /**PATH C:\coding\laravel\Scoola\resources\views/auth/login.blade.php ENDPATH**/ ?>

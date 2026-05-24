@@ -38,8 +38,8 @@
         })();
     </script>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @include('layouts.partials.theme-tokens')
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
+    <?php echo $__env->make('layouts.partials.theme-tokens', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <style>
         :root {
@@ -533,56 +533,56 @@
     </div>
 
     <div class="sb-nav">
-        @if(auth()->user()->role === 'admin')
+        <?php if(auth()->user()->role === 'admin'): ?>
         <div class="sb-section">Utama</div>
-        <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+        <a href="<?php echo e(route('admin.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.dashboard') ? 'active' : ''); ?>">
             <i class="bi bi-grid-fill"></i> Dashboard
         </a>
-        @endif
+        <?php endif; ?>
 
         <div class="sb-section">Data</div>
-        <a href="{{ route('siswa.index') }}" class="nav-link {{ request()->routeIs('siswa.*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('siswa.index')); ?>" class="nav-link <?php echo e(request()->routeIs('siswa.*') ? 'active' : ''); ?>">
             <i class="bi bi-people-fill"></i> Siswa
         </a>
-        @if(auth()->user()->role === 'admin')
-        <a href="{{ route('guru.index') }}" class="nav-link {{ request()->routeIs('guru.*') ? 'active' : '' }}">
+        <?php if(auth()->user()->role === 'admin'): ?>
+        <a href="<?php echo e(route('guru.index')); ?>" class="nav-link <?php echo e(request()->routeIs('guru.*') ? 'active' : ''); ?>">
             <i class="bi bi-person-badge-fill"></i> Guru
         </a>
-        <a href="{{ route('admin.kelas.index') }}" class="nav-link {{ request()->routeIs('admin.kelas.*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('admin.kelas.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.kelas.*') ? 'active' : ''); ?>">
             <i class="bi bi-building"></i> Kelas
         </a>
-        <a href="{{ route('admin.walikelas.index') }}" class="nav-link {{ request()->routeIs('admin.walikelas.*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('admin.walikelas.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.walikelas.*') ? 'active' : ''); ?>">
             <i class="bi bi-mortarboard-fill"></i> Wali Kelas
         </a>
-        <a href="{{ route('mapel.index') }}" class="nav-link {{ request()->routeIs('mapel.*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('mapel.index')); ?>" class="nav-link <?php echo e(request()->routeIs('mapel.*') ? 'active' : ''); ?>">
             <i class="bi bi-book-fill"></i> Mata Pelajaran
         </a>
-        <a href="{{ route('jadwal.index') }}" class="nav-link {{ request()->routeIs('jadwal.*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('jadwal.index')); ?>" class="nav-link <?php echo e(request()->routeIs('jadwal.*') ? 'active' : ''); ?>">
             <i class="bi bi-calendar3"></i> Jadwal Pelajaran
         </a>
-        <a href="{{ route('admin.rekap.index') }}" class="nav-link {{ request()->routeIs('admin.rekap.*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('admin.rekap.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.rekap.*') ? 'active' : ''); ?>">
             <i class="bi bi-file-earmark-spreadsheet-fill"></i> Rekap Mingguan
         </a>
 
         <div class="sb-section">Sistem</div>
-        <a href="{{ route('admin.akun.index') }}" class="nav-link {{ request()->routeIs('admin.akun.*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('admin.akun.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.akun.*') ? 'active' : ''); ?>">
             <i class="bi bi-shield-plus"></i> Kelola Admin
         </a>
-        <a href="{{ route('admin.kakonsli.index') }}" class="nav-link {{ request()->routeIs('admin.kakonsli.*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('admin.kakonsli.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.kakonsli.*') ? 'active' : ''); ?>">
             <i class="bi bi-shield-check"></i> Kelola Kakonsli
         </a>
-        <a href="{{ route('admin.logs.index') }}" class="nav-link {{ request()->routeIs('admin.logs.*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('admin.logs.index')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.logs.*') ? 'active' : ''); ?>">
             <i class="bi bi-journal-text"></i> Log Aktivitas
         </a>
-        @endif
+        <?php endif; ?>
     </div>
 
     <div class="sb-footer">
         <div class="user-info">
-            <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
+            <div class="user-avatar"><?php echo e(strtoupper(substr(auth()->user()->name ?? 'A', 0, 1))); ?></div>
             <div style="overflow:hidden">
-                <div style="font-size: 13px; font-weight: 800; color: var(--midnight);">{{ auth()->user()->name ?? auth()->user()->email }}</div>
-                <div style="font-size: 11px; font-weight: 700; color: var(--cosmo);">{{ auth()->user()->role }}</div>
+                <div style="font-size: 13px; font-weight: 800; color: var(--midnight);"><?php echo e(auth()->user()->name ?? auth()->user()->email); ?></div>
+                <div style="font-size: 11px; font-weight: 700; color: var(--cosmo);"><?php echo e(auth()->user()->role); ?></div>
             </div>
         </div>
     </div>
@@ -594,7 +594,7 @@
             <button type="button" class="menu-toggle" onclick="toggleMobileMenu()">
                 <i class="bi bi-list" style="font-size: 24px;"></i>
             </button>
-            <span class="text-meta" style="font-weight: 800; color: var(--midnight); opacity: 0.7;">Admin / @yield('breadcrumb', 'Overview')</span>
+            <span class="text-meta" style="font-weight: 800; color: var(--midnight); opacity: 0.7;">Admin / <?php echo $__env->yieldContent('breadcrumb', 'Overview'); ?></span>
         </div>
 
         <div style="display: flex; gap: 20px; align-items: center; position: relative; z-index: 9999;">
@@ -608,8 +608,8 @@
                 <i class="bi bi-moon-stars" style="pointer-events: none;"></i>
             </button>
             
-            <form action="{{ route('logout') }}" method="POST" class="m-0">
-                @csrf
+            <form action="<?php echo e(route('logout')); ?>" method="POST" class="m-0">
+                <?php echo csrf_field(); ?>
                 <button type="submit" class="btn-primary" style="height: 40px; padding: 0 16px; font-size: 13px;">
                     Keluar (′·_·`)
                 </button>
@@ -618,11 +618,11 @@
     </header>
 
     <main class="page-content">
-        @yield('content')
+        <?php echo $__env->yieldContent('content'); ?>
     </main>
 </div>
 
-@stack('scripts')
+<?php echo $__env->yieldPushContent('scripts'); ?>
 
 <script>
     function toggleMobileMenu() {
@@ -633,4 +633,4 @@
     }
 </script>
 </body>
-</html>
+</html><?php /**PATH C:\coding\laravel\Scoola\resources\views/layouts/admin.blade.php ENDPATH**/ ?>

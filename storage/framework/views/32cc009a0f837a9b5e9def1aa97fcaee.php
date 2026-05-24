@@ -1,6 +1,4 @@
-@extends('layouts.admin')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <style>
     /* 🎨 PALET WARNA UTAMA (THE MANGA PALETTE) */
@@ -371,7 +369,8 @@
             </div>
             <div class="stats-label">Total Siswa</div>
             <div class="stats-number">
-                {{ $siswa->count() }}
+                <?php echo e($siswa->count()); ?>
+
             </div>
         </div>
 
@@ -384,7 +383,8 @@
             </div>
             <div class="stats-label">Kelas Aktif</div>
             <div class="stats-number">
-                {{ $siswa->unique('kelas')->count() }}
+                <?php echo e($siswa->unique('kelas')->count()); ?>
+
             </div>
         </div>
     </div>
@@ -405,9 +405,9 @@
                 <label class="input-label">Filter Kelas</label>
                 <select id="kelasFilter" class="anime-input">
                     <option value="">Semua Kelas</option>
-                    @foreach($siswa->unique('kelas')->pluck('kelas')->sort() as $kls)
-                        <option value="{{ $kls }}">{{ $kls }}</option>
-                    @endforeach
+                    <?php $__currentLoopData = $siswa->unique('kelas')->pluck('kelas')->sort(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kls): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($kls); ?>"><?php echo e($kls); ?></option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
             </div>
         </div>
@@ -422,46 +422,46 @@
                     <th>Kelas</th>
                     <th>Email</th>
                     <th>Status</th>
-                    @if(auth()->user()->role === 'admin')
+                    <?php if(auth()->user()->role === 'admin'): ?>
                         <th style="text-align:right;">Aksi</th>
-                    @endif
+                    <?php endif; ?>
                 </tr>
             </thead>
             <tbody id="siswaTable">
-                @forelse($siswa as $s)
+                <?php $__empty_1 = true; $__currentLoopData = $siswa; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $s): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <tr
                     class="student-row"
-                    data-name="{{ strtolower($s->nama_siswa) }}"
-                    data-nis="{{ strtolower($s->NIS) }}"
-                    data-kelas="{{ $s->kelas }}"
+                    data-name="<?php echo e(strtolower($s->nama_siswa)); ?>"
+                    data-nis="<?php echo e(strtolower($s->NIS)); ?>"
+                    data-kelas="<?php echo e($s->kelas); ?>"
                 >
-                    <td>{{ $s->NIS }}</td>
-                    <td>{{ $s->nama_siswa }}</td>
-                    <td>{{ $s->kelas }}</td>
-                    <td>{{ $s->user->email ?? '-' }}</td>
+                    <td><?php echo e($s->NIS); ?></td>
+                    <td><?php echo e($s->nama_siswa); ?></td>
+                    <td><?php echo e($s->kelas); ?></td>
+                    <td><?php echo e($s->user->email ?? '-'); ?></td>
                     <td>
                         <span class="status-badge">
                             ⚡ Aktif
                         </span>
                     </td>
-                    @if(auth()->user()->role === 'admin')
+                    <?php if(auth()->user()->role === 'admin'): ?>
                     <td style="text-align:right;">
-                        <a href="{{ route('siswa.edit', $s->NIS) }}" class="edit-btn">
+                        <a href="<?php echo e(route('siswa.edit', $s->NIS)); ?>" class="edit-btn">
                             Edit ✏️
                         </a>
                     </td>
-                    @endif
+                    <?php endif; ?>
                 </tr>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <tr class="empty-placeholder-base">
-                    <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" style="text-align:center; padding:72px;">
+                    <td colspan="<?php echo e(auth()->user()->role === 'admin' ? 6 : 5); ?>" style="text-align:center; padding:72px;">
                         Data siswa belum tersedia nih... (╥﹏╥)
                     </td>
                 </tr>
-                @endforelse
+                <?php endif; ?>
 
                 <tr id="jsEmptyMessage" style="display: none;">
-                    <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" style="text-align:center; padding:72px;">
+                    <td colspan="<?php echo e(auth()->user()->role === 'admin' ? 6 : 5); ?>" style="text-align:center; padding:72px;">
                         Duh, siswa yang kamu cari nggak ketemu... (╥﹏╥)
                     </td>
                 </tr>
@@ -471,11 +471,11 @@
 
 </div>
 
-@if(auth()->user()->role === 'admin')
-<a href="{{ route('siswa.create') }}" class="fab-button">
+<?php if(auth()->user()->role === 'admin'): ?>
+<a href="<?php echo e(route('siswa.create')); ?>" class="fab-button">
     <i class="bi bi-plus-lg"></i>
 </a>
-@endif
+<?php endif; ?>
 
 <script>
     const searchInput = document.getElementById('searchInput');
@@ -518,4 +518,5 @@
     kelasFilter.addEventListener('change', filterTable);
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\coding\laravel\Scoola\resources\views/admin/siswa/siswa-index.blade.php ENDPATH**/ ?>

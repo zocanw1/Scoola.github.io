@@ -1,6 +1,4 @@
-@extends('layouts.admin')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -196,34 +194,36 @@
         </div>
     </div>
 
-    @php 
+    <?php 
         $stats = [
             ['Total Siswa', $totalSiswa, "$totalKelasAktif unit kelas aktif", '#00CEC9', '🎓'], 
             ['Kehadiran', $persentaseHadir . '%', "$hadirHariIni siswa hadir", '#FF7675', '✨'], 
             ['Izin / Sakit', $izinSakitHariIni, "siswa berhalangan", '#FFFFFF', '💬'], 
             ['Absensi Alpha', $alpaHariIni, $alpaHariIni > 0 ? 'Perlu tindakan segera' : 'Data aman', '#FDCB6E', '⚠️']
         ];
-    @endphp
+    ?>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        @foreach($stats as $index => $s)
-            <div class="neo-card p-6 flex flex-col justify-between" style="background-color: {{ $s[3] }}; min-height: 180px;">
+        <?php $__currentLoopData = $stats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $s): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <div class="neo-card p-6 flex flex-col justify-between" style="background-color: <?php echo e($s[3]); ?>; min-height: 180px;">
                 <div>
                     <div class="flex justify-between items-center mb-3">
-                        <span class="font-anime-header text-xs uppercase tracking-wider text-[#1E1B29] opacity-80">{{ $s[0] }}</span>
-                        <span class="text-xl">{{ $s[4] }}</span>
+                        <span class="font-anime-header text-xs uppercase tracking-wider text-[#1E1B29] opacity-80"><?php echo e($s[0]); ?></span>
+                        <span class="text-xl"><?php echo e($s[4]); ?></span>
                     </div>
                     <div class="font-anime-header text-4xl text-[#1E1B29]" style="text-shadow: 2px 2px 0px #FFFFFF, -1px -1px 0px #1E1B29; -webkit-text-stroke: 1px #1E1B29; line-height: 1.1;">
-                        {{ $s[1] }}
+                        <?php echo e($s[1]); ?>
+
                     </div>
                 </div>
                 <div class="mt-4 pt-3 border-t-2 border-dashed border-[#1E1B29]">
                     <span class="text-xs font-black uppercase tracking-wide text-[#1E1B29]">
-                        {{ $s[2] }}
+                        <?php echo e($s[2]); ?>
+
                     </span>
                 </div>
             </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
 
     <div class="neo-layout">
@@ -250,28 +250,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($absensiTerbaru as $absen)
+                            <?php $__empty_1 = true; $__currentLoopData = $absensiTerbaru; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $absen): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                 <tr>
-                                    <td class="font-bold text-[#1E1B29]">{{ $absen->siswa->nama_siswa ?? '-' }}</td>
+                                    <td class="font-bold text-[#1E1B29]"><?php echo e($absen->siswa->nama_siswa ?? '-'); ?></td>
                                     <td>
                                         <span class="bg-[#FAF9FF] border-2 border-[#1E1B29] px-2.5 py-1 rounded-md text-xs font-extrabold inline-block">
-                                            {{ $absen->siswa->kelas ?? '-' }}
+                                            <?php echo e($absen->siswa->kelas ?? '-'); ?>
+
                                         </span>
                                     </td>
-                                    <td class="font-mono text-xs">{{ $absen->jam_masuk ?? '—' }}</td>
+                                    <td class="font-mono text-xs"><?php echo e($absen->jam_masuk ?? '—'); ?></td>
                                     <td>
-                                        <span class="badge-anime {{ $absen->status == 'Hadir' ? 'badge-anime-hadir' : 'badge-anime-absen' }}">
-                                            {{ $absen->status }}
+                                        <span class="badge-anime <?php echo e($absen->status == 'Hadir' ? 'badge-anime-hadir' : 'badge-anime-absen'); ?>">
+                                            <?php echo e($absen->status); ?>
+
                                         </span>
                                     </td>
                                 </tr>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                 <tr>
                                     <td colspan="4" class="text-center py-12 text-gray-500 font-bold italic bg-[#FAF9FF]">
                                         (′·_·`) Belum ada aktivitas terekam hari ini
                                     </td>
                                 </tr>
-                            @endforelse
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -288,24 +290,27 @@
                 </div>
                 
                 <div class="flex flex-col gap-4">
-                    @foreach([['07:00','Matematika','X-A','Pak Hendra', '#00CEC9'],['08:30','B. Indonesia','XI-B','Bu Dewi', '#FDCB6E'],['10:15','Fisika','XII-C','Pak Rizal', '#FF7675']] as $j)
-                        <div class="neo-card p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:scale-[1.01]" style="background-color: #FAF9FF; border-left: 8px solid {{ $j[4] }} !important;">
+                    <?php $__currentLoopData = [['07:00','Matematika','X-A','Pak Hendra', '#00CEC9'],['08:30','B. Indonesia','XI-B','Bu Dewi', '#FDCB6E'],['10:15','Fisika','XII-C','Pak Rizal', '#FF7675']]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $j): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <div class="neo-card p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:scale-[1.01]" style="background-color: #FAF9FF; border-left: 8px solid <?php echo e($j[4]); ?> !important;">
                             <div class="flex items-center gap-4">
                                 <div class="font-anime-header bg-[#1E1B29] text-white py-1 px-3 rounded-lg text-sm shadow-[2px_2px_0px_#6C5CE7]">
-                                    {{ $j[0] }}
+                                    <?php echo e($j[0]); ?>
+
                                 </div>
                                 <div>
-                                    <h4 class="font-anime-header text-lg text-[#1E1B29] leading-tight mb-1">{{ $j[1] }}</h4>
+                                    <h4 class="font-anime-header text-lg text-[#1E1B29] leading-tight mb-1"><?php echo e($j[1]); ?></h4>
                                     <span class="bg-[#1E1B29] text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded inline-block">
-                                        Kelas {{ $j[2] }}
+                                        Kelas <?php echo e($j[2]); ?>
+
                                     </span>
                                 </div>
                             </div>
                             <div class="font-anime-header text-sm text-[#6C5CE7] flex items-center gap-1">
-                                <span>👤</span> {{ $j[3] }}
+                                <span>👤</span> <?php echo e($j[3]); ?>
+
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
 
@@ -319,31 +324,32 @@
                 </h2>
                 
                 <div class="h-48 flex items-end gap-3 border-b-4 border-[#1E1B29] pb-4 px-2 mb-4 bg-[#FAF9FF] rounded-xl border-t border-l border-r border-gray-100">
-                    @foreach($trendData as $trend)
+                    <?php $__currentLoopData = $trendData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $trend): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="flex-1 flex flex-col justify-end items-center h-full group relative">
                             <span class="absolute -top-8 bg-[#1E1B29] text-white text-[10px] font-anime-header px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30">
-                                {{ $trend->is_empty ? '0' : $trend->pct_hadir }}%
+                                <?php echo e($trend->is_empty ? '0' : $trend->pct_hadir); ?>%
                             </span>
                             
-                            @php
+                            <?php
                                 $trendHeight = $trend->is_empty ? '10px' : ($trend->pct_hadir . '%');
                                 $trendBg = $trend->is_empty ? '#FAF9FF' : ($loop->iteration % 2 == 0 ? '#00CEC9' : '#6C5CE7');
-                            @endphp
+                            ?>
                             <div class="w-full rounded-t-md transition-all duration-300 border-2 border-[#1E1B29]"
-                                 style="height: {{ $trendHeight }};
-                                        background-color: {{ $trendBg }};
+                                 style="height: <?php echo e($trendHeight); ?>;
+                                        background-color: <?php echo e($trendBg); ?>;
                                         box-shadow: 2px 0px 0px 0px #1E1B29;">
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
                 
                 <div class="flex justify-between px-1">
-                    @foreach($trendData as $trend)
+                    <?php $__currentLoopData = $trendData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $trend): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="font-anime-header text-xs text-[#1E1B29] uppercase tracking-wider text-center w-full">
-                            {{ substr($trend->hari, 0, 3) }}
+                            <?php echo e(substr($trend->hari, 0, 3)); ?>
+
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
 
@@ -353,23 +359,23 @@
                 </h2>
                 
                 <div class="flex flex-col gap-4">
-                    @forelse($kelasBreakdown as $kb)
+                    <?php $__empty_1 = true; $__currentLoopData = $kelasBreakdown; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kb): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <div>
                             <div class="flex justify-between items-center mb-1.5 font-bold text-sm">
-                                <span class="font-anime-header text-[#1E1B29]">{{ $kb->nama }}</span>
+                                <span class="font-anime-header text-[#1E1B29]"><?php echo e($kb->nama); ?></span>
                                 <span class="bg-[#FDCB6E] border-2 border-[#1E1B29] px-2 py-0.5 text-xs rounded font-extrabold shadow-[1.5px_1.5px_0px_#1E1B29]">
-                                    {{ $kb->persentase }}%
+                                    <?php echo e($kb->persentase); ?>%
                                 </span>
                             </div>
                             <div class="w-full h-4 bg-[#FAF9FF] border-2 border-[#1E1B29] rounded-full overflow-hidden">
                                 <div class="h-full border-r-2 border-[#1E1B29]" 
-                                     style="width: {{ $kb->persentase }}%; background-color: #6C5CE7;">
+                                     style="width: <?php echo e($kb->persentase); ?>%; background-color: #6C5CE7;">
                                 </div>
                             </div>
                         </div>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <div class="text-center text-gray-400 text-sm font-bold py-6 italic">(′·_·`) Menunggu data...</div>
-                    @endforelse
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -405,4 +411,5 @@
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\coding\laravel\Scoola\resources\views/admin/dashboard.blade.php ENDPATH**/ ?>
