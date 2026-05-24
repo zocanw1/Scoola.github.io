@@ -1,32 +1,44 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 return new class extends Migration
 {
+    private function syncPostgresConstraint(array $roles): void
+    {
+        $quotedRoles = implode(',', array_map(
+            static fn (string $role) => "'".str_replace("'", "''", $role)."'",
+            $roles
+        ));
+
+        DB::statement('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check');
+        DB::statement('ALTER TABLE users ALTER COLUMN role TYPE VARCHAR(255)');
+        DB::statement("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ({$quotedRoles}))");
+        DB::statement("ALTER TABLE users ALTER COLUMN role SET DEFAULT 'admin'");
+    }
+
     public function up(): void
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'guru', 'siswa', 'kakonsli') DEFAULT 'admin'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'guru', 'siswa', 'kakonsli') DEFAULT 'admin'");
+            return;
+        }
 
-        // Create default kakonsli user for testing
-        User::firstOrCreate(
-            ['email' => 'kakonsli@scoola.id'],
-            [
-                'name'     => 'Kakonsli Scoola',
-                'password' => Hash::make('kakonsli123'),
-                'role'     => 'kakonsli',
-            ]
-        );
+        if (DB::getDriverName() === 'pgsql') {
+            $this->syncPostgresConstraint(['admin', 'guru', 'siswa', 'kakonsli']);
+        }
     }
 
     public function down(): void
     {
-        User::where('email', 'kakonsli@scoola.id')->delete();
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'guru', 'siswa') DEFAULT 'admin'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'guru', 'siswa') DEFAULT 'admin'");
+            return;
+        }
+
+        if (DB::getDriverName() === 'pgsql') {
+            $this->syncPostgresConstraint(['admin', 'guru', 'siswa']);
+        }
     }
 };

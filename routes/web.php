@@ -54,6 +54,26 @@ Route::get('/migrate-db', function () {
     }
 });
 
+Route::get('/seed-db', function () {
+    $secret = request('secret');
+    $expectedSecret = env('SETUP_SECRET');
+
+    if (!$expectedSecret || $secret !== $expectedSecret) {
+        return response('Akses Ditolak. Secret key tidak valid.', 403);
+    }
+
+    try {
+        \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            '--class' => 'Database\\Seeders\\DatabaseSeeder',
+            '--force' => true,
+        ]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response("Seeding Berhasil!\n\n" . $output, 200, ['Content-Type' => 'text/plain']);
+    } catch (\Exception $e) {
+        return response("Gagal menjalankan seeding: \n" . $e->getMessage(), 500, ['Content-Type' => 'text/plain']);
+    }
+});
+
 Route::get('/login', [AuthController::class, 'formLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -197,5 +217,4 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/', fn () => view('welcome'));
-
 

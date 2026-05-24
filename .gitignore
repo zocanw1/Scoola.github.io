@@ -1,6 +1,7 @@
 *.log
 .DS_Store
 .env
+.env.vercel.*
 .env.backup
 .env.production
 .phpactor.json
@@ -10,6 +11,7 @@
 /.nova
 /.phpunit.cache
 /.vscode
+/.vercel
 /.zed
 /auth.json
 /node_modules
