@@ -54,12 +54,12 @@ if (getenv('VERCEL') || getenv('NOW_REGION') || isset($_ENV['VERCEL']) || isset(
     $app->useStoragePath($storagePath);
     $app->useBootstrapPath($bootstrapPath);
 
-    // Keep request path stateless on Vercel unless explicitly disabled.
-    $forceStateless = filter_var(
-        $_ENV['VERCEL_FORCE_STATELESS'] ?? getenv('VERCEL_FORCE_STATELESS') ?? 'true',
+    // Keep request path stateless on Vercel unless explicitly opted back into DB state.
+    $allowDatabaseState = filter_var(
+        $_ENV['VERCEL_ALLOW_DATABASE_STATE'] ?? getenv('VERCEL_ALLOW_DATABASE_STATE') ?? 'false',
         FILTER_VALIDATE_BOOL
     );
-    if ($forceStateless) {
+    if (! $allowDatabaseState) {
         $config = $app->make('config');
         $config->set('session.driver', 'cookie');
         $config->set('cache.default', 'file');

@@ -25,11 +25,11 @@ class RequestProfileMiddleware
             || isset($_SERVER['VERCEL_URL'])
             || str_contains((string) $request->getHost(), 'vercel.app')
         );
-        $forceStateless = filter_var(
-            $_ENV['VERCEL_FORCE_STATELESS'] ?? getenv('VERCEL_FORCE_STATELESS') ?? 'true',
+        $allowDatabaseState = filter_var(
+            $_ENV['VERCEL_ALLOW_DATABASE_STATE'] ?? getenv('VERCEL_ALLOW_DATABASE_STATE') ?? 'false',
             FILTER_VALIDATE_BOOL
         );
-        if ($isVercel && $forceStateless) {
+        if ($isVercel && ! $allowDatabaseState) {
             Config::set('session.driver', 'cookie');
             Config::set('cache.default', 'file');
         }
@@ -63,6 +63,7 @@ class RequestProfileMiddleware
             $response->headers->set('X-Perf-Session-Driver', (string) Config::get('session.driver'));
             $response->headers->set('X-Perf-Cache-Store', (string) Config::get('cache.default'));
             $response->headers->set('X-Perf-Is-Vercel', $isVercel ? '1' : '0');
+            $response->headers->set('X-Perf-Stateless', ($isVercel && ! $allowDatabaseState) ? '1' : '0');
 
             $thresholdMs = (float) env('PERF_SLOW_REQUEST_MS', 1200);
             if ($totalMs >= $thresholdMs) {

@@ -5,8 +5,6 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800;900&display=swap');
-
     /* Font Global Bindings */
     .font-anime-header {
         font-family: 'Fredoka One', cursive, sans-serif !important;

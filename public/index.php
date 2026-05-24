@@ -22,15 +22,18 @@ $isVercelRuntime = getenv('VERCEL')
     || isset($_ENV['NOW_REGION'])
     || isset($_ENV['VERCEL_ENV'])
     || isset($_ENV['VERCEL_URL']);
-$forceStateless = filter_var(
-    $_ENV['VERCEL_FORCE_STATELESS'] ?? getenv('VERCEL_FORCE_STATELESS') ?? 'true',
+$allowDatabaseState = filter_var(
+    $_ENV['VERCEL_ALLOW_DATABASE_STATE'] ?? getenv('VERCEL_ALLOW_DATABASE_STATE') ?? 'false',
     FILTER_VALIDATE_BOOL
 );
-if ($isVercelRuntime && $forceStateless) {
+if ($isVercelRuntime && ! $allowDatabaseState) {
+    putenv('VERCEL_FORCE_STATELESS=true');
     putenv('SESSION_DRIVER=cookie');
     putenv('CACHE_STORE=file');
+    $_ENV['VERCEL_FORCE_STATELESS'] = 'true';
     $_ENV['SESSION_DRIVER'] = 'cookie';
     $_ENV['CACHE_STORE'] = 'file';
+    $_SERVER['VERCEL_FORCE_STATELESS'] = 'true';
     $_SERVER['SESSION_DRIVER'] = 'cookie';
     $_SERVER['CACHE_STORE'] = 'file';
 }
