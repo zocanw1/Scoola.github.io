@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Config;
 use Symfony\Component\HttpFoundation\Response;
 
 class RequestProfileMiddleware
@@ -37,6 +38,9 @@ class RequestProfileMiddleware
             $response->headers->set('X-Perf-Bootstrap-Ms', number_format($bootstrapMs, 2, '.', ''));
             $response->headers->set('X-Perf-Db-Count', (string) $queryCount);
             $response->headers->set('X-Perf-Db-Ms', number_format($queryTotalMs, 2, '.', ''));
+            $response->headers->set('X-Perf-Db-Connection', (string) DB::getDefaultConnection());
+            $response->headers->set('X-Perf-Session-Driver', (string) Config::get('session.driver'));
+            $response->headers->set('X-Perf-Cache-Store', (string) Config::get('cache.default'));
 
             $thresholdMs = (float) env('PERF_SLOW_REQUEST_MS', 1200);
             if ($totalMs >= $thresholdMs) {
@@ -55,4 +59,3 @@ class RequestProfileMiddleware
         return $response;
     }
 }
-
