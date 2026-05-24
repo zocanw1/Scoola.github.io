@@ -60,9 +60,15 @@ if (getenv('VERCEL') || getenv('NOW_REGION') || isset($_ENV['VERCEL']) || isset(
         FILTER_VALIDATE_BOOL
     );
     if (! $allowDatabaseState) {
-        $config = $app->make('config');
-        $config->set('session.driver', 'cookie');
-        $config->set('cache.default', 'file');
+        putenv('VERCEL_FORCE_STATELESS=true');
+        putenv('SESSION_DRIVER=cookie');
+        putenv('CACHE_STORE=file');
+        $_ENV['VERCEL_FORCE_STATELESS'] = 'true';
+        $_ENV['SESSION_DRIVER'] = 'cookie';
+        $_ENV['CACHE_STORE'] = 'file';
+        $_SERVER['VERCEL_FORCE_STATELESS'] = 'true';
+        $_SERVER['SESSION_DRIVER'] = 'cookie';
+        $_SERVER['CACHE_STORE'] = 'file';
     }
 }
 
