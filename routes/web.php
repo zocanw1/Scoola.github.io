@@ -49,7 +49,7 @@ Route::get('/migrate-db', function () {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $output = \Illuminate\Support\Facades\Artisan::output();
         return response("Migrasi Berhasil!\n\n" . $output, 200, ['Content-Type' => 'text/plain']);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         return response("Gagal menjalankan migrasi: \n" . $e->getMessage(), 500, ['Content-Type' => 'text/plain']);
     }
 });
@@ -69,7 +69,7 @@ Route::get('/seed-db', function () {
         ]);
         $output = \Illuminate\Support\Facades\Artisan::output();
         return response("Seeding Berhasil!\n\n" . $output, 200, ['Content-Type' => 'text/plain']);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         return response("Gagal menjalankan seeding: \n" . $e->getMessage(), 500, ['Content-Type' => 'text/plain']);
     }
 });
@@ -217,4 +217,3 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/', fn () => view('welcome'));
-
