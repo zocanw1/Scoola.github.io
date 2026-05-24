@@ -13,6 +13,23 @@ class RequestProfileMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
+        $isVercel = (bool) (
+            getenv('VERCEL')
+            || getenv('NOW_REGION')
+            || getenv('VERCEL_ENV')
+            || isset($_ENV['VERCEL'])
+            || isset($_ENV['NOW_REGION'])
+            || isset($_ENV['VERCEL_ENV'])
+        );
+        $forceStateless = filter_var(
+            $_ENV['VERCEL_FORCE_STATELESS'] ?? getenv('VERCEL_FORCE_STATELESS') ?? 'true',
+            FILTER_VALIDATE_BOOL
+        );
+        if ($isVercel && $forceStateless) {
+            Config::set('session.driver', 'cookie');
+            Config::set('cache.default', 'file');
+        }
+
         $enabled = (bool) env('PERF_PROFILE', false) || $request->query('__profile') === '1';
         $requestStart = microtime(true);
         $queryCount = 0;
