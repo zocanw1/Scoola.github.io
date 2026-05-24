@@ -17,9 +17,13 @@ class RequestProfileMiddleware
             getenv('VERCEL')
             || getenv('NOW_REGION')
             || getenv('VERCEL_ENV')
+            || getenv('VERCEL_URL')
             || isset($_ENV['VERCEL'])
             || isset($_ENV['NOW_REGION'])
             || isset($_ENV['VERCEL_ENV'])
+            || isset($_ENV['VERCEL_URL'])
+            || isset($_SERVER['VERCEL_URL'])
+            || str_contains((string) $request->getHost(), 'vercel.app')
         );
         $forceStateless = filter_var(
             $_ENV['VERCEL_FORCE_STATELESS'] ?? getenv('VERCEL_FORCE_STATELESS') ?? 'true',
@@ -58,6 +62,7 @@ class RequestProfileMiddleware
             $response->headers->set('X-Perf-Db-Connection', (string) DB::getDefaultConnection());
             $response->headers->set('X-Perf-Session-Driver', (string) Config::get('session.driver'));
             $response->headers->set('X-Perf-Cache-Store', (string) Config::get('cache.default'));
+            $response->headers->set('X-Perf-Is-Vercel', $isVercel ? '1' : '0');
 
             $thresholdMs = (float) env('PERF_SLOW_REQUEST_MS', 1200);
             if ($totalMs >= $thresholdMs) {
