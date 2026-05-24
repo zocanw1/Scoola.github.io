@@ -85,7 +85,11 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DATABASE_URL', env('DB_URL', env('POSTGRES_URL_NON_POOLING', env('POSTGRES_URL')))),
+            'url' => env('POSTGRES_PRISMA_URL')
+                ?: env('DATABASE_URL')
+                ?: env('DB_URL')
+                ?: env('POSTGRES_URL')
+                ?: env('POSTGRES_URL_NON_POOLING'),
             'host' => env('DB_HOST', env('POSTGRES_HOST', '127.0.0.1')),
             'port' => env('DB_PORT', env('POSTGRES_PORT', '5432')),
             'database' => env('DB_DATABASE', env('POSTGRES_DATABASE', 'laravel')),
