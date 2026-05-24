@@ -53,6 +53,17 @@ if (getenv('VERCEL') || getenv('NOW_REGION') || isset($_ENV['VERCEL']) || isset(
     }
     $app->useStoragePath($storagePath);
     $app->useBootstrapPath($bootstrapPath);
+
+    // Keep request path stateless on Vercel unless explicitly disabled.
+    $forceStateless = filter_var(
+        $_ENV['VERCEL_FORCE_STATELESS'] ?? getenv('VERCEL_FORCE_STATELESS') ?? 'true',
+        FILTER_VALIDATE_BOOL
+    );
+    if ($forceStateless) {
+        $config = $app->make('config');
+        $config->set('session.driver', 'cookie');
+        $config->set('cache.default', 'file');
+    }
 }
 
 return $app;
