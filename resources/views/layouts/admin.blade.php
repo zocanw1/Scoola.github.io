@@ -521,7 +521,37 @@
             transform: translate(1px, 1px);
             box-shadow: 1px 1px 0px var(--midnight) !important;
         }
+
+        .btn-logout {
+            font-family: 'Fredoka One', sans-serif !important;
+            background-color: var(--sakura) !important;
+            color: var(--midnight) !important;
+            border: 3px solid var(--midnight) !important;
+            border-radius: 12px !important;
+            box-shadow: 3px 3px 0px var(--midnight) !important;
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 40px;
+            padding: 0 14px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .btn-logout:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px var(--midnight) !important;
+            background-color: #ff6665 !important;
+        }
+
+        .btn-logout:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px var(--midnight) !important;
+        }
     </style>
+    @include('layouts.partials.admin-manga-components')
 </head>
 <body>
 
@@ -608,10 +638,11 @@
                 <i class="bi bi-moon-stars" style="pointer-events: none;"></i>
             </button>
             
-            <form action="{{ route('logout') }}" method="POST" class="m-0">
+                        <form action="{{ route('logout') }}" method="POST" class="m-0">
                 @csrf
-                <button type="submit" class="btn-primary" style="height: 40px; padding: 0 16px; font-size: 13px;">
-                    Keluar (′·_·`)
+                <button type="submit" class="btn-logout">
+                    <i class="bi bi-box-arrow-right" style="pointer-events: none;"></i>
+                    Keluar
                 </button>
             </form>
         </div>
@@ -634,3 +665,4 @@
 </script>
 </body>
 </html>
+

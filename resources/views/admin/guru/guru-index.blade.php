@@ -95,6 +95,29 @@
     .manga-table tr:hover td { background-color: var(--mochi); }
     .manga-table tr:last-child td { border-bottom: none; }
 
+    .mobile-field-label {
+        display: none;
+    }
+
+    .guru-mapel-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .guru-action-cell {
+        text-align: center;
+    }
+
+    .guru-empty-cell {
+        text-align: center;
+        padding: 80px;
+        font-weight: 800;
+        font-size: 18px;
+        color: #718096;
+        background: var(--mochi);
+    }
+
     /* Button Edit (Sakura) */
     .manga-btn-edit {
         display: inline-block;
@@ -126,6 +149,194 @@
         box-shadow: 2px 2px 0px 0px var(--midnight);
         text-transform: uppercase;
         display: inline-block;
+    }
+
+    @media (max-width: 768px) {
+        .guru-table-card {
+            padding: 0 !important;
+            margin-bottom: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            overflow: visible !important;
+        }
+        .guru-table-card:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .manga-table-wrap {
+            overflow: visible;
+            padding-bottom: 0;
+        }
+        .manga-table {
+            min-width: 0;
+            border-collapse: collapse;
+            border-spacing: 0;
+            background: transparent;
+        }
+        .manga-table thead {
+            display: none;
+        }
+        .manga-table tbody,
+        .manga-table tr,
+        .manga-table td {
+            display: block;
+            width: 100%;
+        }
+        .manga-table tbody {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            background: transparent;
+        }
+        .manga-table tbody tr {
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            border: 4px solid var(--midnight);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 8px 8px 0 var(--midnight);
+            background: var(--white);
+            padding: 20px;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .manga-table tbody tr:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0 var(--midnight);
+        }
+        .guru-empty-row,
+        #guruEmptyMessage {
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+        .guru-empty-row:hover,
+        #guruEmptyMessage:hover {
+            transform: none !important;
+        }
+        .manga-table tr:hover td {
+            background: var(--white);
+        }
+        .manga-table td {
+            display: block;
+            padding: 0;
+            border-right: 0;
+            border-bottom: 0;
+            text-align: left;
+            background: transparent;
+        }
+        .manga-table td::before {
+            display: none;
+        }
+        .mobile-field-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--midnight);
+            opacity: 0.55;
+        }
+        .guru-name-cell {
+            order: 1;
+            margin-bottom: 10px;
+            padding: 16px 18px 14px;
+            border: 3px solid var(--midnight);
+            border-radius: 18px;
+            background: var(--white);
+            box-shadow: 4px 4px 0 var(--midnight);
+        }
+        .guru-name-cell .mobile-field-label {
+            margin-bottom: 10px;
+            opacity: 0.8;
+            color: var(--cyber);
+        }
+        .guru-name-text {
+            display: block;
+            font-family: 'Fredoka One', cursive;
+            font-size: 26px;
+            line-height: 1.08;
+            letter-spacing: -0.02em;
+            color: var(--midnight);
+        }
+        .guru-nip-cell {
+            order: 2;
+            margin-bottom: 18px;
+            padding-left: 2px;
+        }
+        .guru-id-chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 38px;
+            padding: 0 14px;
+            border: 3px solid var(--midnight);
+            border-radius: 999px;
+            background: var(--gold);
+            color: var(--midnight);
+            box-shadow: 4px 4px 0 var(--midnight);
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+        }
+        .guru-mapel-cell,
+        .guru-email-cell {
+            margin-bottom: 12px;
+            padding: 14px 16px;
+            border: 3px solid var(--midnight);
+            border-radius: 18px;
+            background: var(--mochi);
+            box-shadow: 4px 4px 0 var(--midnight);
+        }
+        .guru-mapel-cell { order: 3; }
+        .guru-email-cell { order: 4; }
+        .guru-mapel-list {
+            justify-content: flex-start;
+            margin-top: 2px;
+        }
+        .guru-email-text {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.5;
+            color: #4A5568;
+            word-break: break-word;
+        }
+        .guru-action-cell {
+            order: 5;
+            display: block;
+            margin-top: 8px;
+            padding-top: 18px;
+            border-top: 3px dashed var(--midnight);
+            text-align: left !important;
+        }
+        .guru-action-cell::before {
+            display: none;
+        }
+        .guru-action-cell .manga-btn-edit {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            min-height: 50px;
+        }
+        .guru-empty-cell {
+            display: block !important;
+            width: 100%;
+            padding: 40px 24px !important;
+            text-align: center !important;
+            border: 4px solid var(--midnight);
+            border-radius: 24px;
+            background: var(--white) !important;
+            box-shadow: 6px 6px 0 var(--midnight);
+        }
+        .guru-empty-cell::before {
+            display: none;
+        }
     }
 </style>
 
@@ -202,8 +413,8 @@
         </div>
     </div>
 
-    <div class="manga-card" style="padding: 0; overflow: hidden;">
-        <div style="overflow-x: auto;">
+    <div class="manga-card guru-table-card" style="padding: 0; overflow: hidden;">
+        <div class="manga-table-wrap">
             <table class="manga-table">
                 <thead>
                     <tr>
@@ -221,29 +432,35 @@
                         data-nip="{{ strtolower($g->NIP) }}"
                         data-mapels="{{ json_encode($g->mapels->pluck('kd_mapel')) }}">
                         
-                        <td style="padding-left: 32px; font-family: monospace; font-size: 16px;">{{ $g->NIP }}</td>
-                        <td style="font-weight: 800; font-size: 17px;">{{ $g->nama_guru }}</td>
-                        <td>
-                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <td data-label="NIP" class="guru-nip-cell" style="padding-left: 32px; font-family: monospace; font-size: 16px;"><span class="mobile-field-label">Nomor Induk</span><span class="guru-id-chip">{{ $g->NIP }}</span></td>
+                        <td data-label="Nama Guru" class="guru-name-cell" style="font-weight: 800; font-size: 17px;"><span class="mobile-field-label">Profil Guru</span><span class="guru-name-text">{{ $g->nama_guru }}</span></td>
+                        <td data-label="Mata Pelajaran" class="guru-mapel-cell">
+                            <span class="mobile-field-label">Mata Pelajaran</span>
+                            <div class="guru-mapel-list">
                                 @foreach ($g->mapels as $m)
                                     <span class="manga-badge">{{ $m->nama_mapel }}</span>
                                 @endforeach
                             </div>
                         </td>
-                        <td style="color: #4A5568;">{{ $g->user->email ?? '-' }}</td>
-                        <td style="text-align: center; padding-right: 32px;">
+                        <td data-label="Email" class="guru-email-cell" style="color: #4A5568;"><span class="mobile-field-label">Email</span><span class="guru-email-text">{{ $g->user->email ?? '-' }}</span></td>
+                        <td data-label="Aksi" class="guru-action-cell" style="padding-right: 32px;">
                             <a href="{{ route('guru.edit', $g->NIP) }}" class="manga-btn-edit">
                                 Edit ✏️
                             </a>
                         </td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 80px; font-weight: 800; font-size: 18px; color: #718096; background: var(--mochi);">
+                    <tr class="guru-empty-row">
+                        <td colspan="5" class="guru-empty-cell">
                             (′·_·`) Belum ada data guru ditemukan.
                         </td>
                     </tr>
                     @endforelse
+                    <tr id="guruEmptyMessage" style="display: none;">
+                        <td colspan="5" class="guru-empty-cell">
+                            Data guru yang kamu cari nggak ada.
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -255,10 +472,12 @@
     const searchInput = document.getElementById('searchInput');
     const mapelFilter = document.getElementById('mapelFilter');
     const rows = document.querySelectorAll('.guru-row');
+    const guruEmptyMessage = document.getElementById('guruEmptyMessage');
 
     function filterTable() {
         const q = searchInput.value.toLowerCase().trim();
         const mapel = mapelFilter.value;
+        let visibleRowsCount = 0;
 
         rows.forEach(row => {
             const name = row.dataset.name;
@@ -270,10 +489,15 @@
 
             if(matchSearch && matchMapel) {
                 row.style.display = '';
+                visibleRowsCount++;
             } else {
                 row.style.display = 'none';
             }
         });
+
+        if (rows.length > 0) {
+            guruEmptyMessage.style.display = visibleRowsCount === 0 ? '' : 'none';
+        }
     }
 
     searchInput.addEventListener('input', filterTable);

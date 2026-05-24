@@ -2,23 +2,24 @@
 
 @section('content')
 
-<div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
-    
-    <!-- Header Card -->
-    <div class="card" style="background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid var(--color-hairline);">
-        <div class="editorial-header" style="margin: 0;">
-            <span class="eyebrow" style="color: var(--color-stone); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; font-weight: 700;">Manajemen Data</span>
-            <h1 class="display-title" style="font-size: 48px; font-weight: 400; letter-spacing: var(--tracking-tighter); margin: 8px 0 24px 0; text-transform: uppercase;">Pendaftaran Siswa</h1>
-            <p class="text-body" style="color: var(--color-graphite); max-width: 600px; font-size: 16px; line-height: 1.5; margin: 0;">
-                Daftarkan siswa baru ke dalam sistem akademik Scoola. Pastikan seluruh data yang dimasukkan telah valid.
-            </p>
-        </div>
+<div class="mp-page">
+    <div class="mp-hero-wrap">
+        <span class="mp-sticker">NEW STUDENT</span>
+        <section class="mp-hero">
+            <div class="mp-hero-content">
+                <span class="mp-kicker"><i class="bi bi-person-plus-fill"></i> Manajemen Data</span>
+                <h1 class="mp-title">Pendaftaran Siswa</h1>
+                <p class="mp-description">
+                    Daftarkan siswa baru ke sistem akademik Scoola. Data akun dan kelas akan langsung terhubung ke modul presensi.
+                </p>
+            </div>
+        </section>
     </div>
 
     @if ($errors->any())
-        <div class="card" style="background: #ffffff; padding: 24px; border: 2px solid var(--color-ink); border-radius: 12px;">
-            <div class="text-micro-caps" style="color: var(--color-ink); margin-bottom: 16px; font-weight: 700;">Ditemukan Kesalahan Validasi:</div>
-            <ul style="padding-left: 20px; margin: 0; color: var(--color-ink); font-size: 14px; line-height: 1.8;">
+        <div class="mp-alert danger">
+            <div class="mp-label" style="margin-bottom: 10px;">Ditemukan Kesalahan Validasi</div>
+            <ul style="margin: 0; padding-left: 20px; color: var(--midnight); font-weight: 800;">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -26,51 +27,48 @@
         </div>
     @endif
 
-    <!-- Form Card -->
-    <div class="card" style="background: #ffffff; padding: 48px; border-radius: 16px; border: 1px solid var(--color-hairline); margin-bottom: var(--spacing-section);">
-        <form method="POST" action="{{ route('siswa.store') }}" style="max-width: 720px;">
+    <section class="mp-form-card">
+        <form method="POST" action="{{ route('siswa.store') }}">
             @csrf
 
-            <div style="margin-bottom: 48px;">
-                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">NIS (Nomor Induk Siswa)</label>
-                <input type="text" name="nis" class="form-field" placeholder="Contoh: 12345678" required value="{{ old('nis') }}">
-            </div>
+            <div class="mp-form-grid">
+                <div class="mp-field">
+                    <label class="mp-label">NIS (Nomor Induk Siswa)</label>
+                    <input type="text" name="nis" class="mp-input" placeholder="Contoh: 12345678" required value="{{ old('nis') }}">
+                </div>
 
-            <div style="margin-bottom: 48px;">
-                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Nama Lengkap Siswa</label>
-                <input type="text" name="nama" class="form-field" placeholder="Masukkan nama lengkap siswa" required value="{{ old('nama') }}">
-            </div>
+                <div class="mp-field">
+                    <label class="mp-label">Nama Lengkap Siswa</label>
+                    <input type="text" name="nama" class="mp-input" placeholder="Masukkan nama lengkap siswa" required value="{{ old('nama') }}">
+                </div>
 
-            <div style="margin-bottom: 48px;">
-                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Penempatan Kelas</label>
-                <div style="position: relative;">
-                    <select name="kelas" class="form-field" style="cursor: pointer; appearance: none; text-transform: uppercase;" required>
+                <div class="mp-field">
+                    <label class="mp-label">Penempatan Kelas</label>
+                    <select name="kelas" class="mp-input" required>
                         <option value="" disabled {{ old('kelas') ? '' : 'selected' }}>PILIH KELAS</option>
                         <option value="XI-SIJA 1" {{ old('kelas') == 'XI-SIJA 1' ? 'selected' : '' }}>XI-SIJA 1</option>
                         <option value="XI-SIJA 2" {{ old('kelas') == 'XI-SIJA 2' ? 'selected' : '' }}>XI-SIJA 2</option>
                     </select>
-                    <div style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 12px; color: var(--color-stone);">&darr;</div>
+                </div>
+
+                <div class="mp-field">
+                    <label class="mp-label">Alamat Email Institusi</label>
+                    <input type="email" name="email" class="mp-input" placeholder="nama@sekolah.com" required value="{{ old('email') }}">
+                </div>
+
+                <div class="mp-field">
+                    <label class="mp-label">Password Sementara</label>
+                    <input type="password" name="password" class="mp-input" placeholder="Minimal 6 karakter" required>
+                    <small class="mp-hint">Digunakan siswa untuk login pertama</small>
                 </div>
             </div>
 
-            <div style="margin-bottom: 48px;">
-                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Alamat Email Institusi</label>
-                <input type="email" name="email" class="form-field" placeholder="nama@sekolah.com" required value="{{ old('email') }}">
-            </div>
-
-            <div style="margin-bottom: 48px;">
-                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Password Sementara</label>
-                <input type="password" name="password" class="form-field" placeholder="••••••••" required>
-                <small style="color: var(--color-stone); margin-top: 12px; display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Minimum 8 karakter untuk keamanan</small>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary" style="height: 56px; padding: 0 48px; font-size: 15px;">Simpan Data Siswa</button>
-                <a href="{{ route('siswa.index') }}" class="btn-ghost" style="text-decoration: none; height: 56px; padding: 0 32px; display: inline-flex; align-items: center; font-size: 13px;">Batal</a>
+            <div class="mp-actions">
+                <button type="submit" class="mp-btn"><i class="bi bi-save2"></i> Simpan Data Siswa</button>
+                <a href="{{ route('siswa.index') }}" class="mp-btn-secondary"><i class="bi bi-arrow-left"></i> Batal</a>
             </div>
         </form>
-    </div>
-
+    </section>
 </div>
 
 @endsection

@@ -261,6 +261,29 @@
         background: var(--white);
     }
 
+    .anime-table td:last-child {
+        text-align: right;
+    }
+
+    .mobile-field-label {
+        display: none;
+    }
+
+    .student-name-text,
+    .student-id-chip,
+    .mobile-field-value {
+        display: inline;
+    }
+
+    .student-action-cell {
+        text-align: right;
+    }
+
+    .table-empty-cell {
+        text-align: center;
+        padding: 72px;
+    }
+
     .anime-table tbody tr:last-child td {
         border-bottom: none;
     }
@@ -340,7 +363,195 @@
         .hero-title { font-size: 32px; }
         .filter-grid { grid-template-columns: 1fr; gap: 16px; }
         .stats-grid { gap: 20px; margin-bottom: 24px; }
-        .anime-table { min-width: 760px; }
+        .neo-card.table-wrapper {
+            padding: 0 !important;
+            margin-bottom: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            overflow: visible !important;
+        }
+        .neo-card.table-wrapper:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .table-wrapper {
+            overflow: visible;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        .anime-table {
+            min-width: 0;
+            border-collapse: collapse;
+            border-spacing: 0;
+            background: transparent;
+        }
+        .anime-table thead {
+            display: none;
+        }
+        .anime-table tbody,
+        .anime-table tr,
+        .anime-table td {
+            display: block;
+            width: 100%;
+        }
+        .anime-table tbody {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            background: transparent;
+        }
+        .anime-table tbody tr {
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            border: 4px solid var(--midnight);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 8px 8px 0 var(--midnight);
+            background: var(--white);
+            padding: 20px;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .anime-table tbody tr:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0 var(--midnight);
+        }
+        .empty-placeholder-base,
+        #jsEmptyMessage {
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+        .empty-placeholder-base:hover,
+        #jsEmptyMessage:hover {
+            transform: none !important;
+        }
+        .anime-table tbody tr:hover td {
+            background: var(--white);
+        }
+        .anime-table td {
+            display: block;
+            padding: 0;
+            border-bottom: 0;
+            text-align: left;
+            background: transparent;
+        }
+        .anime-table td::before {
+            display: none;
+        }
+        .mobile-field-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--midnight);
+            opacity: 0.55;
+        }
+        .mobile-field-value {
+            display: block;
+            color: var(--midnight);
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .student-name-cell {
+            order: 1;
+            margin-bottom: 10px;
+            padding: 16px 18px 14px;
+            border: 3px solid var(--midnight);
+            border-radius: 18px;
+            background: var(--white);
+            box-shadow: 4px 4px 0 var(--midnight);
+        }
+        .student-name-cell .mobile-field-label {
+            margin-bottom: 10px;
+            opacity: 0.8;
+            color: var(--cosmo);
+        }
+        .student-name-text {
+            display: block;
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 26px;
+            line-height: 1.08;
+            letter-spacing: -0.02em;
+            color: var(--midnight);
+        }
+        .student-nis-cell {
+            order: 2;
+            margin-bottom: 18px;
+            padding-left: 2px;
+        }
+        .student-id-chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 38px;
+            padding: 0 14px;
+            border: 3px solid var(--midnight);
+            border-radius: 999px;
+            background: var(--gold);
+            color: var(--midnight);
+            box-shadow: 4px 4px 0 var(--midnight);
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+        }
+        .student-detail-cell,
+        .student-status-cell {
+            margin-bottom: 12px;
+            padding: 14px 16px;
+            border: 3px solid var(--midnight);
+            border-radius: 18px;
+            background: var(--mochi);
+            box-shadow: 4px 4px 0 var(--midnight);
+        }
+        .student-kelas-cell { order: 3; }
+        .student-email-cell { order: 4; }
+        .student-status-cell { order: 5; }
+        .student-email-cell .mobile-field-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #4A5568;
+        }
+        .student-action-cell {
+            order: 6;
+            display: block;
+            margin-top: 8px;
+            padding-top: 18px;
+            border-top: 3px dashed var(--midnight);
+            text-align: left;
+        }
+        .student-action-cell::before {
+            display: none;
+        }
+        .student-action-cell .edit-btn {
+            display: flex;
+            width: 100%;
+            min-height: 50px;
+        }
+        .table-empty-cell {
+            display: block !important;
+            width: 100%;
+            padding: 40px 24px !important;
+            text-align: center !important;
+            border: 4px solid var(--midnight);
+            border-radius: 24px;
+            background: var(--white) !important;
+            box-shadow: 6px 6px 0 var(--midnight);
+        }
+        .table-empty-cell::before {
+            display: none;
+        }
     }
 </style>
 
@@ -435,17 +646,18 @@
                     data-nis="{{ strtolower($s->NIS) }}"
                     data-kelas="{{ $s->kelas }}"
                 >
-                    <td>{{ $s->NIS }}</td>
-                    <td>{{ $s->nama_siswa }}</td>
-                    <td>{{ $s->kelas }}</td>
-                    <td>{{ $s->user->email ?? '-' }}</td>
-                    <td>
+                    <td data-label="NIS" class="student-nis-cell"><span class="mobile-field-label">Nomor Induk</span><span class="student-id-chip">{{ $s->NIS }}</span></td>
+                    <td data-label="Nama Lengkap" class="student-name-cell"><span class="mobile-field-label">Profil Siswa</span><span class="student-name-text">{{ $s->nama_siswa }}</span></td>
+                    <td data-label="Kelas" class="student-detail-cell student-kelas-cell"><span class="mobile-field-label">Kelas</span><span class="mobile-field-value">{{ $s->kelas }}</span></td>
+                    <td data-label="Email" class="student-detail-cell student-email-cell"><span class="mobile-field-label">Email</span><span class="mobile-field-value">{{ $s->user->email ?? '-' }}</span></td>
+                    <td data-label="Status" class="student-status-cell">
+                        <span class="mobile-field-label">Status</span>
                         <span class="status-badge">
                             ⚡ Aktif
                         </span>
                     </td>
                     @if(auth()->user()->role === 'admin')
-                    <td style="text-align:right;">
+                    <td data-label="Aksi" class="student-action-cell">
                         <a href="{{ route('siswa.edit', $s->NIS) }}" class="edit-btn">
                             Edit ✏️
                         </a>
@@ -454,14 +666,14 @@
                 </tr>
                 @empty
                 <tr class="empty-placeholder-base">
-                    <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" style="text-align:center; padding:72px;">
+                    <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" class="table-empty-cell">
                         Data siswa belum tersedia nih... (╥﹏╥)
                     </td>
                 </tr>
                 @endforelse
 
                 <tr id="jsEmptyMessage" style="display: none;">
-                    <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" style="text-align:center; padding:72px;">
+                    <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" class="table-empty-cell">
                         Duh, siswa yang kamu cari nggak ketemu... (╥﹏╥)
                     </td>
                 </tr>

@@ -2,23 +2,24 @@
 
 @section('content')
 
-<div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
-    
-    <!-- Header Card -->
-    <div class="card" style="background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid var(--color-hairline);">
-        <div class="editorial-header" style="margin: 0;">
-            <span class="eyebrow" style="color: var(--color-stone); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; font-weight: 700;">Manajemen Data</span>
-            <h1 class="display-title" style="font-size: 48px; font-weight: 400; letter-spacing: var(--tracking-tighter); margin: 8px 0 24px 0; text-transform: uppercase;">Pendaftaran Guru</h1>
-            <p class="text-body" style="color: var(--color-graphite); max-width: 600px; font-size: 16px; line-height: 1.5; margin: 0;">
-                Tambahkan tenaga pengajar baru ke dalam sistem Scoola. Pastikan data yang dimasukkan akurat untuk keperluan administrasi.
+<div class="mp-page">
+    <div class="mp-hero-wrap">
+        <span class="mp-sticker">NEW TEACHER</span>
+        <section class="mp-hero">
+            <div class="mp-hero-content">
+            <span class="mp-kicker"><i class="bi bi-person-plus"></i> Manajemen Data</span>
+            <h1 class="mp-title">Pendaftaran Guru</h1>
+            <p class="mp-description">
+                Tambahkan tenaga pengajar baru ke sistem Scoola lengkap dengan akun akses dan spesialisasi mata pelajaran.
             </p>
-        </div>
+            </div>
+        </section>
     </div>
 
     @if ($errors->any())
-        <div class="card" style="background: #ffffff; padding: 24px; border: 2px solid var(--color-ink); border-radius: 12px;">
-            <div class="text-micro-caps" style="color: var(--color-ink); margin-bottom: 16px; font-weight: 700;">Ditemukan Kesalahan Validasi:</div>
-            <ul style="margin: 0; padding-left: 20px; color: var(--color-ink); font-size: 14px; line-height: 1.8;">
+        <div class="mp-alert danger">
+            <div class="mp-label" style="margin-bottom: 10px;">Ditemukan Kesalahan Validasi</div>
+            <ul style="margin: 0; padding-left: 20px; color: var(--midnight); font-weight: 800;">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -26,52 +27,51 @@
         </div>
     @endif
 
-    <!-- Form Card -->
-    <div class="card" style="background: #ffffff; padding: 48px; border-radius: 16px; border: 1px solid var(--color-hairline); margin-bottom: var(--spacing-section);">
-        <form method="POST" action="{{ route('guru.store') }}" style="max-width: 720px;">
+    <section class="mp-form-card">
+        <form method="POST" action="{{ route('guru.store') }}">
             @csrf
 
-            <div style="margin-bottom: 48px;">
-                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">NIP / Identitas Pegawai</label>
-                <input type="text" name="nip" class="form-field" placeholder="19XXXXXXXXXXXXXX" required value="{{ old('nip') }}">
+            <div class="mp-form-grid">
+                <div class="mp-field">
+                    <label class="mp-label">NIP / Identitas Pegawai</label>
+                    <input type="text" name="nip" class="mp-input" placeholder="19XXXXXXXXXXXXXX" required value="{{ old('nip') }}">
+                </div>
+
+                <div class="mp-field">
+                    <label class="mp-label">Nama Lengkap & Gelar</label>
+                    <input type="text" name="nama" class="mp-input" placeholder="Masukkan nama lengkap guru" required value="{{ old('nama') }}">
+                </div>
+
+                <div class="mp-field">
+                    <label class="mp-label">Alamat Email Resmi</label>
+                    <input type="email" name="email" class="mp-input" placeholder="nama@sekolah.com" required value="{{ old('email') }}">
+                </div>
+
+                <div class="mp-field">
+                    <label class="mp-label">Kredensial Akses</label>
+                    <input type="password" name="password" class="mp-input" placeholder="Minimal 6 karakter" required>
+                    <small class="mp-hint">Password sementara untuk akun guru</small>
+                </div>
             </div>
 
-            <div style="margin-bottom: 48px;">
-                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Nama Lengkap & Gelar</label>
-                <input type="text" name="nama" class="form-field" placeholder="Masukkan nama lengkap guru" required value="{{ old('nama') }}">
-            </div>
-
-            <div style="margin-bottom: 48px;">
-                <label class="text-micro-caps" style="display: block; margin-bottom: 16px; color: var(--color-stone); font-weight: 700;">Spesialisasi Mata Pelajaran</label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 32px; border: 1px solid var(--color-hairline); background: var(--color-surface); border-radius: 8px;">
+            <div class="mp-field">
+                <label class="mp-label">Spesialisasi Mata Pelajaran</label>
+                <div class="mp-checkbox-grid">
                     @foreach ($mapel as $m)
-                        <label style="display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--color-ink); cursor: pointer; font-family: var(--font-family-base); font-weight: 500;">
-                            <input type="checkbox" name="kd_mapel[]" value="{{ $m->kd_mapel }}" 
-                                @checked(is_array(old('kd_mapel')) && in_array($m->kd_mapel, old('kd_mapel')))>
-                            {{ $m->nama_mapel }}
+                        <label class="mp-check">
+                            <input type="checkbox" name="kd_mapel[]" value="{{ $m->kd_mapel }}" @checked(is_array(old('kd_mapel')) && in_array($m->kd_mapel, old('kd_mapel')))>
+                            <span>{{ $m->nama_mapel }}</span>
                         </label>
                     @endforeach
                 </div>
             </div>
 
-            <div style="margin-bottom: 48px;">
-                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Alamat Email Resmi</label>
-                <input type="email" name="email" class="form-field" placeholder="nama@sekolah.com" required value="{{ old('email') }}">
-            </div>
-
-            <div style="margin-bottom: 48px;">
-                <label class="text-micro-caps" style="display: block; margin-bottom: 12px; color: var(--color-stone); font-weight: 700;">Kredensial Akses (Password)</label>
-                <input type="password" name="password" class="form-field" placeholder="••••••••" required>
-                <small style="color: var(--color-stone); margin-top: 12px; display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Minimum 8 karakter untuk keamanan</small>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary" style="height: 56px; padding: 0 48px; font-size: 15px;">Simpan Data Guru</button>
-                <a href="{{ route('guru.index') }}" class="btn-ghost" style="text-decoration: none; height: 56px; padding: 0 32px; display: inline-flex; align-items: center; font-size: 13px;">Batal</a>
+            <div class="mp-actions">
+                <button type="submit" class="mp-btn"><i class="bi bi-save2"></i> Simpan Data Guru</button>
+                <a href="{{ route('guru.index') }}" class="mp-btn-secondary"><i class="bi bi-arrow-left"></i> Batal</a>
             </div>
         </form>
-    </div>
-
+    </section>
 </div>
 
 @endsection
