@@ -15,6 +15,8 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SiswaPresensiController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/health', fn () => response('ok', 200));
+
 
 
 /*
