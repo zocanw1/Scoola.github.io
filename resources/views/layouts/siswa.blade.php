@@ -3,55 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scoola — Student</title>
-    
-    <!-- Google Fonts: Inter -->
+    <title>Scoola - Siswa</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <script>
         (function() {
             const storageKey = 'scoola-theme';
             const getTheme = () => {
-                try { return localStorage.getItem(storageKey) || 'light'; } 
+                try { return localStorage.getItem(storageKey) || 'light'; }
                 catch (e) { return 'light'; }
             };
             const setTheme = (theme) => {
                 document.documentElement.setAttribute('data-theme', theme);
                 try { localStorage.setItem(storageKey, theme); } catch (e) {}
             };
-            
+
             setTheme(getTheme());
 
             window.toggleTheme = function() {
                 const html = document.documentElement;
                 const current = html.getAttribute('data-theme') || 'light';
-                const newTheme = current === 'light' ? 'dark' : 'light';
-                
-                html.setAttribute('data-theme', newTheme);
-                try { localStorage.setItem(storageKey, newTheme); } catch (e) {}
-                
-                // Diagnostic check
-                console.log('Theme toggled to:', newTheme);
+                setTheme(current === 'light' ? 'dark' : 'light');
             };
         })();
     </script>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite('resources/css/app.css')
 
     <style>
         :root {
-            --font-sans: 'Inter', system-ui, sans-serif;
+            --sakura: #FF7675;
+            --cyber: #00CEC9;
+            --cosmo: #6C5CE7;
+            --gold: #FDCB6E;
+            --midnight: #1E1B29;
+            --mochi: #FAF9FF;
+            --white: #FFFFFF;
+            --font-sans: 'Nunito', system-ui, sans-serif;
+            --font-display: 'Fredoka One', cursive;
         }
 
+        :root[data-theme="dark"] {
+            --mochi: #13111C;
+            --white: #1E1B29;
+            --midnight: #FAF9FF;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            background-color: var(--color-canvas); /* #C8C8C8 */
-            color: var(--color-ink);
-            font-family: var(--font-sans);
+            min-height: 100vh;
             margin: 0;
+            overflow-x: hidden;
+            background-color: var(--mochi);
+            background-image: radial-gradient(var(--cosmo) 1.25px, transparent 0);
+            background-size: 32px 32px;
+            background-attachment: fixed;
+            color: var(--midnight);
+            font-family: var(--font-sans);
             -webkit-font-smoothing: antialiased;
         }
 
@@ -61,127 +74,157 @@
             flex-direction: column;
         }
 
-        /* Nav Bar - Runway Style */
         .runway-nav {
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 48px;
-            border-bottom: 1px solid var(--color-hairline);
-            background-color: var(--color-surface);
+            min-height: 66px;
             position: sticky;
             top: 0;
             z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 0 42px;
+            background: var(--white);
+            border-bottom: 4px solid var(--midnight);
         }
 
         .brand-logo {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--color-ink);
+            color: var(--midnight);
+            font-family: var(--font-display);
+            font-size: 24px;
             text-decoration: none;
-            letter-spacing: var(--tracking-tight);
+            text-shadow: 2px 2px 0 var(--gold);
             text-transform: lowercase;
         }
 
         .nav-links {
             display: flex;
-            gap: 24px;
             align-items: center;
+            gap: 12px;
         }
 
         .nav-links a {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--color-ink-soft);
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0 16px;
+            border: 3px solid transparent;
+            border-radius: 12px;
+            color: var(--midnight);
+            font-size: 13px;
+            font-weight: 900;
             text-decoration: none;
-            transition: color 0.2s;
+            transition: all 0.16s ease;
         }
 
-        .nav-links a:hover, .nav-links a.active {
-            color: var(--color-ink);
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: var(--cyber);
+            border-color: var(--midnight);
+            box-shadow: 3px 3px 0 var(--midnight);
+            transform: translate(-2px, -2px);
         }
 
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
         }
 
         .user-info {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--color-slate);
+            max-width: 180px;
+            color: var(--midnight);
+            font-size: 13px;
+            font-weight: 900;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        /* Content Area */
+        .theme-toggle,
+        .btn-logout {
+            border: 3px solid var(--midnight);
+            color: var(--midnight);
+            box-shadow: 4px 4px 0 var(--midnight);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .theme-toggle {
+            width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: var(--white);
+        }
+
+        .btn-logout {
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 16px;
+            border-radius: 12px;
+            background: var(--sakura);
+            font-family: var(--font-display);
+            font-size: 13px;
+        }
+
+        .theme-toggle:active,
+        .btn-logout:active {
+            box-shadow: 1px 1px 0 var(--midnight);
+            transform: translate(2px, 2px);
+        }
+
         .page-content {
             flex: 1;
-            padding: 120px 48px;
+            width: 100%;
             max-width: 1400px;
             margin: 0 auto;
-            width: 100%;
+            padding: 42px;
         }
 
-        /* Editorial Lockup */
-        .editorial-header {
-            margin-bottom: 48px;
-        }
-
-        .eyebrow {
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 0.35px;
-            text-transform: uppercase;
-            color: var(--color-stone);
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .display-title {
-            font-size: 64px;
-            font-weight: 400;
-            line-height: 1;
-            letter-spacing: -2px;
-            margin-bottom: 24px;
-        }
-
-        /* Force White Form Fields */
-        input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
-        select,
-        textarea {
-            background-color: #ffffff !important;
-            background: #ffffff !important;
-            color: var(--color-ink) !important;
-            border: 1px solid var(--color-hairline) !important;
-            border-radius: 8px !important;
-            padding: 10px 14px !important;
-            font-family: var(--font-sans) !important;
-            font-size: 14px !important;
-            outline: none !important;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--color-primary) !important;
-            box-shadow: 0 0 0 3px rgba(0,0,0,0.05) !important;
+        .footer {
+            background: var(--white);
+            border-top: 4px solid var(--midnight);
+            color: var(--midnight);
         }
 
         @media (max-width: 768px) {
             .runway-nav {
-                padding: 0 16px;
+                min-height: auto;
+                flex-wrap: wrap;
+                padding: 12px 16px;
             }
+
             .nav-links {
-                display: none; /* Mobile would need a menu, but keeping it simple for now */
+                order: 3;
+                width: 100%;
             }
-            .display-title {
-                font-size: 36px;
-                letter-spacing: -0.8px;
+
+            .nav-links a {
+                width: 100%;
+                justify-content: center;
+                background: var(--cyber);
+                border-color: var(--midnight);
+                box-shadow: 3px 3px 0 var(--midnight);
             }
+
+            .user-info { display: none; }
+
+            .page-content { padding: 24px 16px; }
+        }
+
+        @media (max-width: 480px) {
+            .btn-logout span { display: none; }
         }
     </style>
+    @include('layouts.partials.admin-manga-components')
 </head>
 <body>
-
 <div class="main-wrapper">
     <header class="runway-nav">
         <div class="nav-left">
@@ -189,27 +232,21 @@
         </div>
 
         <nav class="nav-links">
-            <a href="{{ route('siswa.dashboard') }}" class="{{ request()->routeIs('siswa.dashboard') ? 'active' : '' }}">Dashboard</a>
+            <a href="{{ route('siswa.dashboard') }}" class="{{ request()->routeIs('siswa.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-grid-fill" style="margin-right:8px;"></i> Dashboard
+            </a>
         </nav>
 
-        <div class="nav-right" style="position: relative; z-index: 9999;">
-            <button type="button" 
-                    id="theme-toggle-btn"
-                    onclick="window.toggleTheme()" 
-                    style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--color-hairline); background: var(--color-canvas); font-size: 20px; color: var(--color-ink); cursor: pointer; border-radius: 50%; transition: all 0.2s;" 
-                    onmouseover="this.style.background='var(--color-canvas-warm)'; this.style.borderColor='var(--color-ink)';"
-                    onmouseout="this.style.background='var(--color-canvas)'; this.style.borderColor='var(--color-hairline)';"
-                    title="Toggle Theme">
-                <i class="bi bi-moon-stars" style="pointer-events: none;"></i>
+        <div class="nav-right">
+            <button type="button" id="theme-toggle-btn" onclick="window.toggleTheme()" class="theme-toggle" title="Toggle Theme" aria-label="Toggle Theme">
+                <i class="bi bi-moon-stars" style="font-size:20px; pointer-events:none;"></i>
             </button>
-            <div class="user-info d-none d-md-block">
-                {{ auth()->user()->name ?? 'Student' }}
-            </div>
-            
+            <div class="user-info">{{ auth()->user()->name ?? 'Siswa' }}</div>
             <form action="{{ route('logout') }}" method="POST" class="m-0">
                 @csrf
-                <button type="submit" class="btn-primary" style="height: 36px; padding: 0 16px; font-size: 13px;">
-                    Logout
+                <button type="submit" class="btn-logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Keluar</span>
                 </button>
             </form>
         </div>
@@ -220,12 +257,9 @@
     </main>
 
     <footer class="footer">
-        <div style="max-width: 1200px; margin: 0 auto; padding: var(--spacing-lg) var(--spacing-xxl); display: flex; justify-content: space-between; align-items: center;">
-            <span class="text-micro-caps" style="color: var(--color-stone)">© 2026 Scoola. Built for the future of education.</span>
-            <div style="display: flex; gap: 16px;">
-                <a href="#" class="text-micro-caps" style="color: var(--color-stone); text-decoration: none;">Privacy</a>
-                <a href="#" class="text-micro-caps" style="color: var(--color-stone); text-decoration: none;">Terms</a>
-            </div>
+        <div style="max-width:1200px; margin:0 auto; padding:24px 32px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; align-items:center;">
+            <span style="font-size:12px; font-weight:900; letter-spacing:.08em; text-transform:uppercase;">2026 Scoola. Presensi belajar yang rapi.</span>
+            <span style="font-size:12px; font-weight:900; color:var(--cosmo);">Manga-Pop Edition</span>
         </div>
     </footer>
 </div>

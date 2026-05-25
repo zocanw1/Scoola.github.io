@@ -61,7 +61,7 @@ class AuthTest extends TestCase
     public function test_unauthenticated_user_redirected_to_login(): void
     {
         $response = $this->get('/admin/dashboard');
-        $response->assertRedirect('/login');
+        $response->assertRedirect('/login?expired=1');
     }
 
     public function test_guru_redirected_to_guru_dashboard(): void

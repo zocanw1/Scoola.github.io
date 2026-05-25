@@ -1,20 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\GuruController;
-use App\Http\Controllers\AdminAkunController;
-use App\Http\Controllers\KelasController;
-
-use App\Http\Controllers\MapelController;
-use App\Http\Controllers\JadwalPelajaranController;
-use App\Http\Controllers\PresensiController;
-use App\Http\Controllers\SiswaPresensiController;
-use App\Http\Controllers\AdminWaliKelasController;
-use App\Http\Controllers\KakonsliController;
-use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\PortfolioController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AdminAkunController;
+use App\Http\Controllers\AdminWaliKelasController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GuruController;
+use App\Http\Controllers\JadwalPelajaranController;
+use App\Http\Controllers\KakonsliController;
+use App\Http\Controllers\KelasController;
+use App\Http\Controllers\MapelController;
+use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\SiswaPresensiController;
+use Illuminate\Support\Facades\Route;
 
 
 
@@ -36,43 +35,6 @@ Route::get('/portfolio', [PortfolioController::class, 'show'])->name('portfolio'
 */
 Route::get('/scoola-setup', [AuthController::class, 'formSetup'])->name('setup');
 Route::post('/scoola-setup', [AuthController::class, 'storeSetup'])->name('setup.post');
-
-Route::get('/migrate-db', function () {
-    $secret = request('secret');
-    $expectedSecret = env('SETUP_SECRET');
-    
-    if (!$expectedSecret || $secret !== $expectedSecret) {
-        return response('Akses Ditolak. Secret key tidak valid.', 403);
-    }
-    
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        $output = \Illuminate\Support\Facades\Artisan::output();
-        return response("Migrasi Berhasil!\n\n" . $output, 200, ['Content-Type' => 'text/plain']);
-    } catch (\Throwable $e) {
-        return response("Gagal menjalankan migrasi: \n" . $e->getMessage(), 500, ['Content-Type' => 'text/plain']);
-    }
-});
-
-Route::get('/seed-db', function () {
-    $secret = request('secret');
-    $expectedSecret = env('SETUP_SECRET');
-
-    if (!$expectedSecret || $secret !== $expectedSecret) {
-        return response('Akses Ditolak. Secret key tidak valid.', 403);
-    }
-
-    try {
-        \Illuminate\Support\Facades\Artisan::call('db:seed', [
-            '--class' => 'Database\\Seeders\\DatabaseSeeder',
-            '--force' => true,
-        ]);
-        $output = \Illuminate\Support\Facades\Artisan::output();
-        return response("Seeding Berhasil!\n\n" . $output, 200, ['Content-Type' => 'text/plain']);
-    } catch (\Throwable $e) {
-        return response("Gagal menjalankan seeding: \n" . $e->getMessage(), 500, ['Content-Type' => 'text/plain']);
-    }
-});
 
 Route::get('/login', [AuthController::class, 'formLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -210,10 +172,3 @@ Route::middleware('auth')->group(function () {
 
     });
 });
-
-/*
-|--------------------------------------------------------------------------
-| HOME
-|--------------------------------------------------------------------------
-*/
-Route::get('/', fn () => view('welcome'));

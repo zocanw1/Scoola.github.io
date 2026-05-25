@@ -2,41 +2,139 @@
 
 @section('content')
 
-<div class="editorial-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
-    <div>
-        <span class="eyebrow">Projector Mode</span>
-        <h1 class="display-title">Presensi Kelas: {{ $sesi->kelas }}</h1>
-    </div>
-    <a href="{{ route('guru.presensi.ruang', $sesi->id) }}" class="text-link-sm" style="color: var(--color-ink); font-weight: 700; text-decoration: none;">&larr; KEMBALI KE PANEL</a>
-</div>
+<style>
+    .projector-stage {
+        min-height: calc(100vh - 170px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 34px;
+    }
 
-<div style="margin-top: 64px; border: 1px solid var(--color-ink); padding: 80px 40px; text-align: center; background: #fff;">
-    <div class="text-micro-caps" style="color: var(--color-stone); margin-bottom: 24px; letter-spacing: 2px;">MASUKKAN KODE BERIKUT PADA PERANGKAT SISWA</div>
-    
-    <div style="font-size: 160px; font-weight: 800; color: var(--color-ink); letter-spacing: 12px; line-height: 1; margin: 48px 0; font-family: var(--font-family-base);">
-        {{ $sesi->kode_presensi }}
+    .projector-card {
+        position: relative;
+        overflow: hidden;
+        padding: clamp(34px, 6vw, 76px);
+        border: 5px solid var(--midnight);
+        border-radius: 22px;
+        background: var(--cosmo);
+        color: var(--white);
+        box-shadow: 12px 12px 0 var(--midnight);
+        text-align: center;
+    }
+
+    .projector-card::before {
+        content: '';
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        top: -70px;
+        right: -50px;
+        border: 5px solid var(--midnight);
+        border-radius: 999px;
+        background: var(--gold);
+        box-shadow: 8px 8px 0 var(--midnight);
+    }
+
+    .projector-card::after {
+        content: 'SCOOLA';
+        position: absolute;
+        left: 28px;
+        bottom: 12px;
+        color: rgba(255,255,255,.12);
+        font-family: 'Fredoka One', cursive;
+        font-size: clamp(48px, 12vw, 132px);
+        line-height: 1;
+        pointer-events: none;
+    }
+
+    .projector-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .projector-code {
+        margin: clamp(28px, 5vw, 54px) 0;
+        color: var(--white);
+        font-family: 'Fredoka One', cursive;
+        font-size: clamp(64px, 16vw, 170px);
+        line-height: 1;
+        letter-spacing: .12em;
+        text-shadow: 7px 7px 0 var(--midnight);
+        -webkit-text-stroke: 3px var(--midnight);
+        word-break: break-all;
+    }
+
+    .timer-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(110px, 1fr));
+        gap: 18px;
+        max-width: 620px;
+        margin: 0 auto;
+    }
+
+    .timer-box {
+        padding: 18px;
+        border: 4px solid var(--midnight);
+        border-radius: 16px;
+        background: var(--white);
+        color: var(--midnight);
+        box-shadow: 6px 6px 0 var(--midnight);
+    }
+
+    .timer-number {
+        color: var(--midnight);
+        font-family: 'Fredoka One', cursive;
+        font-size: clamp(32px, 5vw, 54px);
+        line-height: 1;
+    }
+
+    @media (max-width: 640px) {
+        .timer-grid { grid-template-columns: 1fr; }
+
+        .projector-code { letter-spacing: .05em; }
+    }
+</style>
+
+<div class="mp-page projector-stage">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:18px; flex-wrap:wrap;">
+        <div>
+            <span class="mp-badge" style="background:var(--cyber);">Projector Mode</span>
+            <h1 style="margin:16px 0 0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:clamp(30px, 5vw, 48px); line-height:1.1;">Presensi Kelas {{ $sesi->kelas }}</h1>
+        </div>
+        <a href="{{ route('guru.presensi.ruang', $sesi->id) }}" class="mp-btn-secondary">
+            <i class="bi bi-arrow-left"></i> Kembali ke Panel
+        </a>
     </div>
 
-    <div style="display: flex; justify-content: center; gap: 48px; margin-top: 80px; padding-top: 48px; border-top: 1px solid var(--color-hairline);">
-        <div>
-            <div id="hour" style="font-size: 32px; font-weight: 700; color: var(--color-ink);">00</div>
-            <div class="text-micro-caps" style="color: var(--color-stone); margin-top: 4px;">JAM</div>
+    <section class="projector-card">
+        <div class="projector-content">
+            <span class="mp-badge" style="background:var(--gold);">Masukkan kode ini di perangkat siswa</span>
+            <div class="projector-code">{{ $sesi->kode_presensi }}</div>
+
+            <div class="timer-grid">
+                <div class="timer-box">
+                    <div id="hour" class="timer-number">00</div>
+                    <div class="mp-label" style="margin-top:8px;">Jam</div>
+                </div>
+                <div class="timer-box">
+                    <div id="min" class="timer-number">00</div>
+                    <div class="mp-label" style="margin-top:8px;">Menit</div>
+                </div>
+                <div class="timer-box">
+                    <div id="sec" class="timer-number">00</div>
+                    <div class="mp-label" style="margin-top:8px;">Detik</div>
+                </div>
+            </div>
+
+            <p style="margin:28px 0 0; color:var(--white); font-weight:900; text-shadow:2px 2px 0 var(--midnight);">
+                Waktu tersisa sebelum kode kedaluwarsa
+            </p>
         </div>
-        <div>
-            <div id="min" style="font-size: 32px; font-weight: 700; color: var(--color-ink);">00</div>
-            <div class="text-micro-caps" style="color: var(--color-stone); margin-top: 4px;">MENIT</div>
-        </div>
-        <div>
-            <div id="sec" style="font-size: 32px; font-weight: 700; color: var(--color-ink);">00</div>
-            <div class="text-micro-caps" style="color: var(--color-stone); margin-top: 4px;">DETIK</div>
-        </div>
-    </div>
-    
-    <div class="text-meta" style="color: var(--color-slate); margin-top: 32px; text-transform: uppercase; letter-spacing: 1px;">Waktu Tersisa Sebelum Kode Kedaluwarsa</div>
+    </section>
 </div>
 
 <script>
-    // Countdown Timer Logic
     const endTime = new Date("{{ $sesi->waktu_berlaku->toIso8601String() }}").getTime();
 
     const interval = setInterval(function() {

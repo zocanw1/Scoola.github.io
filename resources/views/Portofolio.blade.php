@@ -117,8 +117,14 @@
                     $rotations = ['rotate-[-2deg]', 'rotate-[2deg]', 'rotate-[-1deg]'];
                     $currentRotation = $rotations[$index % count($rotations)];
 
-                    // Ambil data skill dari JSON
-                    $skills = json_decode($member->skills, true) ?? [];
+                    $skills = is_array($member->skills)
+                        ? $member->skills
+                        : (json_decode($member->skills ?? '[]', true) ?: []);
+
+                    $storageBase = rtrim((string) config('services.supabase.storage_public_url'), '/');
+                    $photoUrl = $member->photo
+                        ? ($storageBase ? $storageBase . '/' . ltrim($member->photo, '/') : asset('storage/team-photos/' . $member->photo))
+                        : null;
                 @endphp
 
                 <div class="relative p-6 neo-brutalism card-hover">
@@ -127,8 +133,8 @@
                     </span>
 
                     <div class="w-full img-container mb-6 {{ $currentRotation }}" style="background-color: {{ $member->img_bg ?? '#6C5CE7' }};">
-                        @if($member->photo)
-                            <img src="{{ asset('storage/team-photos/' . $member->photo) }}" 
+                        @if($photoUrl)
+                            <img src="{{ $photoUrl }}" 
                                  alt="{{ $member->name }}" 
                                  class="w-full h-full object-cover"
                                  onerror="this.src='https://via.placeholder.com/400/{{ str_replace('#', '', $member->img_bg ?? '6C5CE7') }}?text={{ urlencode($member->name) }}'">

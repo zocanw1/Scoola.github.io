@@ -2,139 +2,208 @@
 
 @section('content')
 
-<div class="card" style="background: #ffffff; padding: 40px; margin-bottom: var(--spacing-md); border-radius: 12px; border: 1px solid var(--color-hairline);">
-    <div class="editorial-header" style="margin: 0;">
-        <span class="eyebrow" style="color: var(--color-stone); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; font-weight: 700;">Dashboard Pengajar</span>
-        <h1 class="display-title" style="font-size: 48px; font-weight: 400; letter-spacing: var(--tracking-tighter); margin: 8px 0 24px 0; text-transform: uppercase;">Aktivitas</h1>
-        <p class="text-body" style="color: var(--color-graphite); max-width: 600px; font-size: 16px; line-height: 1.5; margin: 0;">
-            Selamat datang kembali. Berikut adalah jadwal mengajar dan ringkasan kehadiran siswa di kelas Anda hari ini.
-        </p>
-    </div>
-</div>
+<style>
+    .teacher-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(320px, .95fr);
+        gap: 32px;
+        align-items: start;
+    }
 
-<!-- Stats Strip -->
-@php 
-    $stats = [
-        ['Kelas Diajar', $totalKelasDiajar, "Sesi aktif hari ini", false],
-        ['Siswa Hadir', $hadirHariIni, $persentaseHadir . "% dari total siswa", false],
-        ['Izin / Sakit', $izinSakitHariIni, "Konfirmasi diterima", false],
-        ['Alpha', $alpaHariIni, $alpaHariIni > 0 ? 'Perlu pengecekan' : 'Sesi terekam baik', $alpaHariIni > 0]
-    ];
-    $statCount = count($stats);
-@endphp
-<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-xxl);">
-    @foreach($stats as $index => $s)
-        @php 
-            $isFullWidth = ($statCount % 2 !== 0 && $index === 0) || $statCount === 1;
-        @endphp
-        <div class="card" style="background: #ffffff; padding: 32px; border-radius: 12px; border: 1px solid var(--color-hairline); @if($isFullWidth) grid-column: 1 / -1; @endif">
-            <div class="text-micro-caps" style="color: var(--color-stone); margin-bottom: 12px;">{{ $s[0] }}</div>
-            <div style="font-size: 40px; font-weight: 400; line-height: 1; color: var(--color-ink); letter-spacing: var(--tracking-tight);">{{ $s[1] }}</div>
-            <div class="text-meta" style="color: {{ $s[3] ? 'var(--color-primary)' : 'var(--color-slate)' }}; margin-top: 16px; font-size: 12px;">{{ $s[2] }}</div>
-        </div>
-    @endforeach
-</div>
+    .trend-bars {
+        height: 210px;
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        padding: 18px 14px 16px;
+        margin: 24px 0 14px;
+        border: 4px solid var(--midnight);
+        border-radius: 16px;
+        background: var(--mochi);
+        box-shadow: 5px 5px 0 var(--midnight);
+    }
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-xxl); align-items: start;">
-    
-    <!-- Main Column -->
-    <div style="display: flex; flex-direction: column; gap: var(--spacing-xxl);">
-        
-        <!-- Absensi Terbaru -->
-        <div class="card" style="background: #ffffff; padding: 40px; border-radius: 12px; border: 1px solid var(--color-hairline);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
-                <h2 class="text-heading-sm" style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 14px; font-weight: 700;">Log Absensi Kelas</h2>
-                <a href="{{ route('guru.presensi.index') }}" class="btn-ghost" style="height: 32px; font-size: 11px; padding: 0 16px;">Lihat Semua</a>
-            </div>
-            
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Siswa</th>
-                        <th>Kelas</th>
-                        <th>Waktu</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($absensiTerbaru as $absen)
-                        <tr>
-                            <td data-label="Siswa" style="font-weight: 600;">{{ $absen->siswa->nama_siswa ?? '-' }}</td>
-                            <td data-label="Kelas">{{ $absen->sesi->kelas ?? '-' }}</td>
-                            <td data-label="Waktu">{{ $absen->jam_masuk ?? '—' }}</td>
-                            <td data-label="Status">
-                                <span class="badge-status {{ $absen->status == 'Hadir' ? 'bs-h' : 'bs-a' }}">
-                                    {{ $absen->status }}
-                                </span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" style="text-align:center; padding: 64px; color: var(--color-stone);">Anda belum mencatat absensi hari ini.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    .trend-bar {
+        flex: 1;
+        min-height: 10px;
+        border: 3px solid var(--midnight);
+        border-radius: 10px 10px 0 0;
+        background: var(--cosmo);
+        box-shadow: 2px 0 0 var(--midnight);
+    }
 
-        <!-- Jadwal Pelajaran -->
-        <div class="card" style="background: #ffffff; padding: 40px; border-radius: 12px; border: 1px solid var(--color-hairline);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
-                <h2 class="text-heading-sm" style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 14px; font-weight: 700;">Agenda Mengajar</h2>
-                <a href="{{ route('guru.presensi.index') }}" class="btn-primary" style="height: 32px; font-size: 11px; padding: 0 16px;">Mulai Sesi</a>
+    .agenda-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 18px;
+        border: 3px solid var(--midnight);
+        border-radius: 14px;
+        background: var(--mochi);
+        box-shadow: 4px 4px 0 var(--midnight);
+    }
+
+    @media (max-width: 1080px) {
+        .teacher-layout { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="mp-page">
+    <div class="mp-hero-wrap">
+        <span class="mp-sticker">Panel Guru</span>
+        <section class="mp-hero">
+            <div class="mp-hero-content">
+                <span class="mp-kicker"><i class="bi bi-lightning-charge-fill"></i> Dashboard Pengajar</span>
+                <h1 class="mp-title">Aktivitas Mengajar</h1>
+                <p class="mp-description">
+                    Pantau jadwal mengajar, presensi terbaru, dan kondisi kehadiran kelas hari ini dari satu panel.
+                </p>
             </div>
-            
-            <div class="agenda-list">
-                @foreach([['07:00','Matematika','X-A'],['08:30','Matematika','XI-B'],['12:30','Matematika','X-B']] as $j)
-                <div class="agenda-list-item">
-                    <div class="agenda-time">{{ $j[0] }}</div>
-                    <div class="agenda-details">
-                        <div class="agenda-subject">{{ $j[1] }}</div>
-                        <div class="agenda-class">{{ $j[2] }}</div>
-                    </div>
-                    <div class="agenda-teacher">Aktif</div>
-                </div>
-                @endforeach
-            </div>
-        </div>
+        </section>
     </div>
 
-    <!-- Right Column -->
-    <div style="display: flex; flex-direction: column; gap: var(--spacing-xxl);">
-        
-        <!-- Tren Kehadiran -->
-        <div class="card" style="background: #ffffff; padding: 40px; border-radius: 12px; border: 1px solid var(--color-hairline);">
-            <h2 class="text-heading-sm" style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 14px; font-weight: 700; margin-bottom: 40px;">Grafik Kehadiran</h2>
-            
-            <div style="height: 200px; display: flex; align-items: flex-end; gap: 12px; border-bottom: 2px solid var(--color-ink); padding-bottom: 12px; margin-bottom: 20px;">
-                @foreach($trendData as $trend)
-                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%;">
-                        <div style="width: 100%; height: {{ $trend->is_empty ? '2px' : $trend->pct_hadir . '%' }}; background: {{ $trend->is_empty ? 'var(--color-hairline)' : 'var(--color-ink)' }};"></div>
-                    </div>
-                @endforeach
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-                @foreach($trendData as $trend)
-                    <div class="text-micro-caps" style="color: var(--color-stone); width: 100%; text-align: center;">{{ substr($trend->hari, 0, 3) }}</div>
-                @endforeach
-            </div>
-        </div>
+    @php
+        $stats = [
+            ['Kelas Diajar', $totalKelasDiajar, 'Sesi aktif hari ini', 'var(--cyber)', 'bi-building-fill'],
+            ['Siswa Hadir', $hadirHariIni, $persentaseHadir . '% dari total siswa', 'var(--sakura)', 'bi-person-check-fill'],
+            ['Izin / Sakit', $izinSakitHariIni, 'Konfirmasi diterima', 'var(--white)', 'bi-chat-dots-fill'],
+            ['Alpha', $alpaHariIni, $alpaHariIni > 0 ? 'Perlu pengecekan' : 'Sesi terekam baik', 'var(--gold)', 'bi-exclamation-triangle-fill'],
+        ];
+    @endphp
 
-        <!-- Info Card -->
-        <div class="card" style="background: #ffffff; padding: 40px; border-radius: 12px; border: 1px solid var(--color-hairline);">
-            <h2 class="text-heading-sm" style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 14px; font-weight: 700; margin-bottom: 32px; color: var(--color-surface);">Pusat Informasi</h2>
-            <div style="display: flex; flex-direction: column; gap: 32px;">
+    <section class="mp-stats-grid">
+        @foreach($stats as $s)
+            <div class="mp-stat-card mp-hover" style="background:{{ $s[3] }};">
+                <div class="mp-stat-icon"><i class="bi {{ $s[4] }}"></i></div>
                 <div>
-                    <div style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">Pemberitahuan Presensi</div>
-                    <div style="color: var(--color-stone); font-size: 13px; line-height: 1.5;">Mohon pastikan semua data presensi jam pertama diunggah sebelum pukul 09:00.</div>
-                </div>
-                <div style="padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <div style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">Rapat Evaluasi</div>
-                    <div style="color: var(--color-stone); font-size: 13px; line-height: 1.5;">Pertemuan bulanan guru akan diadakan besok di Aula Utama.</div>
+                    <div class="mp-stat-label">{{ $s[0] }}</div>
+                    <div class="mp-stat-value">{{ $s[1] }}</div>
+                    <div style="margin-top:8px; font-size:12px; font-weight:900; text-transform:uppercase;">{{ $s[2] }}</div>
                 </div>
             </div>
+        @endforeach
+    </section>
+
+    <div class="teacher-layout">
+        <div style="display:flex; flex-direction:column; gap:32px;">
+            <section class="mp-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:24px;">
+                    <h2 style="margin:0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:28px;">Log Absensi Kelas</h2>
+                    <a href="{{ route('guru.presensi.index') }}" class="mp-btn-secondary">Lihat Semua</a>
+                </div>
+
+                <div class="mp-table-card">
+                    <div class="mp-table-wrap">
+                        <table class="mp-table data-table">
+                            <thead>
+                                <tr>
+                                    <th>Siswa</th>
+                                    <th>Kelas</th>
+                                    <th>Waktu</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($absensiTerbaru as $absen)
+                                    <tr>
+                                        <td data-label="Siswa">{{ $absen->siswa->nama_siswa ?? '-' }}</td>
+                                        <td data-label="Kelas">{{ $absen->sesi->kelas ?? '-' }}</td>
+                                        <td data-label="Waktu" class="mp-mono">{{ $absen->jam_masuk ?? '-' }}</td>
+                                        <td data-label="Status">
+                                            <span class="mp-badge" style="background:{{ $absen->status == 'Hadir' ? 'var(--cyber)' : 'var(--sakura)' }};">
+                                                {{ $absen->status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" style="text-align:center; padding:60px;">Anda belum mencatat absensi hari ini.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mp-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:24px;">
+                    <h2 style="margin:0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:28px;">Agenda Mengajar</h2>
+                    <a href="{{ route('guru.presensi.index') }}" class="mp-btn">Mulai Sesi</a>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                    @foreach([['07:00','Matematika','X-A'],['08:30','Matematika','XI-B'],['12:30','Matematika','X-B']] as $j)
+                        <div class="agenda-card">
+                            <div style="display:flex; align-items:center; gap:16px;">
+                                <span class="mp-badge" style="background:var(--cyber);">{{ $j[0] }}</span>
+                                <div>
+                                    <div style="font-family:'Fredoka One', cursive; font-size:20px; color:var(--midnight);">{{ $j[1] }}</div>
+                                    <div style="font-size:12px; font-weight:900; color:var(--cosmo); text-transform:uppercase;">Kelas {{ $j[2] }}</div>
+                                </div>
+                            </div>
+                            <span class="mp-badge" style="background:var(--gold);">Aktif</span>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
         </div>
 
+        <aside style="display:flex; flex-direction:column; gap:32px;">
+            <section class="mp-card">
+                <span class="mp-label">Grafik Kehadiran</span>
+                <h2 style="margin:8px 0 0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:28px;">Tren 7 Hari</h2>
+
+                <div class="trend-bars">
+                    @foreach($trendData as $trend)
+                        <div class="trend-bar"
+                             title="{{ $trend->is_empty ? '0' : round($trend->pct_hadir) }}%"
+                             style="height: {{ $trend->is_empty ? '10px' : max(10, $trend->pct_hadir) . '%' }}; background:{{ $loop->iteration % 2 === 0 ? 'var(--cyber)' : 'var(--cosmo)' }};">
+                        </div>
+                    @endforeach
+                </div>
+
+                <div style="display:flex; justify-content:space-between; gap:8px;">
+                    @foreach($trendData as $trend)
+                        <div style="width:100%; text-align:center; color:var(--midnight); font-size:11px; font-weight:900; text-transform:uppercase;">{{ substr($trend->hari, 0, 3) }}</div>
+                    @endforeach
+                </div>
+            </section>
+
+            <section class="mp-card mp-card-cyber">
+                <span class="mp-label">Data Per Kelas</span>
+                <div style="display:flex; flex-direction:column; gap:16px; margin-top:18px;">
+                    @forelse($kelasBreakdown as $kb)
+                        <div>
+                            <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:8px; font-weight:900;">
+                                <span>{{ $kb->nama }}</span>
+                                <span>{{ $kb->persentase }}%</span>
+                            </div>
+                            <div style="height:18px; overflow:hidden; border:3px solid var(--midnight); border-radius:999px; background:var(--white); box-shadow:3px 3px 0 var(--midnight);">
+                                <div style="width:{{ $kb->persentase }}%; height:100%; background:var(--cosmo); border-right:3px solid var(--midnight);"></div>
+                            </div>
+                        </div>
+                    @empty
+                        <div style="font-weight:900;">Menunggu data kelas hari ini.</div>
+                    @endforelse
+                </div>
+            </section>
+
+            <section class="mp-card mp-card-sakura">
+                <span class="mp-badge" style="background:var(--gold);">Pusat Info</span>
+                <div style="display:flex; flex-direction:column; gap:18px; margin-top:22px;">
+                    <div style="padding:18px; border:3px solid var(--midnight); border-radius:14px; background:var(--white); color:var(--midnight); box-shadow:4px 4px 0 var(--midnight);">
+                        <strong>Pemberitahuan Presensi</strong>
+                        <p style="margin:8px 0 0; font-weight:800;">Pastikan data presensi jam pertama diunggah sebelum pukul 09:00.</p>
+                    </div>
+                    <div style="padding:18px; border:3px solid var(--midnight); border-radius:14px; background:var(--white); color:var(--midnight); box-shadow:4px 4px 0 var(--midnight);">
+                        <strong>Rapat Evaluasi</strong>
+                        <p style="margin:8px 0 0; font-weight:800;">Pertemuan bulanan guru akan diadakan besok di Aula Utama.</p>
+                    </div>
+                </div>
+            </section>
+        </aside>
     </div>
 </div>
 
