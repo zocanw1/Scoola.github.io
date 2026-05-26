@@ -83,20 +83,12 @@
                             @foreach($hariList as $hari)
                                 @for($i = 1; $i <= 12; $i++)
                                     @php
-                                        $mapelTampil = '-';
-                                        $guruTampil = '-';
-                                        foreach($jadwals as $jadwal) {
-                                            if($jadwal->hari === $hari && $jadwal->jam_mulai <= $i && $jadwal->jam_selesai >= $i) {
-                                                $mapelTampil = $jadwal->mapel->nama_mapel ?? $jadwal->kd_mapel;
-                                                $guruTampil = $jadwal->guru->nama_guru ?? '-';
-                                                break;
-                                            }
-                                        }
+                                        $slot = $slotMatrix[$hari][$i] ?? ['mapel' => '-', 'guru' => '-'];
                                     @endphp
                                     <th style="border: 2px solid var(--midnight); padding: 4px; font-size: 10px; background: var(--white); font-weight: 800; vertical-align: top; width: 45px;">
                                         <div style="writing-mode: vertical-rl; text-orientation: mixed; height: 120px; margin: 0 auto; line-height: 1.2;">
-                                            <strong>{{ $mapelTampil }}</strong><br>
-                                            <span style="font-size: 9px;">{{ $guruTampil }}</span>
+                                            <strong>{{ $slot['mapel'] }}</strong><br>
+                                            <span style="font-size: 9px;">{{ $slot['guru'] }}</span>
                                         </div>
                                     </th>
                                 @endfor
@@ -114,19 +106,19 @@
                                 @foreach($hariList as $hari)
                                     @for($i = 1; $i <= 12; $i++)
                                         @php
-                                            $hadir = false;
-                                            foreach($jadwals as $jadwal) {
-                                                if($jadwal->hari === $hari && $jadwal->jam_mulai <= $i && $jadwal->jam_selesai >= $i) {
-                                                    if(isset($presensiMap[$siswa->NIS][$jadwal->kd_jp]) && $presensiMap[$siswa->NIS][$jadwal->kd_jp] == 'Hadir') {
-                                                        $hadir = true;
-                                                    }
-                                                    break;
-                                                }
-                                            }
+                                            $statusBadge = match($statusMatrix[$siswa->NIS][$hari][$i] ?? null) {
+                                                'Hadir' => ['H', '#107c41'],
+                                                'Izin' => ['I', '#0f6cbd'],
+                                                'Sakit' => ['S', '#8e44ad'],
+                                                'Alpa' => ['A', '#c0392b'],
+                                                'Ditolak' => ['D', '#d35400'],
+                                                'Belum Hadir' => ['B', '#7f8c8d'],
+                                                default => [null, null],
+                                            };
                                         @endphp
                                         <td style="border: 2px solid var(--midnight); padding: 6px; text-align: center; vertical-align: middle;">
-                                            @if($hadir)
-                                                <span style="color: #107c41; font-weight: 900; font-size: 14px;">&#10003;</span>
+                                            @if($statusBadge[0])
+                                                <span style="color: {{ $statusBadge[1] }}; font-weight: 900; font-size: 14px;">{{ $statusBadge[0] }}</span>
                                             @endif
                                         </td>
                                     @endfor

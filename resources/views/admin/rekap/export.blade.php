@@ -32,16 +32,7 @@
             <tr>
                 @foreach($hariList as $hari)
                     @for($i = 1; $i <= 12; $i++)
-                        @php
-                            $mapelTampil = '';
-                            foreach($jadwals as $jadwal) {
-                                if($jadwal->hari === $hari && $jadwal->jam_mulai <= $i && $jadwal->jam_selesai >= $i) {
-                                    $mapelTampil = $jadwal->mapel->nama_mapel ?? $jadwal->kd_mapel;
-                                    break;
-                                }
-                            }
-                        @endphp
-                        <th style="background-color: #fce4d6; font-size: 10px; text-align: center;">{{ $mapelTampil }}</th>
+                        <th style="background-color: #fce4d6; font-size: 10px; text-align: center;">{{ $slotMatrix[$hari][$i]['mapel'] ?? '' }}</th>
                     @endfor
                 @endforeach
             </tr>
@@ -57,17 +48,17 @@
                     @foreach($hariList as $hari)
                         @for($i = 1; $i <= 12; $i++)
                             @php
-                                $hadir = false;
-                                foreach($jadwals as $jadwal) {
-                                    if($jadwal->hari === $hari && $jadwal->jam_mulai <= $i && $jadwal->jam_selesai >= $i) {
-                                        if(isset($presensiMap[$siswa->NIS][$jadwal->kd_jp]) && $presensiMap[$siswa->NIS][$jadwal->kd_jp] == 'Hadir') {
-                                            $hadir = true;
-                                        }
-                                        break;
-                                    }
-                                }
+                                $statusShort = match($statusMatrix[$siswa->NIS][$hari][$i] ?? null) {
+                                    'Hadir' => 'H',
+                                    'Izin' => 'I',
+                                    'Sakit' => 'S',
+                                    'Alpa' => 'A',
+                                    'Ditolak' => 'D',
+                                    'Belum Hadir' => 'B',
+                                    default => '',
+                                };
                             @endphp
-                            <td style="text-align: center;">{!! $hadir ? 'v' : '' !!}</td>
+                            <td style="text-align: center;">{{ $statusShort }}</td>
                         @endfor
                     @endforeach
                 </tr>
