@@ -8,6 +8,7 @@ use App\Models\Mapel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 use App\Models\ActivityLog;
 
@@ -81,6 +82,70 @@ class GuruController extends Controller
             ->with('success', 'Guru berhasil ditambahkan');
     }
 
+    public function import(Request $request)
+    {
+        $request->validate([
+            'rows' => 'required|string',
+        ]);
+
+        $rows = json_decode($request->input('rows'), true);
+        if (! is_array($rows)) {
+            return redirect()->route('guru.index')
+                ->with('error', 'File import tidak valid.');
+        }
+
+        $created = 0;
+        $skipped = 0;
+        $seenNips = [];
+
+        DB::transaction(function () use ($rows, &$created, &$skipped, &$seenNips): void {
+            foreach ($rows as $row) {
+                $nama = trim((string) ($row['nama'] ?? ''));
+                $nip = preg_replace('/\s+/', '', (string) ($row['nip'] ?? ''));
+
+                if ($nama === '' || $nip === '' || strlen($nip) > 20 || isset($seenNips[$nip])) {
+                    $skipped++;
+                    continue;
+                }
+
+                $seenNips[$nip] = true;
+
+                if (Guru::whereKey($nip)->exists()) {
+                    $skipped++;
+                    continue;
+                }
+
+                $user = User::create([
+                    'name' => $nama,
+                    'email' => $this->buildImportEmail($nip),
+                    'password' => Hash::make($nip),
+                    'role' => 'guru',
+                ]);
+
+                Guru::create([
+                    'NIP' => $nip,
+                    'user_id' => $user->id,
+                    'nama_guru' => $nama,
+                    'kd_mapel' => null,
+                ]);
+
+                $created++;
+            }
+        });
+
+        if ($created > 0) {
+            ActivityLog::log("Import data guru: {$created} ditambahkan, {$skipped} dilewati");
+
+            return redirect()->route('guru.index')->with(
+                'success',
+                "Import guru selesai. {$created} data ditambahkan, {$skipped} data dilewati. Email akun memakai pola guru-NIP@import.scoola.local dan password default NIP tanpa spasi."
+            );
+        }
+
+        return redirect()->route('guru.index')
+            ->with('error', "Import guru gagal. Tidak ada data baru yang bisa ditambahkan. {$skipped} data dilewati.");
+    }
+
     public function edit($nip)
     {
         $guru  = Guru::with('user', 'mapels')->findOrFail($nip);
@@ -132,5 +197,19 @@ class GuruController extends Controller
 
         return redirect()->route('guru.index')
             ->with('success', 'Guru berhasil dihapus');
+    }
+
+    private function buildImportEmail(string $nip): string
+    {
+        $base = 'guru-' . Str::lower($nip) . '@import.scoola.local';
+        $email = $base;
+        $suffix = 2;
+
+        while (User::where('email', $email)->exists()) {
+            $email = 'guru-' . Str::lower($nip) . '-' . $suffix . '@import.scoola.local';
+            $suffix++;
+        }
+
+        return $email;
     }
 }

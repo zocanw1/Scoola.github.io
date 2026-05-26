@@ -350,12 +350,41 @@
         </p>
     </div>
 
+    @if(session('success'))
+        <div class="manga-card manga-card-cyber" style="padding: 24px 28px;">
+            <div style="font-weight: 900; font-size: 16px;">{{ session('success') }}</div>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="manga-card" style="padding: 24px 28px; background: #ffe0df;">
+            <div style="font-weight: 900; font-size: 16px;">{{ session('error') }}</div>
+        </div>
+    @endif
+
     <div class="fab-container">
         <a href="{{ route('guru.create') }}" class="btn-fab" title="Tambah Guru">
             <i class="bi bi-plus-lg" style="font-size: 28px;"></i>
             <span class="fab-label">Tambah Guru Baru</span>
         </a>
     </div>
+
+    <form method="POST" action="{{ route('guru.import') }}" id="guruImportForm" class="manga-card manga-hover-effect" style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end;">
+        @csrf
+        <input type="hidden" name="rows" id="guruImportRows">
+
+        <div style="flex: 1 1 320px;">
+            <label style="font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 12px; color: var(--midnight);">Import Excel Guru</label>
+            <input type="file" id="guruImportFile" accept=".xlsx,.xls,.csv" class="manga-input" style="padding: 12px;">
+            <div style="margin-top: 10px; font-size: 12px; font-weight: 800; color: #4A5568;">
+                Format kolom: <strong>nama</strong> lalu <strong>nip</strong>. Akun login otomatis dibuat dengan password default NIP tanpa spasi.
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="submit" class="manga-btn-edit" style="background: var(--cyber); color: var(--midnight);">Import Guru</button>
+        </div>
+    </form>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 32px;">
         <div class="manga-card manga-card-gold manga-hover-effect" style="display: flex; align-items: center; gap: 24px;">
@@ -456,6 +485,76 @@
     </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const importForm = document.getElementById('guruImportForm');
+    const fileInput = document.getElementById('guruImportFile');
+    const rowsInput = document.getElementById('guruImportRows');
+
+    if (!importForm || !fileInput || !rowsInput) {
+        return;
+    }
+
+    const normalizeHeader = (value) => String(value || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '');
+
+    importForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const file = fileInput.files[0];
+        if (!file) {
+            alert('Pilih file Excel dulu.');
+            return;
+        }
+
+        if (typeof XLSX === 'undefined') {
+            alert('Library pembaca Excel gagal dimuat.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (loadEvent) {
+            const workbook = XLSX.read(loadEvent.target.result, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rawRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+
+            if (!rawRows.length) {
+                alert('File Excel kosong.');
+                return;
+            }
+
+            const headerRow = rawRows[0].map(normalizeHeader);
+            const namaIndex = headerRow.findIndex((header) => header.includes('nama'));
+            const nipIndex = headerRow.findIndex((header) => header.includes('nip') || header.includes('nig'));
+
+            if (namaIndex === -1 || nipIndex === -1) {
+                alert('Kolom Excel harus berisi header nama dan nip.');
+                return;
+            }
+
+            const rows = rawRows.slice(1)
+                .map((row) => ({
+                    nama: String(row[namaIndex] || '').trim(),
+                    nip: String(row[nipIndex] || '').trim(),
+                }))
+                .filter((row) => row.nama !== '' && row.nip !== '');
+
+            if (!rows.length) {
+                alert('Tidak ada data guru yang bisa diimport.');
+                return;
+            }
+
+            rowsInput.value = JSON.stringify(rows);
+            importForm.submit();
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+});
+</script>
 
 @endsection
 

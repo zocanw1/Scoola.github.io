@@ -83,6 +83,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/guru', [GuruController::class, 'index'])->name('guru.index');
         Route::get('/guru/create', [GuruController::class, 'create'])->name('guru.create');
         Route::post('/guru', [GuruController::class, 'store'])->name('guru.store');
+        Route::post('/guru/import', [GuruController::class, 'import'])->name('guru.import');
         Route::get('/guru/{nip}/edit', [GuruController::class, 'edit'])->name('guru.edit');
         Route::put('/guru/{nip}', [GuruController::class, 'update'])->name('guru.update');
 
