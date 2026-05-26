@@ -7,6 +7,7 @@ use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 use App\Models\ActivityLog;
 
@@ -74,6 +75,72 @@ class SiswaController extends Controller
             ->with('success', 'Siswa berhasil ditambahkan');
     }
 
+    public function import(Request $request)
+    {
+        $request->validate([
+            'rows' => 'required|string',
+        ]);
+
+        $rows = json_decode($request->input('rows'), true);
+        if (! is_array($rows)) {
+            return redirect()->route('siswa.index')
+                ->with('error', 'File import tidak valid.');
+        }
+
+        $created = 0;
+        $skipped = 0;
+        $seenNis = [];
+
+        DB::transaction(function () use ($rows, &$created, &$skipped, &$seenNis): void {
+            foreach ($rows as $row) {
+                $nis = trim((string) ($row['nis'] ?? ''));
+                $nama = trim((string) ($row['nama'] ?? ''));
+                $kelas = $this->normalizeImportedKelas((string) ($row['kelas'] ?? ''));
+
+                if ($nis === '' || $nama === '' || $kelas === null || isset($seenNis[$nis])) {
+                    $skipped++;
+                    continue;
+                }
+
+                $seenNis[$nis] = true;
+
+                if (Siswa::whereKey($nis)->exists()) {
+                    $skipped++;
+                    continue;
+                }
+
+                $token = $this->buildSiswaImportToken($nis);
+                $user = User::create([
+                    'name' => $nama,
+                    'email' => $this->buildImportEmail($token),
+                    'password' => Hash::make($token),
+                    'role' => 'siswa',
+                ]);
+
+                Siswa::create([
+                    'NIS' => $nis,
+                    'user_id' => $user->id,
+                    'nama_siswa' => $nama,
+                    'kelas' => $kelas,
+                ]);
+
+                $created++;
+            }
+        });
+
+        if ($created > 0) {
+            ActivityLog::log("Import data siswa: {$created} ditambahkan, {$skipped} dilewati");
+
+            return redirect()->route('siswa.index')->with(
+                'success',
+                "Import siswa selesai. {$created} data ditambahkan, {$skipped} data dilewati. Email akun memakai pola siswa-NIS@gmail.com dan password default NIS tanpa simbol."
+            );
+        }
+
+        return redirect()->route('siswa.index')
+            ->with('error', "Import siswa gagal. Tidak ada data baru yang bisa ditambahkan. {$skipped} data dilewati.");
+    }
+
     public function edit($nis)
     {
         $siswa = Siswa::with('user')->findOrFail($nis);
@@ -122,5 +189,36 @@ class SiswaController extends Controller
 
         return redirect()->route('siswa.index')
             ->with('success', 'Siswa berhasil dihapus');
+    }
+
+    private function normalizeImportedKelas(string $kelas): ?string
+    {
+        $normalized = Str::upper(trim($kelas));
+        $normalized = preg_replace('/\s+/', ' ', $normalized);
+
+        return match ($normalized) {
+            'XI SIJA 1', 'XI-SIJA 1' => 'XI-SIJA 1',
+            'XI SIJA 2', 'XI-SIJA 2' => 'XI-SIJA 2',
+            default => null,
+        };
+    }
+
+    private function buildSiswaImportToken(string $nis): string
+    {
+        return preg_replace('/[^A-Za-z0-9]/', '', $nis) ?: $nis;
+    }
+
+    private function buildImportEmail(string $token): string
+    {
+        $base = 'siswa-' . Str::lower($token) . '@gmail.com';
+        $email = $base;
+        $suffix = 2;
+
+        while (User::where('email', $email)->exists()) {
+            $email = 'siswa-' . Str::lower($token) . '-' . $suffix . '@gmail.com';
+            $suffix++;
+        }
+
+        return $email;
     }
 }

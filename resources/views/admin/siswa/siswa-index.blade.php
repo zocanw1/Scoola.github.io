@@ -545,6 +545,18 @@
 
 <div class="anime-dashboard">
 
+    @if(session('success'))
+        <div class="neo-card" style="padding: 20px 24px; margin-bottom: 24px; background: var(--cyber); color: var(--midnight); font-weight: 900;">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="neo-card" style="padding: 20px 24px; margin-bottom: 24px; background: #ffe0df; color: var(--midnight); font-weight: 900;">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="neo-card hero-section">
         <div class="hero-content">
             <div class="hero-badge">
@@ -617,6 +629,27 @@
         </div>
     </form>
 
+    @if(auth()->user()->role === 'admin')
+    <form method="POST" action="{{ route('siswa.import') }}" id="siswaImportForm" class="neo-card filter-card" style="margin-top: -8px;">
+        @csrf
+        <input type="hidden" name="rows" id="siswaImportRows">
+
+        <div style="display:grid; grid-template-columns:minmax(0, 1fr); gap:18px;">
+            <div>
+                <label class="input-label">Import Data Siswa</label>
+                <input type="file" id="siswaImportFile" class="anime-input" accept=".csv,.xlsx,.xls" style="padding: 12px;">
+                <div style="margin-top: 10px; font-size: 12px; font-weight: 800; color: #4A5568;">
+                    Format kolom: <strong>nis</strong>, <strong>nama_siswa</strong>, <strong>kelas</strong>. Email default dibuat `siswa-NIS@gmail.com` dan password default memakai NIS tanpa simbol.
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="submit" class="edit-btn">Import Siswa</button>
+        </div>
+    </form>
+    @endif
+
     <div class="neo-card table-wrapper">
         <table class="anime-table">
             <thead>
@@ -672,6 +705,112 @@
 <a href="{{ route('siswa.create') }}" class="fab-button">
     <i class="bi bi-plus-lg"></i>
 </a>
+@endif
+
+@if(auth()->user()->role === 'admin')
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('siswaImportForm');
+    const fileInput = document.getElementById('siswaImportFile');
+    const rowsInput = document.getElementById('siswaImportRows');
+
+    if (!form || !fileInput || !rowsInput) {
+        return;
+    }
+
+    const normalizeHeader = (value) => String(value || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '');
+
+    const mapRows = (rows) => {
+        if (!rows.length) {
+            return [];
+        }
+
+        const headerRow = rows[0].map(normalizeHeader);
+        const nisIndex = headerRow.findIndex((header) => header === 'nis');
+        const namaIndex = headerRow.findIndex((header) => header.includes('nama'));
+        const kelasIndex = headerRow.findIndex((header) => header.includes('kelas'));
+
+        if (nisIndex === -1 || namaIndex === -1 || kelasIndex === -1) {
+            return null;
+        }
+
+        return rows.slice(1)
+            .map((row) => ({
+                nis: String(row[nisIndex] || '').trim(),
+                nama: String(row[namaIndex] || '').trim(),
+                kelas: String(row[kelasIndex] || '').trim(),
+            }))
+            .filter((row) => row.nis !== '' && row.nama !== '' && row.kelas !== '');
+    };
+
+    const parseCsv = (text) => {
+        const rows = text
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter((line) => line !== '')
+            .map((line) => line.split(';').map((cell) => cell.trim()));
+
+        return mapRows(rows);
+    };
+
+    const parseWorkbook = (buffer) => {
+        const workbook = XLSX.read(buffer, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+        return mapRows(rows);
+    };
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const file = fileInput.files[0];
+        if (!file) {
+            alert('Pilih file siswa dulu.');
+            return;
+        }
+
+        const extension = (file.name.split('.').pop() || '').toLowerCase();
+        const reader = new FileReader();
+
+        reader.onload = function (loadEvent) {
+            let rows = null;
+
+            if (extension === 'csv') {
+                rows = parseCsv(loadEvent.target.result);
+            } else {
+                if (typeof XLSX === 'undefined') {
+                    alert('Library pembaca spreadsheet gagal dimuat.');
+                    return;
+                }
+                rows = parseWorkbook(loadEvent.target.result);
+            }
+
+            if (rows === null) {
+                alert('Kolom file harus berisi NIS, nama_siswa, dan kelas.');
+                return;
+            }
+
+            if (!rows.length) {
+                alert('Tidak ada data siswa yang bisa diimport.');
+                return;
+            }
+
+            rowsInput.value = JSON.stringify(rows);
+            form.submit();
+        };
+
+        if (extension === 'csv') {
+            reader.readAsText(file);
+            return;
+        }
+
+        reader.readAsArrayBuffer(file);
+    });
+});
+</script>
 @endif
 
 @endsection
