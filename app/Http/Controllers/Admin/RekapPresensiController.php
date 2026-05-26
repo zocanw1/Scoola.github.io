@@ -10,6 +10,7 @@ use App\Models\JadwalPelajaran;
 use App\Models\Presensi;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class RekapPresensiController extends Controller
 {
@@ -79,10 +80,15 @@ class RekapPresensiController extends Controller
             return compact('siswas', 'jadwals', 'presensiMap', 'slotMatrix', 'statusMatrix');
         }
 
+        $siswaColumns = ['NIS', 'nama_siswa'];
+        if (Schema::hasColumn('siswa', 'jenis_kelamin')) {
+            $siswaColumns[] = 'jenis_kelamin';
+        }
+
         $siswas = Siswa::query()
             ->where('kelas', $selectedKelas)
             ->orderBy('nama_siswa')
-            ->get(['NIS', 'nama_siswa', 'jenis_kelamin']);
+            ->get($siswaColumns);
 
         $jadwals = JadwalPelajaran::query()
             ->with([

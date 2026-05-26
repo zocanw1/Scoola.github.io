@@ -10,6 +10,7 @@ use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class RekapPresensiPerformanceTest extends TestCase
@@ -76,5 +77,56 @@ class RekapPresensiPerformanceTest extends TestCase
             return ($statusMatrix['SISWA-1']['Senin'][1] ?? null) === 'Hadir'
                 && ($statusMatrix['SISWA-1']['Senin'][2] ?? null) === 'Hadir';
         });
+    }
+
+    public function test_rekap_index_still_loads_when_siswa_table_has_no_jenis_kelamin_column(): void
+    {
+        if (Schema::hasColumn('siswa', 'jenis_kelamin')) {
+            Schema::table('siswa', function ($table): void {
+                $table->dropColumn('jenis_kelamin');
+            });
+        }
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 2']);
+
+        $mapel = Mapel::create([
+            'kd_mapel' => 'BING',
+            'nama_mapel' => 'Bahasa Inggris',
+        ]);
+
+        $guru = Guru::create([
+            'NIP' => '198501012010011002',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Kelas 2',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP002',
+            'hari' => 'Selasa',
+            'jam_mulai' => 1,
+            'jam_selesai' => 2,
+            'kd_mapel' => $mapel->kd_mapel,
+            'NIP' => $guru->NIP,
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        Siswa::create([
+            'NIS' => 'SISWA-2',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Siswa 2',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.rekap.index', [
+            'kelas' => 'XI-SIJA 2',
+            'tanggal' => now()->toDateString(),
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Siswa 2');
     }
 }
