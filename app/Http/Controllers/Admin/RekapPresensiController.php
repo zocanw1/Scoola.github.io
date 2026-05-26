@@ -8,6 +8,7 @@ use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\JadwalPelajaran;
 use App\Models\Presensi;
+use App\Models\SesiPresensi;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -112,18 +113,61 @@ class RekapPresensiController extends Controller
 
         $kdJpList = $jadwals->pluck('kd_jp')->filter()->values();
         if ($kdJpList->isNotEmpty()) {
-            $presensiRecords = Presensi::query()
-                ->select(['NIS', 'kd_jp', 'status'])
+            $heldSessions = SesiPresensi::query()
+                ->select(['id', 'kd_jp'])
+                ->where('kelas', $selectedKelas)
                 ->whereIn('kd_jp', $kdJpList)
-                ->whereBetween('tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+                ->whereBetween('created_at', [
+                    $startOfWeek->copy()->startOfDay(),
+                    $endOfWeek->copy()->endOfDay(),
+                ])
+                ->get();
+
+            $heldSessionIds = $heldSessions->pluck('id')->values();
+            $heldSessionMap = $heldSessions
+                ->pluck('kd_jp')
+                ->filter()
+                ->unique()
+                ->mapWithKeys(fn (string $kdJp): array => [$kdJp => true])
+                ->all();
+
+            $presensiRecords = Presensi::query()
+                ->leftJoin('sesi_presensis', 'sesi_presensis.id', '=', 'presensi.sesi_id')
+                ->select([
+                    'presensi.NIS',
+                    'presensi.status',
+                    'presensi.updated_at',
+                ])
+                ->selectRaw('COALESCE(presensi.kd_jp, sesi_presensis.kd_jp) as effective_kd_jp')
+                ->where(function ($query) use ($kdJpList, $heldSessionIds): void {
+                    $query->whereIn('presensi.kd_jp', $kdJpList);
+
+                    if ($heldSessionIds->isNotEmpty()) {
+                        $query->orWhereIn('presensi.sesi_id', $heldSessionIds);
+                    }
+                })
+                ->where(function ($query) use ($startOfWeek, $endOfWeek, $heldSessionIds): void {
+                    $query->whereBetween('presensi.tanggal', [$startOfWeek->toDateString(), $endOfWeek->toDateString()]);
+
+                    if ($heldSessionIds->isNotEmpty()) {
+                        $query->orWhereIn('presensi.sesi_id', $heldSessionIds);
+                    }
+                })
+                ->orderBy('presensi.updated_at')
                 ->get();
 
             foreach ($presensiRecords as $record) {
-                $presensiMap[$record->NIS][$record->kd_jp] = $record->status;
+                if (! $record->effective_kd_jp) {
+                    continue;
+                }
+
+                $presensiMap[$record->NIS][$record->effective_kd_jp] = $record->status;
             }
+        } else {
+            $heldSessionMap = [];
         }
 
-        $statusMatrix = $this->buildStatusMatrix($siswas, $slotMatrix, $hariList, $presensiMap);
+        $statusMatrix = $this->buildStatusMatrix($siswas, $slotMatrix, $hariList, $presensiMap, $heldSessionMap);
 
         return compact('siswas', 'jadwals', 'presensiMap', 'slotMatrix', 'statusMatrix');
     }
@@ -165,7 +209,7 @@ class RekapPresensiController extends Controller
         return $slotMatrix;
     }
 
-    private function buildStatusMatrix(Collection $siswas, array $slotMatrix, array $hariList, array $presensiMap): array
+    private function buildStatusMatrix(Collection $siswas, array $slotMatrix, array $hariList, array $presensiMap, array $heldSessionMap): array
     {
         $statusMatrix = [];
 
@@ -173,7 +217,13 @@ class RekapPresensiController extends Controller
             foreach ($hariList as $hari) {
                 for ($jam = 1; $jam <= self::PERIODS_PER_DAY; $jam++) {
                     $kdJp = $slotMatrix[$hari][$jam]['kd_jp'] ?? null;
-                    $statusMatrix[$siswa->NIS][$hari][$jam] = $kdJp ? ($presensiMap[$siswa->NIS][$kdJp] ?? null) : null;
+                    if (! $kdJp) {
+                        $statusMatrix[$siswa->NIS][$hari][$jam] = null;
+                        continue;
+                    }
+
+                    $statusMatrix[$siswa->NIS][$hari][$jam] = $presensiMap[$siswa->NIS][$kdJp]
+                        ?? (isset($heldSessionMap[$kdJp]) ? 'Belum Hadir' : null);
                 }
             }
         }
