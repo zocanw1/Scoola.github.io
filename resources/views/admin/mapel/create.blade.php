@@ -34,8 +34,8 @@
             <div class="mp-form-grid">
                 <div class="mp-field">
                     <label class="mp-label">Kode Mata Pelajaran</label>
-                    <input type="text" name="kd_mapel" class="mp-input" placeholder="MP-XXX" value="{{ old('kd_mapel') }}" required autofocus>
-                    <small class="mp-hint">Identifikasi unik kurikulum</small>
+                    <input type="text" class="mp-input" value="{{ $nextKodeMapel }}" readonly autofocus>
+                    <small class="mp-hint">Kode dibuat otomatis saat mapel disimpan</small>
                 </div>
 
                 <div class="mp-field">

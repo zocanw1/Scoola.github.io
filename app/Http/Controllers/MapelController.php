@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Mapel;
 use App\Models\Guru;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class MapelController extends Controller
 {
@@ -24,7 +25,9 @@ class MapelController extends Controller
      */
     public function create()
     {
-        return view('admin.mapel.create');
+        $nextKodeMapel = $this->generateNextKodeMapel();
+
+        return view('admin.mapel.create', compact('nextKodeMapel'));
     }
 
     /**
@@ -33,12 +36,11 @@ class MapelController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kd_mapel'   => 'required|string|max:50|unique:mapel,kd_mapel',
             'nama_mapel' => 'required|string|max:100',
         ]);
 
         Mapel::create([
-            'kd_mapel'   => $request->kd_mapel,
+            'kd_mapel'   => $this->generateNextKodeMapel(),
             'nama_mapel' => $request->nama_mapel,
         ]);
 
@@ -61,12 +63,10 @@ class MapelController extends Controller
     public function update(Request $request, Mapel $mapel)
     {
         $request->validate([
-            'kd_mapel'   => 'required|string|max:50|unique:mapel,kd_mapel,' . $mapel->kd_mapel . ',kd_mapel',
             'nama_mapel' => 'required|string|max:100',
         ]);
 
         $mapel->update([
-            'kd_mapel'   => $request->kd_mapel,
             'nama_mapel' => $request->nama_mapel,
         ]);
 
@@ -85,5 +85,25 @@ class MapelController extends Controller
         return redirect()
             ->route('mapel.index')
             ->with('success', 'Mapel berhasil dihapus');
+    }
+
+    private function generateNextKodeMapel(): string
+    {
+        $maxNumber = Mapel::query()
+            ->where('kd_mapel', 'like', 'KD_%')
+            ->pluck('kd_mapel')
+            ->pipe(function (Collection $kodeMapels): int {
+                return $kodeMapels
+                    ->map(function (string $kodeMapel): int {
+                        if (preg_match('/^KD_(\d+)$/', $kodeMapel, $matches) !== 1) {
+                            return 0;
+                        }
+
+                        return (int) $matches[1];
+                    })
+                    ->max() ?? 0;
+            });
+
+        return 'KD_' . ($maxNumber + 1);
     }
 }
