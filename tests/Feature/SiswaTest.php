@@ -22,6 +22,7 @@ class SiswaTest extends TestCase
 
         $response = $this->actingAs($admin)->get(route('siswa.index'));
         $response->assertStatus(200);
+        $response->assertSee('liveSiswaSearch', false);
     }
 
     public function test_admin_can_view_siswa_create_form(): void

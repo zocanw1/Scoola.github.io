@@ -31,6 +31,7 @@ class GuruTest extends TestCase
 
         $response = $this->actingAs($admin)->get(route('guru.index'));
         $response->assertStatus(200);
+        $response->assertSee('liveGuruSearch', false);
     }
 
     public function test_admin_can_create_guru(): void
