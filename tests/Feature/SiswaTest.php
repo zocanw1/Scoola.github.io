@@ -71,6 +71,55 @@ class SiswaTest extends TestCase
         $this->assertDatabaseHas('siswa', ['NIS' => '99999999', 'nama_siswa' => 'New Name', 'kelas' => 'XI-SIJA 1']);
     }
 
+    public function test_admin_can_open_edit_form_for_siswa_with_slashes_in_nis(): void
+    {
+        $admin = $this->createAdmin();
+
+        $user = User::factory()->create(['role' => 'siswa', 'name' => 'Slash Student']);
+        Siswa::create([
+            'NIS' => '18401/076/065',
+            'user_id' => $user->id,
+            'nama_siswa' => 'Slash Student',
+            'kelas' => 'XI-SIJA 1',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('siswa.edit', ['nis' => '18401/076/065']));
+
+        $response->assertOk();
+        $response->assertSee('Slash Student');
+    }
+
+    public function test_admin_can_update_siswa_with_slashes_in_nis(): void
+    {
+        $admin = $this->createAdmin();
+
+        $user = User::factory()->create([
+            'role' => 'siswa',
+            'name' => 'Slash Student',
+            'email' => 'slash@student.test',
+        ]);
+
+        Siswa::create([
+            'NIS' => '18401/076/065',
+            'user_id' => $user->id,
+            'nama_siswa' => 'Slash Student',
+            'kelas' => 'XI-SIJA 1',
+        ]);
+
+        $response = $this->actingAs($admin)->put(route('siswa.update', ['nis' => '18401/076/065']), [
+            'nama' => 'Slash Student Updated',
+            'kelas' => 'XI-SIJA 2',
+            'email' => 'slash@student.test',
+        ]);
+
+        $response->assertRedirect(route('siswa.index'));
+        $this->assertDatabaseHas('siswa', [
+            'NIS' => '18401/076/065',
+            'nama_siswa' => 'Slash Student Updated',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+    }
+
     public function test_non_admin_cannot_access_siswa(): void
     {
         $guru = User::factory()->create(['role' => 'guru']);

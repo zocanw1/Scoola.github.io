@@ -77,8 +77,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/siswa/create', [SiswaController::class, 'create'])->name('siswa.create');
         Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
         Route::post('/siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
-        Route::get('/siswa/{nis}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
-        Route::put('/siswa/{nis}', [SiswaController::class, 'update'])->name('siswa.update');
+        Route::get('/siswa/edit/{nis}', [SiswaController::class, 'edit'])->where('nis', '.*')->name('siswa.edit');
+        Route::put('/siswa/{nis}', [SiswaController::class, 'update'])->where('nis', '.*')->name('siswa.update');
 
         /* ===================== GURU ===================== */
         Route::get('/guru', [GuruController::class, 'index'])->name('guru.index');

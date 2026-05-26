@@ -72,12 +72,17 @@
         /* Sidebar - Panel Komik Manga-Pop Style */
         .runway-sidebar {
             width: 260px;
+            position: sticky;
+            top: 0;
+            align-self: flex-start;
+            height: 100vh;
             background-color: var(--white);
             /* Garis pembatas tinta tebal khas panel manga */
             border-right: 4px solid var(--midnight);
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            overflow: hidden;
             z-index: 1000;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
         }
