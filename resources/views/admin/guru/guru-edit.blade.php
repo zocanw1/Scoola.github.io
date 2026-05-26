@@ -55,6 +55,45 @@
                 </div>
             </div>
 
+            <section class="mp-card" style="margin-top: 28px; background: #fff4d9; border: 3px solid var(--midnight);">
+                <div class="mp-label" style="margin-bottom: 12px;">Zona Sensitif</div>
+                <h3 style="margin: 0 0 10px; font-family: 'Fredoka One', cursive; color: var(--midnight);">Ubah Kredensial Login</h3>
+                <p style="margin: 0 0 20px; font-weight: 800; color: var(--midnight);">
+                    Bagian ini sengaja dipersulit supaya email atau password tidak berubah tanpa sengaja.
+                </p>
+
+                <div class="mp-field">
+                    <label class="mp-label">Email Login Guru</label>
+                    <input type="email" name="email" class="mp-input" value="{{ old('email', $guru->user->email ?? '') }}" placeholder="Masukkan email login guru">
+                </div>
+
+                <div class="mp-field">
+                    <label class="mp-label">Password Baru</label>
+                    <input type="password" name="password" class="mp-input" placeholder="Kosongkan jika tidak ingin mengganti password">
+                </div>
+
+                <div class="mp-field">
+                    <label class="mp-label">Konfirmasi Password Baru</label>
+                    <input type="password" name="password_confirmation" class="mp-input" placeholder="Ulangi password baru">
+                </div>
+
+                <div class="mp-field">
+                    <label class="mp-label">Ketik Ulang NIP Guru untuk Verifikasi</label>
+                    <input type="text" name="credential_confirmation" class="mp-input" value="{{ old('credential_confirmation') }}" placeholder="Harus sama persis dengan NIP guru">
+                    <small class="mp-hint">NIP target: {{ $guru->NIP }}</small>
+                </div>
+
+                <div class="mp-field">
+                    <label class="mp-label">Password Admin Saat Ini</label>
+                    <input type="password" name="admin_password_confirmation" class="mp-input" placeholder="Masukkan password admin untuk menyetujui perubahan ini">
+                </div>
+
+                <label class="mp-check" style="margin-top: 8px;">
+                    <input type="checkbox" name="change_login_credentials" value="1" @checked(old('change_login_credentials'))>
+                    <span>Saya sadar sedang mengubah email atau password login guru ini</span>
+                </label>
+            </section>
+
             <div class="mp-actions">
                 <button type="submit" class="mp-btn"><i class="bi bi-check2-circle"></i> Perbarui Data Guru</button>
                 <a href="{{ route('guru.index') }}" class="mp-btn-secondary"><i class="bi bi-arrow-left"></i> Batal</a>

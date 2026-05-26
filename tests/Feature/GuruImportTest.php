@@ -32,7 +32,7 @@ class GuruImportTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('users', [
-            'email' => 'guru-603202207119921015@import.scoola.local',
+            'email' => 'guru-603202207119921015@gmail.com',
             'role' => 'guru',
         ]);
 
@@ -47,7 +47,7 @@ class GuruImportTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $existingUser = User::factory()->create([
             'role' => 'guru',
-            'email' => 'guru-197710092022212008@import.scoola.local',
+            'email' => 'guru-197710092022212008@gmail.com',
         ]);
 
         Guru::create([

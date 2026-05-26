@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 use App\Models\ActivityLog;
 
@@ -138,7 +139,7 @@ class GuruController extends Controller
 
             return redirect()->route('guru.index')->with(
                 'success',
-                "Import guru selesai. {$created} data ditambahkan, {$skipped} data dilewati. Email akun memakai pola guru-NIP@import.scoola.local dan password default NIP tanpa spasi."
+                "Import guru selesai. {$created} data ditambahkan, {$skipped} data dilewati. Email akun memakai pola guru-NIP@gmail.com dan password default NIP tanpa spasi."
             );
         }
 
@@ -164,7 +165,29 @@ class GuruController extends Controller
             'kd_mapel.*' => 'exists:mapel,kd_mapel',
         ]);
 
-        DB::transaction(function () use ($request, $guru) {
+        $incomingEmail = trim((string) $request->input('email', $guru->user->email));
+        $emailChanged = strcasecmp($incomingEmail, (string) $guru->user->email) !== 0;
+        $passwordChanged = $request->filled('password');
+        $credentialsChanged = $emailChanged || $passwordChanged;
+
+        if ($credentialsChanged) {
+            $request->validate([
+                'change_login_credentials' => 'accepted',
+                'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($guru->user_id)],
+                'password' => 'nullable|min:6|confirmed',
+                'credential_confirmation' => ['required', function (string $attribute, mixed $value, \Closure $fail) use ($guru): void {
+                    if (trim((string) $value) !== $guru->NIP) {
+                        $fail('Kode verifikasi NIP tidak cocok.');
+                    }
+                }],
+                'admin_password_confirmation' => 'required|current_password',
+            ], [
+                'change_login_credentials.accepted' => 'Centang konfirmasi perubahan kredensial terlebih dahulu.',
+                'admin_password_confirmation.current_password' => 'Password admin tidak cocok.',
+            ]);
+        }
+
+        DB::transaction(function () use ($request, $guru, $credentialsChanged, $incomingEmail, $passwordChanged) {
             $guru->update([
                 'nama_guru' => $request->nama,
                 'kd_mapel'  => $request->kd_mapel[0], // Keep first
@@ -172,9 +195,19 @@ class GuruController extends Controller
 
             $guru->mapels()->sync($request->kd_mapel);
 
-            $guru->user->update([
+            $userUpdates = [
                 'name' => $request->nama,
-            ]);
+            ];
+
+            if ($credentialsChanged) {
+                $userUpdates['email'] = $incomingEmail;
+            }
+
+            if ($passwordChanged) {
+                $userUpdates['password'] = Hash::make($request->password);
+            }
+
+            $guru->user->update($userUpdates);
         });
 
         ActivityLog::log("Memperbarui data guru: {$request->nama} (NIP: {$nip})");
@@ -201,12 +234,12 @@ class GuruController extends Controller
 
     private function buildImportEmail(string $nip): string
     {
-        $base = 'guru-' . Str::lower($nip) . '@import.scoola.local';
+        $base = 'guru-' . Str::lower($nip) . '@gmail.com';
         $email = $base;
         $suffix = 2;
 
         while (User::where('email', $email)->exists()) {
-            $email = 'guru-' . Str::lower($nip) . '-' . $suffix . '@import.scoola.local';
+            $email = 'guru-' . Str::lower($nip) . '-' . $suffix . '@gmail.com';
             $suffix++;
         }
 
