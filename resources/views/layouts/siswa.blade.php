@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Scoola - Siswa</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -185,6 +185,7 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 42px;
+            padding-bottom: max(42px, env(safe-area-inset-bottom, 0px));
         }
 
         .footer {

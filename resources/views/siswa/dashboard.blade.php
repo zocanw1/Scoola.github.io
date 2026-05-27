@@ -10,11 +10,19 @@
         align-items: start;
     }
 
+    .hero-topline {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
     .otp-row {
         display: grid;
         grid-template-columns: repeat(6, minmax(42px, 1fr));
-        gap: 14px;
-        margin: 34px 0 42px;
+        gap: 12px;
+        margin: 26px 0 18px;
     }
 
     .mp-page .otp-input {
@@ -41,6 +49,29 @@
         box-shadow: 7px 7px 0 var(--midnight) !important;
     }
 
+    .gps-shell {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 18px;
+        margin-top: 18px;
+        border: 3px solid var(--midnight);
+        border-radius: 16px;
+        background: var(--mochi);
+        box-shadow: 4px 4px 0 var(--midnight);
+    }
+
+    .gps-shell[data-gps-state="success"] {
+        background: #ddfffb;
+    }
+
+    .gps-shell[data-gps-state="error"],
+    .gps-shell[data-gps-state="denied"],
+    .gps-shell[data-gps-state="timeout"] {
+        background: #fff0ef;
+    }
+
     .gps-pill {
         display: inline-flex;
         align-items: center;
@@ -63,6 +94,48 @@
         border: 2px solid var(--midnight);
         border-radius: 999px;
         background: var(--sakura);
+    }
+
+    .gps-copy {
+        display: grid;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    .gps-copy strong {
+        color: var(--midnight);
+        font-family: 'Fredoka One', cursive;
+        font-size: 18px;
+        line-height: 1.1;
+    }
+
+    .gps-copy p {
+        margin: 0;
+        color: var(--midnight);
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.45;
+    }
+
+    .retry-gps-btn {
+        min-width: 132px;
+        min-height: 46px;
+        border: 3px solid var(--midnight);
+        border-radius: 12px;
+        background: var(--white);
+        box-shadow: 4px 4px 0 var(--midnight);
+        color: var(--midnight);
+        font-family: 'Fredoka One', cursive;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .retry-gps-btn[hidden] {
+        display: none;
+    }
+
+    .submit-shell {
+        margin-top: 18px;
     }
 
     .student-profile {
@@ -99,16 +172,42 @@
 
     .history-item:last-child { border-bottom: 0; }
 
+    .history-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 14px;
+    }
+
+    .history-item {
+        padding: 16px 18px;
+        border: 3px solid var(--midnight);
+        border-radius: 16px;
+        background: var(--mochi);
+        box-shadow: 4px 4px 0 var(--midnight);
+    }
+
     @media (max-width: 980px) {
         .student-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 540px) {
-        .otp-row { gap: 8px; }
+        .hero-topline,
+        .gps-shell {
+            flex-direction: column;
+        }
+
+        .otp-row {
+            gap: 8px;
+            margin-bottom: 14px;
+        }
 
         .student-profile {
             align-items: flex-start;
             flex-direction: column;
+        }
+
+        .retry-gps-btn {
+            width: 100%;
         }
     }
 </style>
@@ -118,11 +217,14 @@
         <span class="mp-sticker">( &gt;= siap hadir )</span>
         <section class="mp-hero">
             <div class="mp-hero-content">
-                <span class="mp-kicker"><i class="bi bi-stars"></i> Panel Siswa</span>
-                <h1 class="mp-title">Presensi Harian</h1>
-                <p class="mp-description">
-                    Masukkan kode 6 karakter dari pengajar. Sistem akan mengecek lokasi perangkat sebelum menyimpan kehadiran kamu.
-                </p>
+                <div class="hero-topline">
+                    <div>
+                        <span class="mp-kicker"><i class="bi bi-stars"></i> Panel Siswa</span>
+                        <h1 class="mp-title">Presensi Harian</h1>
+                    </div>
+                    <span class="mp-badge" style="background:var(--gold);">Android friendly</span>
+                </div>
+                <p class="mp-description">Masukkan kode 6 karakter dari pengajar. Sistem akan mengecek lokasi perangkat sebelum menyimpan kehadiran kamu.</p>
             </div>
         </section>
     </div>
@@ -147,10 +249,18 @@
                         <span class="mp-label">Kode Sesi</span>
                         <h2 style="margin:8px 0 0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:32px; line-height:1.1;">Masukkan Kode</h2>
                     </div>
-                    <div id="gpsStatus" class="gps-pill">
-                        <span id="gpsIcon" class="gps-dot"></span>
-                        <span id="gpsText">Mendeteksi lokasi</span>
+                </div>
+
+                <div id="gpsShell" class="gps-shell" data-gps-state="loading">
+                    <div class="gps-copy">
+                        <div id="gpsStatus" class="gps-pill">
+                            <span id="gpsIcon" class="gps-dot"></span>
+                            <span id="gpsText">Meminta lokasi</span>
+                        </div>
+                        <strong id="gpsTitle">Cek posisi perangkat</strong>
+                        <p id="gpsHint">Izinkan akses lokasi browser agar presensi bisa dikirim tanpa hambatan.</p>
                     </div>
+                    <button type="button" id="retryGpsBtn" class="retry-gps-btn" hidden>Coba Lagi</button>
                 </div>
 
                 <form action="{{ route('siswa.presensi.store') }}" method="POST" id="otpForm">
@@ -161,13 +271,15 @@
 
                     <div class="otp-row" id="inputs">
                         @for($i=0; $i<6; $i++)
-                            <input type="text" maxlength="1" autocomplete="off" class="otp-input" placeholder="-">
+                            <input type="text" maxlength="1" autocomplete="one-time-code" inputmode="text" autocapitalize="characters" spellcheck="false" pattern="[A-Za-z0-9]*" enterkeyhint="done" class="otp-input" placeholder="-">
                         @endfor
                     </div>
 
-                    <button type="submit" id="submitBtn" disabled class="mp-btn" style="width:100%; min-height:58px; font-size:15px;">
-                        <i class="bi bi-check2-circle"></i> Konfirmasi Kehadiran
-                    </button>
+                    <div class="submit-shell mp-sticky-action">
+                        <button type="submit" id="submitBtn" disabled class="mp-btn" style="width:100%; min-height:58px; font-size:15px;">
+                            <i class="bi bi-check2-circle"></i> Konfirmasi Kehadiran
+                        </button>
+                    </div>
                 </form>
             </section>
 
@@ -192,7 +304,7 @@
             <span class="mp-label">Aktivitas Terakhir</span>
 
             @if($riwayat && $riwayat->count() > 0)
-                <div style="margin-top:12px;">
+                <div class="history-stack">
                     @foreach($riwayat->take(5) as $r)
                         <div class="history-item">
                             <div>
@@ -220,43 +332,80 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputs = document.querySelectorAll('#inputs input');
     const realKode = document.getElementById('realKode');
     const submitBtn = document.getElementById('submitBtn');
+    const gpsShell = document.getElementById('gpsShell');
     const gpsText = document.getElementById('gpsText');
+    const gpsTitle = document.getElementById('gpsTitle');
+    const gpsHint = document.getElementById('gpsHint');
     const gpsIcon = document.getElementById('gpsIcon');
+    const retryGpsBtn = document.getElementById('retryGpsBtn');
     const inputLat = document.getElementById('inputLat');
     const inputLng = document.getElementById('inputLng');
 
     let gpsReady = false;
 
+    function updateSubmitState() {
+        submitBtn.disabled = !gpsReady || realKode.value.length < inputs.length;
+    }
+
+    function updateGPSUI(status, title, message) {
+        gpsShell.dataset.gpsState = status;
+        gpsTitle.textContent = title;
+        gpsHint.textContent = message;
+        gpsText.textContent = title;
+        retryGpsBtn.hidden = status !== 'error' && status !== 'denied' && status !== 'timeout';
+
+        if (status === 'success') {
+            gpsIcon.style.background = 'var(--cyber)';
+        } else if (status === 'loading') {
+            gpsIcon.style.background = 'var(--gold)';
+        } else {
+            gpsIcon.style.background = 'var(--sakura)';
+        }
+
+        updateSubmitState();
+    }
+
     function initGPS() {
         if (!navigator.geolocation) {
-            updateGPSUI('error', 'GPS tidak didukung');
+            gpsReady = false;
+            updateGPSUI('error', 'GPS tidak didukung', 'Browser Android ini tidak menyediakan geolokasi untuk presensi.');
             return;
         }
+
+        gpsReady = false;
+        updateGPSUI('loading', 'Meminta lokasi', 'Tunggu sebentar. Kami sedang membaca lokasi perangkat kamu.');
 
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 inputLat.value = pos.coords.latitude;
                 inputLng.value = pos.coords.longitude;
                 gpsReady = true;
-                updateGPSUI('success', 'Lokasi terdeteksi');
-                submitBtn.disabled = false;
+                updateGPSUI('success', 'Lokasi siap', 'Posisi perangkat sudah terdeteksi. Kamu bisa lanjut kirim presensi.');
             },
             (err) => {
-                let msg = 'Gagal deteksi lokasi';
-                if (err.code === 1) msg = 'Akses lokasi ditolak';
-                updateGPSUI('error', msg);
+                gpsReady = false;
+                let status = 'error';
+                let title = 'Lokasi belum siap';
+                let message = 'Kami belum bisa membaca lokasi perangkat kamu.';
+
+                if (err.code === 1) {
+                    status = 'denied';
+                    title = 'Izin lokasi ditolak';
+                    message = 'Buka izin lokasi browser lalu tekan tombol coba lagi.';
+                } else if (err.code === 3) {
+                    status = 'timeout';
+                    title = 'Pencarian lokasi terlalu lama';
+                    message = 'Sinyal GPS lambat. Coba lagi saat koneksi dan lokasi perangkat lebih stabil.';
+                }
+
+                updateGPSUI(status, title, message);
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
     }
 
-    function updateGPSUI(status, msg) {
-        gpsText.textContent = msg;
-        gpsIcon.style.background = status === 'success' ? 'var(--cyber)' : 'var(--sakura)';
-        gpsIcon.style.opacity = status === 'error' ? '0.85' : '1';
-    }
-
     initGPS();
+    retryGpsBtn.addEventListener('click', initGPS);
 
     inputs.forEach((input, index) => {
         input.addEventListener('input', () => {
@@ -280,6 +429,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (inputs[i]) inputs[i].value = data[i];
             }
             updateCode();
+            if (data.length === inputs.length) {
+                inputs[inputs.length - 1].focus();
+            }
         });
     });
 
@@ -287,6 +439,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let code = "";
         inputs.forEach(i => code += i.value);
         realKode.value = code;
+        updateSubmitState();
     }
 
     document.getElementById('otpForm').addEventListener('submit', (e) => {

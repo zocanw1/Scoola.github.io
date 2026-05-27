@@ -10,6 +10,12 @@
         align-items: center;
     }
 
+    .code-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
     .presence-code {
         color: var(--midnight);
         font-family: 'Fredoka One', cursive;
@@ -32,6 +38,45 @@
         min-height: 38px;
         padding: 0;
         font-size: 12px;
+    }
+
+    .attendance-mobile-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .student-presence-card {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+        border: 3px solid var(--midnight);
+        border-radius: 16px;
+        background: var(--mochi);
+        box-shadow: 4px 4px 0 var(--midnight);
+    }
+
+    .student-presence-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .presence-meta-grid {
+        display: grid;
+        gap: 10px;
+    }
+
+    .manual-action-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .manual-action-grid .mp-btn-secondary {
+        width: 100%;
+        min-height: 48px;
+        font-size: 14px;
     }
 
     .mp-modal {
@@ -57,6 +102,37 @@
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
+        }
+
+        .code-actions {
+            width: 100%;
+        }
+
+        .code-actions .mp-btn,
+        .code-actions .mp-btn-secondary {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .student-presence-head {
+            flex-direction: column;
+        }
+
+        .manual-action-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .mp-modal {
+            align-items: flex-end;
+            padding: 12px;
+        }
+
+        .mp-modal .mp-card {
+            width: 100%;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            box-shadow: 0 -6px 0 var(--midnight);
         }
     }
 </style>
@@ -103,7 +179,7 @@
                 @endif
             </div>
 
-            <div style="display:flex; flex-direction:column; gap:14px;">
+            <div class="code-actions">
                 @if($sesi->kode_presensi)
                     <a href="{{ route('guru.presensi.tampil', $sesi->id) }}" class="mp-btn-secondary" target="_blank">
                         <i class="bi bi-projector"></i> Mode Proyektor
@@ -141,7 +217,7 @@
             <span class="mp-badge" style="background:var(--cyber);">Kelas {{ $sesi->kelas }}</span>
         </div>
 
-        <div class="mp-table-card">
+        <div class="mp-table-card mp-desktop-only">
             <div class="mp-table-wrap">
                 <table class="mp-table data-table">
                     <thead>
@@ -197,6 +273,56 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div class="attendance-mobile-list mp-mobile-only">
+            @forelse($siswaKelas as $siswa)
+                @php
+                    $presensi = $presensiHariIni->get($siswa->NIS);
+                    $status = $presensi ? $presensi->status : null;
+                @endphp
+                <section class="student-presence-card">
+                    <div class="student-presence-head">
+                        <div>
+                            <div style="font-family:'Fredoka One', cursive; font-size:22px; color:var(--midnight); line-height:1.1;">{{ $siswa->nama_siswa }}</div>
+                            <div style="margin-top:6px; font-size:12px; font-weight:900; color:var(--cosmo);">NIS {{ $siswa->NIS }}</div>
+                        </div>
+                        <span class="mp-badge" style="background:{{ $status == 'Hadir' ? 'var(--cyber)' : ($status ? 'var(--sakura)' : 'var(--gold)') }};">
+                            {{ $status ?? 'Belum Absen' }}
+                        </span>
+                    </div>
+
+                    <div class="presence-meta-grid">
+                        <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+                            <span class="mp-label" style="margin:0;">GPS</span>
+                            @if($presensi && $presensi->is_dalam_radius !== null)
+                                @if($presensi->is_dalam_radius)
+                                    <span class="mp-badge" style="background:var(--cyber);">Dalam radius</span>
+                                @else
+                                    <span class="mp-badge" style="background:var(--sakura);">Luar radius</span>
+                                @endif
+                            @else
+                                <span class="mp-badge" style="background:var(--white);">Belum ada</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <form action="{{ route('guru.presensi.update-status', [$sesi->id, $siswa->NIS]) }}" method="POST" style="margin:0;">
+                        @csrf
+                        <div class="manual-action-grid">
+                            <button type="submit" name="status" value="Hadir" class="mp-btn-secondary">Hadir</button>
+                            <button type="submit" name="status" value="Izin" class="mp-btn-secondary">Izin</button>
+                            <button type="submit" name="status" value="Sakit" class="mp-btn-secondary">Sakit</button>
+                            <button type="submit" name="status" value="Alpa" class="mp-btn-secondary">Alpa</button>
+                        </div>
+                    </form>
+                </section>
+            @empty
+                <div class="mp-empty-state">
+                    <div style="font-family:'Fredoka One', cursive; font-size:24px; color:var(--midnight);">Belum ada siswa</div>
+                    <p style="margin:10px 0 0; font-weight:800;">Tidak ada siswa ditemukan di kelas ini.</p>
+                </div>
+            @endforelse
         </div>
     </section>
 </div>

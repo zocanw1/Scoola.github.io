@@ -11,6 +11,14 @@
         gap: 34px;
     }
 
+    .projector-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
     .projector-card {
         position: relative;
         overflow: hidden;
@@ -92,12 +100,37 @@
     @media (max-width: 640px) {
         .timer-grid { grid-template-columns: 1fr; }
 
-        .projector-code { letter-spacing: .05em; }
+        .projector-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .projector-code {
+            letter-spacing: .05em;
+            font-size: clamp(54px, 18vw, 110px);
+        }
+
+        .projector-card {
+            padding: 28px 20px 32px;
+            box-shadow: 8px 8px 0 var(--midnight);
+        }
+
+        .projector-card::before {
+            width: 150px;
+            height: 150px;
+            top: -46px;
+            right: -34px;
+        }
+
+        .projector-card::after {
+            left: 16px;
+            bottom: 18px;
+        }
     }
 </style>
 
 <div class="mp-page projector-stage">
-    <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:18px; flex-wrap:wrap;">
+    <div class="projector-toolbar">
         <div>
             <span class="mp-badge" style="background:var(--cyber);">Projector Mode</span>
             <h1 style="margin:16px 0 0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:clamp(30px, 5vw, 48px); line-height:1.1;">Presensi Kelas {{ $sesi->kelas }}</h1>

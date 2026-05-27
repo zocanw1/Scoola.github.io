@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Scoola - Guru</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -205,6 +205,7 @@
             padding: 40px;
             background: transparent;
             overflow-y: auto;
+            padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
         }
 
         .menu-toggle,

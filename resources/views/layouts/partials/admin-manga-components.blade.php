@@ -3,9 +3,17 @@
         display: flex;
         flex-direction: column;
         gap: 32px;
-        padding-bottom: 48px;
+        padding-bottom: max(48px, env(safe-area-inset-bottom, 0px));
         color: var(--midnight);
         font-family: 'Nunito', 'Inter', system-ui, sans-serif;
+    }
+
+    .mp-mobile-only {
+        display: none;
+    }
+
+    .mp-desktop-only {
+        display: block;
     }
 
     .mp-hero,
@@ -316,6 +324,34 @@
         transition: all 0.16s ease;
     }
 
+    .mp-touch-grid {
+        display: grid;
+        gap: 14px;
+    }
+
+    .mp-stack-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .mp-action-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .mp-sticky-action {
+        position: sticky;
+        bottom: max(12px, env(safe-area-inset-bottom, 0px));
+        z-index: 8;
+        padding: 14px;
+        border: 3px solid var(--midnight);
+        border-radius: 16px;
+        background: rgba(250, 249, 255, 0.96);
+        box-shadow: 6px 6px 0 var(--midnight);
+        backdrop-filter: blur(8px);
+    }
+
     .mp-btn {
         background: var(--sakura);
     }
@@ -339,6 +375,22 @@
     .mp-btn-secondary:active {
         transform: translate(2px, 2px);
         box-shadow: 2px 2px 0 var(--midnight);
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+        .mp-hover:hover,
+        .mp-btn:hover,
+        .mp-btn-secondary:hover,
+        .mp-table tbody tr:hover td {
+            transform: none;
+            box-shadow: inherit;
+            background: inherit;
+        }
+
+        .mp-btn:active,
+        .mp-btn-secondary:active {
+            transform: scale(0.98);
+        }
     }
 
     .mp-table-card {
@@ -533,12 +585,26 @@
             box-shadow: 6px 6px 0 var(--midnight);
         }
 
+        .mp-mobile-only {
+            display: block;
+        }
+
+        .mp-desktop-only {
+            display: none !important;
+        }
+
         .mp-hero-wrap {
             margin-top: 28px;
         }
 
         .mp-title {
             font-size: 32px;
+        }
+
+        .mp-description {
+            max-width: 100%;
+            font-size: 14px;
+            line-height: 1.55;
         }
 
         .mp-hero::after {
@@ -554,6 +620,11 @@
             grid-template-columns: 1fr;
         }
 
+        .mp-action-grid-2,
+        .mp-touch-grid {
+            grid-template-columns: 1fr;
+        }
+
         .mp-actions {
             flex-direction: column;
             align-items: stretch;
@@ -562,6 +633,23 @@
         .mp-btn,
         .mp-btn-secondary {
             width: 100%;
+            min-height: 52px;
+        }
+
+        .mp-badge {
+            white-space: normal;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .mp-sticky-action {
+            left: 0;
+            right: 0;
+            margin-top: 20px;
+        }
+
+        .mp-stack-list {
+            gap: 12px;
         }
 
         .mp-fab {
