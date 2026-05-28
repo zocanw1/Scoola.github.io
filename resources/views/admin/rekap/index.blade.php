@@ -12,6 +12,11 @@
         'Belum Hadir' => 'var(--gold)',
         'Ditolak' => '#ffd9b8',
     ];
+    $studentSearchJson = ($siswaOptions ?? collect())->map(fn($siswa) => [
+        'nis' => $siswa->NIS,
+        'nama_siswa' => $siswa->nama_siswa,
+        'kelas' => $siswa->kelas,
+    ])->values();
 @endphp
 
 <div class="mp-page">
@@ -42,7 +47,7 @@
                style="text-decoration:none;">
                 <i class="bi bi-calendar-week"></i> Rekap Mingguan
             </a>
-            <a href="{{ route('admin.rekap.index', ['mode' => 'siswa', 'kelas' => $selectedKelas, 'nama_siswa' => $selectedNamaSiswa, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString()]) }}"
+            <a href="{{ route('admin.rekap.index', ['mode' => 'siswa', 'kelas' => $selectedKelas, 'nama_siswa' => $selectedNamaSiswa, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString(), 'nis' => $selectedNis ?? null]) }}"
                class="mp-btn {{ $activeMode === 'siswa' ? '' : 'mp-btn-secondary' }}"
                style="text-decoration:none;">
                 <i class="bi bi-person-vcard"></i> Rekap Per Siswa
@@ -86,7 +91,7 @@
 
             <div class="mp-actions" style="border-top: 0; padding-top: 0; margin-top: 0;">
                 <button type="submit" class="mp-btn"><i class="bi bi-search"></i> Tampilkan</button>
-                @if(($activeMode === 'mingguan' && $selectedKelas) || ($activeMode === 'siswa' && $selectedKelas && $selectedNamaSiswa))
+                @if(($activeMode === 'mingguan' && $selectedKelas) || ($activeMode === 'siswa' && $selectedKelas && ($selectedNis ?? null)))
                     <button type="submit" formaction="{{ route('admin.rekap.export') }}" formmethod="GET" class="mp-btn mp-btn-green">
                         <i class="bi bi-file-earmark-excel"></i> Export Excel
                     </button>
@@ -106,19 +111,119 @@
                 <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 10px;">Pilih Kelas</h3>
                 <p style="margin: 0; color: var(--midnight); font-weight: 800;">Pilih kelas terlebih dahulu untuk mencari nama siswa.</p>
             </section>
-        @elseif(! $selectedNamaSiswa)
-            <section class="mp-empty-state">
-                <div class="mp-stat-icon" style="margin: 0 auto 20px;"><i class="bi bi-person-check"></i></div>
-                <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 10px;">Isi Nama Siswa</h3>
-                <p style="margin: 0; color: var(--midnight); font-weight: 800;">Ketik nama siswa untuk melihat rekap personal dalam rentang tanggal.</p>
+        @else
+            <section class="mp-card" id="student-live-search-list">
+                <div class="mp-label" style="margin-bottom: 10px;">Hasil Pencarian Nama Siswa</div>
+                <div id="student-live-search-results" class="mp-stack-list" style="gap:12px;">
+                    @if(! $selectedNamaSiswa)
+                        <div class="mp-empty-state" style="padding:24px;">
+                            <div class="mp-stat-icon" style="margin: 0 auto 16px;"><i class="bi bi-person-check"></i></div>
+                            <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 8px;">Isi Nama Siswa</h3>
+                            <p style="margin:0; color:var(--midnight); font-weight:800;">Ketik nama siswa untuk mencari semua nama yang sesuai.</p>
+                        </div>
+                    @elseif($siswaSearchResults->isEmpty())
+                        <div class="mp-empty-state" style="padding:24px;">
+                            <div class="mp-stat-icon" style="margin: 0 auto 16px;"><i class="bi bi-exclamation-triangle"></i></div>
+                            <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 8px;">Siswa Tidak Ditemukan</h3>
+                            <p style="margin:0; color:var(--midnight); font-weight:800;">Tidak ada nama siswa yang cocok di kelas ini.</p>
+                        </div>
+                    @else
+                        @foreach($siswaSearchResults as $siswaOption)
+                            <div class="mp-card" style="padding:16px; box-shadow:4px 4px 0 var(--midnight); display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+                                <div>
+                                    <div style="font-family:'Fredoka One', cursive; color:var(--midnight); font-size:20px;">{{ $siswaOption->nama_siswa }}</div>
+                                    <div style="color:var(--midnight); font-weight:900; margin-top:4px;">{{ $siswaOption->NIS }} &bull; {{ $siswaOption->kelas }}</div>
+                                </div>
+                                <a class="mp-btn" style="text-decoration:none;" href="{{ route('admin.rekap.index', ['mode' => 'siswa', 'kelas' => $selectedKelas, 'nama_siswa' => $siswaOption->nama_siswa, 'nis' => $siswaOption->NIS, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString()]) }}">
+                                    <i class="bi bi-eye"></i> Lihat Detail
+                                </a>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
             </section>
-        @elseif(! $selectedSiswa)
+
+            <script type="application/json" id="student-search-data">@json($studentSearchJson)</script>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const input = document.querySelector('input[name="nama_siswa"]');
+                    const kelasInput = document.querySelector('select[name="kelas"]');
+                    const startInput = document.querySelector('input[name="tanggal_mulai"]');
+                    const endInput = document.querySelector('input[name="tanggal_akhir"]');
+                    const dataNode = document.getElementById('student-search-data');
+                    const resultsNode = document.getElementById('student-live-search-results');
+
+                    if (!input || !dataNode || !resultsNode) return;
+
+                    const students = JSON.parse(dataNode.textContent || '[]');
+                    const escapeHtml = (value) => String(value)
+                        .replaceAll('&', '&amp;')
+                        .replaceAll('<', '&lt;')
+                        .replaceAll('>', '&gt;')
+                        .replaceAll('"', '&quot;')
+                        .replaceAll("'", '&#039;');
+                    const detailUrl = (student) => {
+                        const params = new URLSearchParams({
+                            mode: 'siswa',
+                            kelas: kelasInput?.value || student.kelas,
+                            nama_siswa: student.nama_siswa,
+                            nis: student.nis,
+                            tanggal_mulai: startInput?.value || '',
+                            tanggal_akhir: endInput?.value || '',
+                        });
+
+                        return `${@json(route('admin.rekap.index'))}?${params.toString()}`;
+                    };
+                    const emptyHtml = (title, text, icon) => `
+                        <div class="mp-empty-state" style="padding:24px;">
+                            <div class="mp-stat-icon" style="margin:0 auto 16px;"><i class="bi ${icon}"></i></div>
+                            <h3 style="font-family:'Fredoka One', cursive; color:var(--midnight); margin:0 0 8px;">${title}</h3>
+                            <p style="margin:0; color:var(--midnight); font-weight:800;">${text}</p>
+                        </div>`;
+
+                    const render = () => {
+                        const keyword = input.value.trim().toLowerCase();
+                        if (!keyword) {
+                            resultsNode.innerHTML = emptyHtml('Isi Nama Siswa', 'Ketik nama siswa untuk mencari semua nama yang sesuai.', 'bi-person-check');
+                            return;
+                        }
+
+                        const matches = students.filter((student) => {
+                            return student.nama_siswa.toLowerCase().includes(keyword)
+                                || student.nis.toLowerCase().includes(keyword);
+                        });
+
+                        if (matches.length === 0) {
+                            resultsNode.innerHTML = emptyHtml('Siswa Tidak Ditemukan', 'Tidak ada nama siswa yang cocok di kelas ini.', 'bi-exclamation-triangle');
+                            return;
+                        }
+
+                        resultsNode.innerHTML = matches.map((student) => `
+                            <div class="mp-card" style="padding:16px; box-shadow:4px 4px 0 var(--midnight); display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+                                <div>
+                                    <div style="font-family:'Fredoka One', cursive; color:var(--midnight); font-size:20px;">${escapeHtml(student.nama_siswa)}</div>
+                                    <div style="color:var(--midnight); font-weight:900; margin-top:4px;">${escapeHtml(student.nis)} &bull; ${escapeHtml(student.kelas)}</div>
+                                </div>
+                                <a class="mp-btn" style="text-decoration:none;" href="${detailUrl(student)}">
+                                    <i class="bi bi-eye"></i> Lihat Detail
+                                </a>
+                            </div>
+                        `).join('');
+                    };
+
+                    input.addEventListener('input', render);
+                    startInput?.addEventListener('change', render);
+                    endInput?.addEventListener('change', render);
+                });
+            </script>
+
+            @if(($selectedNis ?? null) && ! $selectedSiswa)
             <section class="mp-empty-state">
                 <div class="mp-stat-icon" style="margin: 0 auto 20px;"><i class="bi bi-exclamation-triangle"></i></div>
                 <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 10px;">Siswa Tidak Ditemukan</h3>
                 <p style="margin: 0; color: var(--midnight); font-weight: 800;">Siswa yang dipilih tidak ada pada kelas ini.</p>
             </section>
-        @else
+            @elseif(($selectedNis ?? null) && $selectedSiswa)
             <div class="rekap-student-board">
                 <section class="mp-card mp-card-gold">
                     <span class="mp-label">Rekap Per Siswa</span>
@@ -202,6 +307,7 @@
                     @endforelse
                 </div>
             </div>
+            @endif
         @endif
     @elseif($selectedKelas)
         @php

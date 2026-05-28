@@ -115,6 +115,42 @@ class RekapPresensiPerformanceTest extends TestCase
         $response->assertSee('name="nama_siswa"', false);
         $response->assertDontSee('name="nis"', false);
         $response->assertDontSee('PILIH SISWA');
+        $response->assertSee('student-live-search-list', false);
+    }
+
+    public function test_student_rekap_search_lists_matches_without_showing_detail_until_detail_clicked(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA SEARCH']);
+
+        Siswa::create([
+            'NIS' => 'SEARCH-1',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Muhammad Aqil Naufal',
+            'kelas' => 'XI-SIJA SEARCH',
+        ]);
+
+        Siswa::create([
+            'NIS' => 'SEARCH-2',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Muhammad Rafif',
+            'kelas' => 'XI-SIJA SEARCH',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.rekap.index', [
+            'mode' => 'siswa',
+            'kelas' => 'XI-SIJA SEARCH',
+            'nama_siswa' => 'muh',
+            'tanggal_mulai' => '2026-05-01',
+            'tanggal_akhir' => '2026-05-31',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Muhammad Aqil Naufal');
+        $response->assertSee('Muhammad Rafif');
+        $response->assertSee('Lihat Detail');
+        $response->assertDontSee('Riwayat Presensi');
     }
 
     public function test_rekap_index_still_loads_when_siswa_table_has_no_jenis_kelamin_column(): void
@@ -374,6 +410,7 @@ class RekapPresensiPerformanceTest extends TestCase
             'mode' => 'siswa',
             'kelas' => 'XI-SIJA 5',
             'nama_siswa' => 'Siswa Dipilih',
+            'nis' => 'SISWA-5A',
             'tanggal_mulai' => '2026-05-01',
             'tanggal_akhir' => '2026-05-31',
         ]));
@@ -441,6 +478,7 @@ class RekapPresensiPerformanceTest extends TestCase
             'mode' => 'siswa',
             'kelas' => 'XI-SIJA 6',
             'nama_siswa' => 'Siswa Kosong',
+            'nis' => 'SISWA-6',
             'tanggal_mulai' => '2026-05-01',
             'tanggal_akhir' => '2026-05-31',
         ]));
@@ -505,6 +543,7 @@ class RekapPresensiPerformanceTest extends TestCase
             'mode' => 'siswa',
             'kelas' => 'XI-SIJA 7',
             'nama_siswa' => 'Siswa Export',
+            'nis' => 'SISWA-7',
             'tanggal_mulai' => '2026-05-01',
             'tanggal_akhir' => '2026-05-31',
         ]));

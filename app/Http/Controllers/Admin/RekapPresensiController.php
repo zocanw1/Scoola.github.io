@@ -37,9 +37,13 @@ class RekapPresensiController extends Controller
         $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
         $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
         $selectedNamaSiswa = trim((string) $request->input('nama_siswa', ''));
-        $legacySelectedNis = $request->input('nis');
-        $studentData = $mode === 'siswa'
-            ? $this->buildStudentRecapData($selectedKelas, $selectedNamaSiswa, Carbon::parse($tanggalMulai), Carbon::parse($tanggalAkhir), $legacySelectedNis)
+        $selectedNis = $request->input('nis');
+        $siswaOptions = $mode === 'siswa' ? $this->getSiswaOptions($selectedKelas) : collect();
+        $siswaSearchResults = $mode === 'siswa'
+            ? $this->filterSiswaByName($siswaOptions, $selectedNamaSiswa)
+            : collect();
+        $studentData = $mode === 'siswa' && $selectedNis
+            ? $this->buildStudentRecapData($selectedKelas, $selectedNamaSiswa, Carbon::parse($tanggalMulai), Carbon::parse($tanggalAkhir), $selectedNis)
             : $this->emptyStudentRecapData();
 
         if ($selectedNamaSiswa === '' && $studentData['selectedSiswa']) {
@@ -55,6 +59,9 @@ class RekapPresensiController extends Controller
             'startOfWeek',
             'endOfWeek',
             'selectedNamaSiswa',
+            'selectedNis',
+            'siswaOptions',
+            'siswaSearchResults',
             'tanggalMulai',
             'tanggalAkhir'
         ) + $matrixData + $studentData);
@@ -249,6 +256,34 @@ class RekapPresensiController extends Controller
             'studentRows' => collect(),
             'studentTotals' => array_fill_keys(self::STATUS_LABELS, 0),
         ];
+    }
+
+    private function getSiswaOptions(?string $selectedKelas): Collection
+    {
+        if (! $selectedKelas) {
+            return collect();
+        }
+
+        return Siswa::query()
+            ->where('kelas', $selectedKelas)
+            ->orderBy('nama_siswa')
+            ->get(['NIS', 'nama_siswa', 'kelas']);
+    }
+
+    private function filterSiswaByName(Collection $siswaOptions, string $keyword): Collection
+    {
+        $needle = strtolower(trim($keyword));
+
+        if ($needle === '') {
+            return collect();
+        }
+
+        return $siswaOptions
+            ->filter(function (Siswa $siswa) use ($needle): bool {
+                return str_contains(strtolower($siswa->nama_siswa), $needle)
+                    || str_contains(strtolower($siswa->NIS), $needle);
+            })
+            ->values();
     }
 
     private function buildStudentRecapData(?string $selectedKelas, ?string $selectedNamaSiswa, Carbon $tanggalMulai, Carbon $tanggalAkhir, ?string $selectedNis = null): array
