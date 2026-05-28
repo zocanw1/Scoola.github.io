@@ -121,9 +121,9 @@
                         ? $member->skills
                         : (json_decode($member->skills ?? '[]', true) ?: []);
 
-                    $storageBase = rtrim((string) config('services.supabase.storage_public_url'), '/');
-                    $photoUrl = $member->photo
-                        ? ($storageBase ? $storageBase . '/' . ltrim($member->photo, '/') : asset('storage/team-photos/' . $member->photo))
+                    $photoPath = $member->photo ? public_path('team-members/' . $member->photo) : null;
+                    $photoUrl = ($photoPath && file_exists($photoPath))
+                        ? asset('team-members/' . $member->photo)
                         : null;
                 @endphp
 
@@ -136,8 +136,7 @@
                         @if($photoUrl)
                             <img src="{{ $photoUrl }}" 
                                  alt="{{ $member->name }}" 
-                                 class="w-full h-full object-cover"
-                                 onerror="this.src='https://via.placeholder.com/400/{{ str_replace('#', '', $member->img_bg ?? '6C5CE7') }}?text={{ urlencode($member->name) }}'">
+                                 class="w-full h-full object-cover">
                         @else
                             <div class="w-full h-full flex items-center justify-center text-white font-bold text-xl p-4 text-center">
                                 {{ $member->name }}
