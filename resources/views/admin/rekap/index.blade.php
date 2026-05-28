@@ -23,7 +23,7 @@
                 <h1 class="mp-title">{{ $activeMode === 'siswa' ? 'Rekap Per Siswa' : 'Rekap Mingguan' }}</h1>
                 <p class="mp-description">
                     @if($activeMode === 'siswa')
-                        Pilih kelas, siswa, dan rentang tanggal untuk melihat riwayat presensi personal.
+                        Pilih kelas, isi nama siswa, dan rentang tanggal untuk melihat riwayat presensi personal.
                     @else
                         Pilih kelas dan tanggal untuk melihat matriks kehadiran Senin sampai Jumat.
                         @if(isset($startOfWeek) && isset($endOfWeek))
@@ -42,7 +42,7 @@
                style="text-decoration:none;">
                 <i class="bi bi-calendar-week"></i> Rekap Mingguan
             </a>
-            <a href="{{ route('admin.rekap.index', ['mode' => 'siswa', 'kelas' => $selectedKelas, 'nis' => $selectedNis, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString()]) }}"
+            <a href="{{ route('admin.rekap.index', ['mode' => 'siswa', 'kelas' => $selectedKelas, 'nama_siswa' => $selectedNamaSiswa, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString()]) }}"
                class="mp-btn {{ $activeMode === 'siswa' ? '' : 'mp-btn-secondary' }}"
                style="text-decoration:none;">
                 <i class="bi bi-person-vcard"></i> Rekap Per Siswa
@@ -64,15 +64,8 @@
 
             @if($activeMode === 'siswa')
                 <div class="mp-field" style="margin-bottom: 0;">
-                    <label class="mp-label">Siswa</label>
-                    <select name="nis" class="mp-input">
-                        <option value="">PILIH SISWA</option>
-                        @foreach($siswaOptions as $siswaOption)
-                            <option value="{{ $siswaOption->NIS }}" {{ $selectedNis == $siswaOption->NIS ? 'selected' : '' }}>
-                                {{ $siswaOption->nama_siswa }} ({{ $siswaOption->NIS }})
-                            </option>
-                        @endforeach
-                    </select>
+                    <label class="mp-label">Nama Siswa</label>
+                    <input type="text" name="nama_siswa" value="{{ $selectedNamaSiswa ?? '' }}" class="mp-input" placeholder="Ketik nama siswa">
                 </div>
 
                 <div class="mp-field" style="margin-bottom: 0;">
@@ -93,7 +86,7 @@
 
             <div class="mp-actions" style="border-top: 0; padding-top: 0; margin-top: 0;">
                 <button type="submit" class="mp-btn"><i class="bi bi-search"></i> Tampilkan</button>
-                @if(($activeMode === 'mingguan' && $selectedKelas) || ($activeMode === 'siswa' && $selectedKelas && $selectedNis))
+                @if(($activeMode === 'mingguan' && $selectedKelas) || ($activeMode === 'siswa' && $selectedKelas && $selectedNamaSiswa))
                     <button type="submit" formaction="{{ route('admin.rekap.export') }}" formmethod="GET" class="mp-btn mp-btn-green">
                         <i class="bi bi-file-earmark-excel"></i> Export Excel
                     </button>
@@ -111,13 +104,13 @@
             <section class="mp-empty-state">
                 <div class="mp-stat-icon" style="margin: 0 auto 20px;"><i class="bi bi-people"></i></div>
                 <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 10px;">Pilih Kelas</h3>
-                <p style="margin: 0; color: var(--midnight); font-weight: 800;">Pilih kelas terlebih dahulu untuk membuka daftar siswa.</p>
+                <p style="margin: 0; color: var(--midnight); font-weight: 800;">Pilih kelas terlebih dahulu untuk mencari nama siswa.</p>
             </section>
-        @elseif(! $selectedNis)
+        @elseif(! $selectedNamaSiswa)
             <section class="mp-empty-state">
                 <div class="mp-stat-icon" style="margin: 0 auto 20px;"><i class="bi bi-person-check"></i></div>
-                <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 10px;">Pilih Siswa</h3>
-                <p style="margin: 0; color: var(--midnight); font-weight: 800;">Pilih siswa untuk melihat rekap personal dalam rentang tanggal.</p>
+                <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 10px;">Isi Nama Siswa</h3>
+                <p style="margin: 0; color: var(--midnight); font-weight: 800;">Ketik nama siswa untuk melihat rekap personal dalam rentang tanggal.</p>
             </section>
         @elseif(! $selectedSiswa)
             <section class="mp-empty-state">

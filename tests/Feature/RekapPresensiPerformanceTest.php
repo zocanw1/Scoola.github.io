@@ -93,6 +93,30 @@ class RekapPresensiPerformanceTest extends TestCase
         $response->assertSee('Rekap Per Siswa');
     }
 
+    public function test_student_rekap_form_uses_student_name_input_instead_of_student_select(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA NAME']);
+
+        Siswa::create([
+            'NIS' => 'SISWA-NAME',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Nama Dicari',
+            'kelas' => 'XI-SIJA NAME',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.rekap.index', [
+            'mode' => 'siswa',
+            'kelas' => 'XI-SIJA NAME',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('name="nama_siswa"', false);
+        $response->assertDontSee('name="nis"', false);
+        $response->assertDontSee('PILIH SISWA');
+    }
+
     public function test_rekap_index_still_loads_when_siswa_table_has_no_jenis_kelamin_column(): void
     {
         if (Schema::hasColumn('siswa', 'jenis_kelamin')) {
@@ -349,7 +373,7 @@ class RekapPresensiPerformanceTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.rekap.index', [
             'mode' => 'siswa',
             'kelas' => 'XI-SIJA 5',
-            'nis' => 'SISWA-5A',
+            'nama_siswa' => 'Siswa Dipilih',
             'tanggal_mulai' => '2026-05-01',
             'tanggal_akhir' => '2026-05-31',
         ]));
@@ -416,7 +440,7 @@ class RekapPresensiPerformanceTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.rekap.index', [
             'mode' => 'siswa',
             'kelas' => 'XI-SIJA 6',
-            'nis' => 'SISWA-6',
+            'nama_siswa' => 'Siswa Kosong',
             'tanggal_mulai' => '2026-05-01',
             'tanggal_akhir' => '2026-05-31',
         ]));
@@ -480,7 +504,7 @@ class RekapPresensiPerformanceTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.rekap.export', [
             'mode' => 'siswa',
             'kelas' => 'XI-SIJA 7',
-            'nis' => 'SISWA-7',
+            'nama_siswa' => 'Siswa Export',
             'tanggal_mulai' => '2026-05-01',
             'tanggal_akhir' => '2026-05-31',
         ]));

@@ -36,11 +36,15 @@ class RekapPresensiController extends Controller
 
         $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
         $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
-        $selectedNis = $request->input('nis');
-        $siswaOptions = $this->getSiswaOptions($selectedKelas);
+        $selectedNamaSiswa = trim((string) $request->input('nama_siswa', ''));
+        $legacySelectedNis = $request->input('nis');
         $studentData = $mode === 'siswa'
-            ? $this->buildStudentRecapData($selectedKelas, $selectedNis, Carbon::parse($tanggalMulai), Carbon::parse($tanggalAkhir))
+            ? $this->buildStudentRecapData($selectedKelas, $selectedNamaSiswa, Carbon::parse($tanggalMulai), Carbon::parse($tanggalAkhir), $legacySelectedNis)
             : $this->emptyStudentRecapData();
+
+        if ($selectedNamaSiswa === '' && $studentData['selectedSiswa']) {
+            $selectedNamaSiswa = $studentData['selectedSiswa']->nama_siswa;
+        }
 
         return view('admin.rekap.index', compact(
             'mode',
@@ -50,8 +54,7 @@ class RekapPresensiController extends Controller
             'tanggalInput',
             'startOfWeek',
             'endOfWeek',
-            'siswaOptions',
-            'selectedNis',
+            'selectedNamaSiswa',
             'tanggalMulai',
             'tanggalAkhir'
         ) + $matrixData + $studentData);
@@ -63,19 +66,21 @@ class RekapPresensiController extends Controller
         $selectedKelas = $request->input('kelas');
 
         if ($mode === 'siswa') {
-            $selectedNis = $request->input('nis');
+            $selectedNamaSiswa = trim((string) $request->input('nama_siswa', ''));
+            $legacySelectedNis = $request->input('nis');
             $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
             $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
 
-            if (! $selectedKelas || ! $selectedNis) {
-                return redirect()->back()->with('error', 'Silakan pilih kelas dan siswa terlebih dahulu.');
+            if (! $selectedKelas || ($selectedNamaSiswa === '' && ! $legacySelectedNis)) {
+                return redirect()->back()->with('error', 'Silakan pilih kelas dan isi nama siswa terlebih dahulu.');
             }
 
             $studentData = $this->buildStudentRecapData(
                 $selectedKelas,
-                $selectedNis,
+                $selectedNamaSiswa,
                 Carbon::parse($tanggalMulai),
-                Carbon::parse($tanggalAkhir)
+                Carbon::parse($tanggalAkhir),
+                $legacySelectedNis
             );
 
             if (! $studentData['selectedSiswa']) {
@@ -88,7 +93,7 @@ class RekapPresensiController extends Controller
             return response(view('admin.rekap.export', compact(
                 'mode',
                 'selectedKelas',
-                'selectedNis',
+                'selectedNamaSiswa',
                 'tanggalMulai',
                 'tanggalAkhir'
             ) + $studentData))
@@ -237,18 +242,6 @@ class RekapPresensiController extends Controller
         return compact('siswas', 'jadwals', 'presensiMap', 'slotMatrix', 'statusMatrix');
     }
 
-    private function getSiswaOptions(?string $selectedKelas): Collection
-    {
-        if (! $selectedKelas) {
-            return collect();
-        }
-
-        return Siswa::query()
-            ->where('kelas', $selectedKelas)
-            ->orderBy('nama_siswa')
-            ->get(['NIS', 'nama_siswa', 'kelas']);
-    }
-
     private function emptyStudentRecapData(): array
     {
         return [
@@ -258,11 +251,12 @@ class RekapPresensiController extends Controller
         ];
     }
 
-    private function buildStudentRecapData(?string $selectedKelas, ?string $selectedNis, Carbon $tanggalMulai, Carbon $tanggalAkhir): array
+    private function buildStudentRecapData(?string $selectedKelas, ?string $selectedNamaSiswa, Carbon $tanggalMulai, Carbon $tanggalAkhir, ?string $selectedNis = null): array
     {
         $data = $this->emptyStudentRecapData();
+        $selectedNamaSiswa = trim((string) $selectedNamaSiswa);
 
-        if (! $selectedKelas || ! $selectedNis) {
+        if (! $selectedKelas || ($selectedNamaSiswa === '' && ! $selectedNis)) {
             return $data;
         }
 
@@ -273,14 +267,30 @@ class RekapPresensiController extends Controller
             [$start, $end] = [$end->copy()->startOfDay(), $start->copy()->endOfDay()];
         }
 
-        $selectedSiswa = Siswa::query()
-            ->where('kelas', $selectedKelas)
-            ->where('NIS', $selectedNis)
-            ->first(['NIS', 'nama_siswa', 'kelas']);
+        $siswaQuery = Siswa::query()->where('kelas', $selectedKelas);
+        if ($selectedNis) {
+            $selectedSiswa = $siswaQuery
+                ->where('NIS', $selectedNis)
+                ->first(['NIS', 'nama_siswa', 'kelas']);
+        } else {
+            $normalizedName = strtolower($selectedNamaSiswa);
+            $selectedSiswa = (clone $siswaQuery)
+                ->whereRaw('LOWER(nama_siswa) = ?', [$normalizedName])
+                ->first(['NIS', 'nama_siswa', 'kelas']);
+
+            if (! $selectedSiswa) {
+                $selectedSiswa = (clone $siswaQuery)
+                    ->where('nama_siswa', 'like', '%' . $selectedNamaSiswa . '%')
+                    ->orderBy('nama_siswa')
+                    ->first(['NIS', 'nama_siswa', 'kelas']);
+            }
+        }
 
         if (! $selectedSiswa) {
             return $data;
         }
+
+        $selectedNis = $selectedSiswa->NIS;
 
         $jadwals = JadwalPelajaran::query()
             ->with([
