@@ -294,6 +294,7 @@
             .btn-logout span { display: none; }
         }
     </style>
+    @include('layouts.partials.breadcrumb-styles')
     @include('layouts.partials.admin-manga-components')
 </head>
 <body>
@@ -343,7 +344,9 @@
             <button type="button" class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Buka menu">
                 <i class="bi bi-list" style="font-size:24px;"></i>
             </button>
-            <span class="topbar-label" style="font-weight:900; color:var(--midnight); opacity:.75;">Guru / @yield('breadcrumb', 'Overview')</span>
+            <div class="scoola-breadcrumb-shell">
+                @include('layouts.partials.breadcrumbs', ['viewData' => get_defined_vars()])
+            </div>
         </div>
 
         <div style="display:flex; align-items:center; gap:14px;">

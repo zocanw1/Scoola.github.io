@@ -557,6 +557,7 @@
             box-shadow: 1px 1px 0px var(--midnight) !important;
         }
     </style>
+    @include('layouts.partials.breadcrumb-styles')
     @include('layouts.partials.admin-manga-components')
 </head>
 <body>
@@ -635,7 +636,9 @@
             <button type="button" class="menu-toggle" onclick="toggleMobileMenu()">
                 <i class="bi bi-list" style="font-size: 24px;"></i>
             </button>
-            <span class="text-meta" style="font-weight: 800; color: var(--midnight); opacity: 0.7;">Admin / @yield('breadcrumb', 'Overview')</span>
+            <div class="scoola-breadcrumb-shell">
+                @include('layouts.partials.breadcrumbs', ['viewData' => get_defined_vars()])
+            </div>
         </div>
 
         <div style="display: flex; gap: 20px; align-items: center; position: relative; z-index: 9999;">

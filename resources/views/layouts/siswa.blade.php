@@ -223,6 +223,7 @@
             .btn-logout span { display: none; }
         }
     </style>
+    @include('layouts.partials.breadcrumb-styles')
     @include('layouts.partials.admin-manga-components')
 </head>
 <body>
@@ -252,6 +253,10 @@
             </form>
         </div>
     </header>
+
+    <div class="page-crumb-bar">
+        @include('layouts.partials.breadcrumbs', ['viewData' => get_defined_vars()])
+    </div>
 
     <main class="page-content">
         @yield('content')
