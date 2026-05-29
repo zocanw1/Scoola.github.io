@@ -3,6 +3,7 @@
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminAkunController;
+use App\Http\Controllers\Admin\PresensiSiswaController;
 use App\Http\Controllers\AdminWaliKelasController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GuruController;
@@ -56,6 +57,7 @@ Route::middleware('auth')->group(function () {
     */
     Route::prefix('admin')->middleware('role:admin,kakonsli')->group(function () {
         Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
+        Route::get('/presensi-siswa', [PresensiSiswaController::class, 'index'])->name('admin.presensi-siswa.index');
 
         /* ===================== REKAP PRESENSI ===================== */
         Route::get('/rekap-presensi', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'index'])->name('admin.rekap.index');

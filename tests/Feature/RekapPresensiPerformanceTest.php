@@ -576,6 +576,249 @@ class RekapPresensiPerformanceTest extends TestCase
         });
     }
 
+    public function test_kakonsli_can_search_students_and_view_personal_presence_detail_from_new_menu(): void
+    {
+        Carbon::setTestNow('2026-05-29 08:00:00');
+
+        $kakonsli = User::factory()->create(['role' => 'kakonsli']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 2']);
+
+        $mapel = Mapel::create([
+            'kd_mapel' => 'PWEB',
+            'nama_mapel' => 'Pemrograman Web',
+        ]);
+
+        $guru = Guru::create([
+            'NIP' => '198501012010011301',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Web',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP-KON-1',
+            'hari' => 'Rabu',
+            'jam_mulai' => 1,
+            'jam_selesai' => 2,
+            'kd_mapel' => $mapel->kd_mapel,
+            'NIP' => $guru->NIP,
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        $sultan = Siswa::create([
+            'NIS' => 'SULTAN-01',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Sultan Maulana',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        Siswa::create([
+            'NIS' => 'SISWA-LAIN',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Rafif Lain',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        $sesiIzin = SesiPresensi::create([
+            'guru_id' => $guruUser->id,
+            'kelas' => 'XI-SIJA 2',
+            'kd_jp' => 'JP-KON-1',
+            'kode_presensi' => 'KON-IZIN',
+            'waktu_berlaku' => now()->addHours(2),
+            'status' => 'selesai',
+            'created_at' => Carbon::parse('2026-05-14 07:00:00'),
+            'updated_at' => Carbon::parse('2026-05-14 07:00:00'),
+        ]);
+
+        $sesiAlpa = SesiPresensi::create([
+            'guru_id' => $guruUser->id,
+            'kelas' => 'XI-SIJA 2',
+            'kd_jp' => 'JP-KON-1',
+            'kode_presensi' => 'KON-ALPA',
+            'waktu_berlaku' => now()->addHours(2),
+            'status' => 'selesai',
+            'created_at' => Carbon::parse('2026-05-21 07:00:00'),
+            'updated_at' => Carbon::parse('2026-05-21 07:00:00'),
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'PRS-KON-IZIN',
+            'sesi_id' => $sesiIzin->id,
+            'tanggal' => '2026-05-14',
+            'kd_jp' => null,
+            'jam_masuk' => null,
+            'status' => 'Izin',
+            'NIS' => $sultan->NIS,
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'PRS-KON-ALPA',
+            'sesi_id' => $sesiAlpa->id,
+            'tanggal' => '2026-05-21',
+            'kd_jp' => null,
+            'jam_masuk' => null,
+            'status' => 'Alpa',
+            'NIS' => $sultan->NIS,
+        ]);
+
+        $listResponse = $this->actingAs($kakonsli)->get(route('admin.presensi-siswa.index', [
+            'q' => 'sultan',
+            'kelas' => 'XI-SIJA 2',
+        ]));
+
+        $listResponse->assertOk();
+        $listResponse->assertSee('Presensi Siswa');
+        $listResponse->assertSee('Sultan Maulana');
+        $listResponse->assertSee('Lihat Detail');
+
+        $detailResponse = $this->actingAs($kakonsli)->get(route('admin.presensi-siswa.index', [
+            'q' => 'sultan',
+            'kelas' => 'XI-SIJA 2',
+            'nis' => 'SULTAN-01',
+            'tanggal_mulai' => '2026-05-01',
+            'tanggal_akhir' => '2026-05-31',
+        ]));
+
+        $detailResponse->assertOk();
+        $detailResponse->assertViewHas('selectedSiswaDetail', fn ($selected) => $selected?->NIS === 'SULTAN-01');
+        $detailResponse->assertViewHas('detailTotals', function (array $detailTotals): bool {
+            return $detailTotals['Izin'] === 1
+                && $detailTotals['Alpa'] === 1;
+        });
+    }
+
+    public function test_range_rekap_mode_summarizes_all_students_within_selected_dates(): void
+    {
+        Carbon::setTestNow('2026-05-29 08:00:00');
+
+        $kakonsli = User::factory()->create(['role' => 'kakonsli']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 1']);
+
+        $mapel = Mapel::create([
+            'kd_mapel' => 'BDP',
+            'nama_mapel' => 'Basis Data',
+        ]);
+
+        $guru = Guru::create([
+            'NIP' => '198501012010011302',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Basis Data',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP-KON-2',
+            'hari' => 'Kamis',
+            'jam_mulai' => 3,
+            'jam_selesai' => 4,
+            'kd_mapel' => $mapel->kd_mapel,
+            'NIP' => $guru->NIP,
+            'kelas' => 'XI-SIJA 1',
+        ]);
+
+        $siswaA = Siswa::create([
+            'NIS' => 'SISWA-A',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Sultan A',
+            'kelas' => 'XI-SIJA 1',
+        ]);
+
+        $siswaB = Siswa::create([
+            'NIS' => 'SISWA-B',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Sultan B',
+            'kelas' => 'XI-SIJA 1',
+        ]);
+
+        $sesiHadir = SesiPresensi::create([
+            'guru_id' => $guruUser->id,
+            'kelas' => 'XI-SIJA 1',
+            'kd_jp' => 'JP-KON-2',
+            'kode_presensi' => 'KON-H',
+            'waktu_berlaku' => now()->addHours(2),
+            'status' => 'selesai',
+            'created_at' => Carbon::parse('2026-05-08 08:00:00'),
+            'updated_at' => Carbon::parse('2026-05-08 08:00:00'),
+        ]);
+
+        $sesiIzin = SesiPresensi::create([
+            'guru_id' => $guruUser->id,
+            'kelas' => 'XI-SIJA 1',
+            'kd_jp' => 'JP-KON-2',
+            'kode_presensi' => 'KON-I',
+            'waktu_berlaku' => now()->addHours(2),
+            'status' => 'selesai',
+            'created_at' => Carbon::parse('2026-05-15 08:00:00'),
+            'updated_at' => Carbon::parse('2026-05-15 08:00:00'),
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'PRS-RANGE-A1',
+            'sesi_id' => $sesiHadir->id,
+            'tanggal' => '2026-05-08',
+            'kd_jp' => null,
+            'jam_masuk' => '08:00:00',
+            'status' => 'Hadir',
+            'NIS' => $siswaA->NIS,
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'PRS-RANGE-A2',
+            'sesi_id' => $sesiIzin->id,
+            'tanggal' => '2026-05-15',
+            'kd_jp' => null,
+            'jam_masuk' => null,
+            'status' => 'Izin',
+            'NIS' => $siswaA->NIS,
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'PRS-RANGE-B1',
+            'sesi_id' => $sesiHadir->id,
+            'tanggal' => '2026-05-08',
+            'kd_jp' => null,
+            'jam_masuk' => null,
+            'status' => 'Alpa',
+            'NIS' => $siswaB->NIS,
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'PRS-RANGE-B2',
+            'sesi_id' => $sesiIzin->id,
+            'tanggal' => '2026-05-15',
+            'kd_jp' => null,
+            'jam_masuk' => '08:03:00',
+            'status' => 'Hadir',
+            'NIS' => $siswaB->NIS,
+        ]);
+
+        $response = $this->actingAs($kakonsli)->get(route('admin.rekap.index', [
+            'mode' => 'rentang',
+            'kelas' => 'XI-SIJA 1',
+            'tanggal_mulai' => '2026-05-01',
+            'tanggal_akhir' => '2026-05-31',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Rekap Rentang Tanggal');
+        $response->assertViewHas('rangeSummaryRows', function (Collection $rows): bool {
+            $first = $rows->firstWhere('nis', 'SISWA-A');
+            $second = $rows->firstWhere('nis', 'SISWA-B');
+
+            return $rows->count() === 2
+                && $first !== null
+                && $second !== null
+                && $first['totals']['Hadir'] === 1
+                && $first['totals']['Izin'] === 1
+                && $second['totals']['Hadir'] === 1
+                && $second['totals']['Alpa'] === 1;
+        });
+    }
+
     public function test_wali_kelas_can_view_weekly_and_student_rekap_only_for_assigned_class(): void
     {
         Carbon::setTestNow('2026-05-25 08:00:00');

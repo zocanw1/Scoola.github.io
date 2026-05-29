@@ -55,6 +55,52 @@
                 @endforeach
             </tbody>
         </table>
+    @elseif(($mode ?? 'mingguan') === 'rentang')
+        <table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+                <tr>
+                    <th colspan="{{ 4 + count($rangeSummaryTotals ?? []) }}" style="text-align: center; font-size: 16px; font-weight: bold; background-color: #f3f3f3;">
+                        REKAP PRESENSI RENTANG TANGGAL<br>
+                        KELAS {{ $selectedKelas }}<br>
+                        PERIODE {{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($tanggalAkhir)->format('d M Y') }}
+                    </th>
+                </tr>
+                <tr>
+                    <th style="background-color: #e2efda; font-weight: bold;">NO</th>
+                    <th style="background-color: #e2efda; font-weight: bold;">NIS</th>
+                    <th style="background-color: #e2efda; font-weight: bold;">NAMA SISWA</th>
+                    @foreach(($rangeSummaryTotals ?? []) as $label => $count)
+                        <th style="background-color: #e2efda; font-weight: bold;">{{ strtoupper($label) }}</th>
+                    @endforeach
+                    <th style="background-color: #e2efda; font-weight: bold;">TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse(($rangeSummaryRows ?? collect()) as $index => $row)
+                    <tr>
+                        <td style="text-align: center;">{{ $index + 1 }}</td>
+                        <td style="text-align: center; mso-number-format:'\@';">{{ $row['nis'] }}</td>
+                        <td>{{ $row['nama_siswa'] }}</td>
+                        @foreach($row['totals'] as $count)
+                            <td style="text-align: center;">{{ $count }}</td>
+                        @endforeach
+                        <td style="text-align: center;">{{ $row['total_records'] }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="{{ 4 + count($rangeSummaryTotals ?? []) }}" style="text-align: center;">Belum ada data siswa pada kelas ini.</td>
+                    </tr>
+                @endforelse
+
+                <tr>
+                    <td colspan="3" style="font-weight: bold; background-color: #f3f3f3;">TOTAL SELURUH SISWA</td>
+                    @foreach(($rangeSummaryTotals ?? []) as $count)
+                        <td style="text-align: center; font-weight: bold;">{{ $count }}</td>
+                    @endforeach
+                    <td style="text-align: center; font-weight: bold;">{{ collect($rangeSummaryRows ?? [])->sum('total_records') }}</td>
+                </tr>
+            </tbody>
+        </table>
     @else
         <table border="1" cellpadding="5" cellspacing="0">
             <thead>

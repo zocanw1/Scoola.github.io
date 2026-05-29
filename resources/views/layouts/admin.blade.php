@@ -581,6 +581,9 @@
             <i class="bi bi-people-fill"></i> Siswa
         </a>
         @if(in_array(auth()->user()->role, ['admin', 'kakonsli']))
+        <a href="{{ route('admin.presensi-siswa.index') }}" class="nav-link {{ request()->routeIs('admin.presensi-siswa.*') ? 'active' : '' }}">
+            <i class="bi bi-clipboard2-data-fill"></i> Presensi Siswa
+        </a>
         <a href="{{ route('admin.rekap.index') }}" class="nav-link {{ request()->routeIs('admin.rekap.*') ? 'active' : '' }}">
             <i class="bi bi-file-earmark-spreadsheet-fill"></i> Rekap Presensi
         </a>

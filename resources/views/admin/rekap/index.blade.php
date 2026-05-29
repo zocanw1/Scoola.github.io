@@ -19,6 +19,11 @@
         'nama_siswa' => $siswa->nama_siswa,
         'kelas' => $siswa->kelas,
     ])->values();
+    $pageTitle = match ($activeMode) {
+        'siswa' => 'Rekap Per Siswa',
+        'rentang' => 'Rekap Rentang Tanggal',
+        default => 'Rekap Mingguan',
+    };
 @endphp
 
 <div class="mp-page">
@@ -27,10 +32,12 @@
         <section class="mp-hero">
             <div class="mp-hero-content">
                 <span class="mp-kicker"><i class="bi bi-file-earmark-spreadsheet"></i> Manajemen Presensi</span>
-                <h1 class="mp-title">{{ $activeMode === 'siswa' ? 'Rekap Per Siswa' : 'Rekap Mingguan' }}</h1>
+                <h1 class="mp-title">{{ $pageTitle }}</h1>
                 <p class="mp-description">
                     @if($activeMode === 'siswa')
                         Pilih kelas, isi nama siswa, dan rentang tanggal untuk melihat riwayat presensi personal.
+                    @elseif($activeMode === 'rentang')
+                        Pilih kelas lalu tentukan rentang tanggal untuk melihat rekap seluruh siswa secara terpisah dari mode mingguan.
                     @else
                         Pilih kelas dan tanggal untuk melihat matriks kehadiran Senin sampai Jumat.
                         @if(isset($startOfWeek) && isset($endOfWeek))
@@ -48,6 +55,11 @@
                class="mp-btn {{ $activeMode === 'mingguan' ? '' : 'mp-btn-secondary' }}"
                style="text-decoration:none;">
                 <i class="bi bi-calendar-week"></i> Rekap Mingguan
+            </a>
+            <a href="{{ route($rekapIndexRoute, ['mode' => 'rentang', 'kelas' => $selectedKelas, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString()]) }}"
+               class="mp-btn {{ $activeMode === 'rentang' ? '' : 'mp-btn-secondary' }}"
+               style="text-decoration:none;">
+                <i class="bi bi-calendar-range"></i> Rekap Rentang Tanggal
             </a>
             <a href="{{ route($rekapIndexRoute, ['mode' => 'siswa', 'kelas' => $selectedKelas, 'nama_siswa' => $selectedNamaSiswa, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString(), 'nis' => $selectedNis ?? null]) }}"
                class="mp-btn {{ $activeMode === 'siswa' ? '' : 'mp-btn-secondary' }}"
@@ -84,6 +96,16 @@
                     <label class="mp-label">Tanggal Akhir</label>
                     <input type="date" name="tanggal_akhir" value="{{ $tanggalAkhir ?? now()->toDateString() }}" class="mp-input">
                 </div>
+            @elseif($activeMode === 'rentang')
+                <div class="mp-field" style="margin-bottom: 0;">
+                    <label class="mp-label">Tanggal Mulai</label>
+                    <input type="date" name="tanggal_mulai" value="{{ $tanggalMulai ?? now()->startOfMonth()->toDateString() }}" class="mp-input">
+                </div>
+
+                <div class="mp-field" style="margin-bottom: 0;">
+                    <label class="mp-label">Tanggal Akhir</label>
+                    <input type="date" name="tanggal_akhir" value="{{ $tanggalAkhir ?? now()->toDateString() }}" class="mp-input">
+                </div>
             @else
                 <div class="mp-field" style="margin-bottom: 0;">
                     <label class="mp-label">Pilih Tanggal</label>
@@ -93,7 +115,7 @@
 
             <div class="mp-actions" style="border-top: 0; padding-top: 0; margin-top: 0;">
                 <button type="submit" class="mp-btn"><i class="bi bi-search"></i> Tampilkan</button>
-                @if(($activeMode === 'mingguan' && $selectedKelas) || ($activeMode === 'siswa' && $selectedKelas && ($selectedNis ?? null)))
+                @if(($activeMode === 'mingguan' && $selectedKelas) || ($activeMode === 'siswa' && $selectedKelas && ($selectedNis ?? null)) || ($activeMode === 'rentang' && $selectedKelas))
                     <button type="submit" formaction="{{ route($rekapExportRoute) }}" formmethod="GET" class="mp-btn mp-btn-green">
                         <i class="bi bi-file-earmark-excel"></i> Export Excel
                     </button>
@@ -220,96 +242,183 @@
             </script>
 
             @if(($selectedNis ?? null) && ! $selectedSiswa)
-            <section class="mp-empty-state">
-                <div class="mp-stat-icon" style="margin: 0 auto 20px;"><i class="bi bi-exclamation-triangle"></i></div>
-                <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 10px;">Siswa Tidak Ditemukan</h3>
-                <p style="margin: 0; color: var(--midnight); font-weight: 800;">Siswa yang dipilih tidak ada pada kelas ini.</p>
-            </section>
+                <section class="mp-empty-state">
+                    <div class="mp-stat-icon" style="margin: 0 auto 20px;"><i class="bi bi-exclamation-triangle"></i></div>
+                    <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 10px;">Siswa Tidak Ditemukan</h3>
+                    <p style="margin: 0; color: var(--midnight); font-weight: 800;">Siswa yang dipilih tidak ada pada kelas ini.</p>
+                </section>
             @elseif(($selectedNis ?? null) && $selectedSiswa)
-            <div class="rekap-student-board">
-                <section class="mp-card mp-card-gold">
-                    <span class="mp-label">Rekap Per Siswa</span>
-                    <h2 style="margin:8px 0 6px; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:30px;">{{ $selectedSiswa->nama_siswa }}</h2>
-                    <p style="margin:0; color:var(--midnight); font-weight:900;">{{ $selectedSiswa->NIS }} &bull; {{ $selectedSiswa->kelas }} &bull; {{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($tanggalAkhir)->format('d M Y') }}</p>
+                <div class="rekap-student-board">
+                    <section class="mp-card mp-card-gold">
+                        <span class="mp-label">Rekap Per Siswa</span>
+                        <h2 style="margin:8px 0 6px; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:30px;">{{ $selectedSiswa->nama_siswa }}</h2>
+                        <p style="margin:0; color:var(--midnight); font-weight:900;">{{ $selectedSiswa->NIS }} &bull; {{ $selectedSiswa->kelas }} &bull; {{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($tanggalAkhir)->format('d M Y') }}</p>
 
-                    <div class="mp-touch-grid" style="grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); margin-top:18px;">
-                        @foreach($studentTotals as $label => $count)
-                            <div class="mp-card" style="padding:16px; box-shadow:4px 4px 0 var(--midnight);">
-                                <div class="mp-label">{{ $label }}</div>
-                                <div style="font-family:'Fredoka One', cursive; font-size:26px; color:var(--midnight);">{{ $count }}</div>
-                            </div>
-                        @endforeach
-                    </div>
-                </section>
-
-                <section class="mp-table-card mp-desktop-only">
-                    <div style="padding: 24px 30px; background: var(--gold); border-bottom: 4px solid var(--midnight);">
-                        <div class="mp-label" style="margin-bottom: 6px;">Riwayat Presensi</div>
-                        <div style="font-family: 'Fredoka One', cursive; font-size: 24px; color: var(--midnight);">{{ $selectedSiswa->nama_siswa }}</div>
-                    </div>
-
-                    <div class="mp-table-wrap" style="padding: 24px;">
-                        <table style="width: 100%; min-width: 980px; border-collapse: collapse; font-size: 13px; font-family: 'Nunito', sans-serif; color: var(--midnight);">
-                            <thead>
-                                <tr>
-                                    <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">NO</th>
-                                    <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">TANGGAL</th>
-                                    <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">HARI</th>
-                                    <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">JAM</th>
-                                    <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber); text-align:left;">MAPEL</th>
-                                    <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber); text-align:left;">GURU</th>
-                                    <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">JAM MASUK</th>
-                                    <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">STATUS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($studentRows as $index => $row)
-                                    <tr>
-                                        <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $index + 1 }}</td>
-                                        <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ \Carbon\Carbon::parse($row['tanggal'])->format('d M Y') }}</td>
-                                        <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $row['hari'] }}</td>
-                                        <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $row['jam'] }}</td>
-                                        <td style="border: 2px solid var(--midnight); padding: 10px;">{{ $row['mapel'] }}</td>
-                                        <td style="border: 2px solid var(--midnight); padding: 10px;">{{ $row['guru'] }}</td>
-                                        <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $row['jam_masuk'] }}</td>
-                                        <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">
-                                            <span class="mp-badge" style="background:{{ $statusColors[$row['status']] ?? 'var(--white)' }};">{{ $row['status'] }}</span>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="8" style="border: 2px solid var(--midnight); padding: 24px; text-align:center; font-weight:900;">Belum ada data presensi pada rentang tanggal ini.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <div class="mp-mobile-only mp-stack-list">
-                    @forelse($studentRows as $row)
-                        <section class="mp-card rekap-student-row">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
-                                <div>
-                                    <span class="mp-label">{{ $row['hari'] }}, {{ \Carbon\Carbon::parse($row['tanggal'])->format('d M Y') }}</span>
-                                    <h3 style="margin:6px 0 0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:24px;">{{ $row['mapel'] }}</h3>
+                        <div class="mp-touch-grid" style="grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); margin-top:18px;">
+                            @foreach($studentTotals as $label => $count)
+                                <div class="mp-card" style="padding:16px; box-shadow:4px 4px 0 var(--midnight);">
+                                    <div class="mp-label">{{ $label }}</div>
+                                    <div style="font-family:'Fredoka One', cursive; font-size:26px; color:var(--midnight);">{{ $count }}</div>
                                 </div>
-                                <span class="mp-badge" style="background:{{ $statusColors[$row['status']] ?? 'var(--white)' }};">{{ $row['status'] }}</span>
-                            </div>
-                            <div style="display:grid; gap:8px; margin-top:14px; color:var(--midnight); font-weight:900;">
-                                <div>{{ $row['jam'] }} &bull; Masuk: {{ $row['jam_masuk'] }}</div>
-                                <div>{{ $row['guru'] }}</div>
-                            </div>
-                        </section>
-                    @empty
-                        <section class="mp-empty-state">
-                            <div style="font-family:'Fredoka One', cursive; font-size:22px; color:var(--midnight);">Belum ada data</div>
-                            <p style="margin:10px 0 0; font-weight:800;">Tidak ada presensi pada rentang tanggal ini.</p>
-                        </section>
-                    @endforelse
+                            @endforeach
+                        </div>
+                    </section>
+
+                    <section class="mp-table-card mp-desktop-only">
+                        <div style="padding: 24px 30px; background: var(--gold); border-bottom: 4px solid var(--midnight);">
+                            <div class="mp-label" style="margin-bottom: 6px;">Riwayat Presensi</div>
+                            <div style="font-family: 'Fredoka One', cursive; font-size: 24px; color: var(--midnight);">{{ $selectedSiswa->nama_siswa }}</div>
+                        </div>
+
+                        <div class="mp-table-wrap" style="padding: 24px;">
+                            <table style="width: 100%; min-width: 980px; border-collapse: collapse; font-size: 13px; font-family: 'Nunito', sans-serif; color: var(--midnight);">
+                                <thead>
+                                    <tr>
+                                        <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">NO</th>
+                                        <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">TANGGAL</th>
+                                        <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">HARI</th>
+                                        <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">JAM</th>
+                                        <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber); text-align:left;">MAPEL</th>
+                                        <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber); text-align:left;">GURU</th>
+                                        <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">JAM MASUK</th>
+                                        <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">STATUS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($studentRows as $index => $row)
+                                        <tr>
+                                            <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $index + 1 }}</td>
+                                            <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ \Carbon\Carbon::parse($row['tanggal'])->format('d M Y') }}</td>
+                                            <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $row['hari'] }}</td>
+                                            <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $row['jam'] }}</td>
+                                            <td style="border: 2px solid var(--midnight); padding: 10px;">{{ $row['mapel'] }}</td>
+                                            <td style="border: 2px solid var(--midnight); padding: 10px;">{{ $row['guru'] }}</td>
+                                            <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $row['jam_masuk'] }}</td>
+                                            <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">
+                                                <span class="mp-badge" style="background:{{ $statusColors[$row['status']] ?? 'var(--white)' }};">{{ $row['status'] }}</span>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" style="border: 2px solid var(--midnight); padding: 24px; text-align:center; font-weight:900;">Belum ada data presensi pada rentang tanggal ini.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <div class="mp-mobile-only mp-stack-list">
+                        @forelse($studentRows as $row)
+                            <section class="mp-card rekap-student-row">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                                    <div>
+                                        <span class="mp-label">{{ $row['hari'] }}, {{ \Carbon\Carbon::parse($row['tanggal'])->format('d M Y') }}</span>
+                                        <h3 style="margin:6px 0 0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:24px;">{{ $row['mapel'] }}</h3>
+                                    </div>
+                                    <span class="mp-badge" style="background:{{ $statusColors[$row['status']] ?? 'var(--white)' }};">{{ $row['status'] }}</span>
+                                </div>
+                                <div style="display:grid; gap:8px; margin-top:14px; color:var(--midnight); font-weight:900;">
+                                    <div>{{ $row['jam'] }} &bull; Masuk: {{ $row['jam_masuk'] }}</div>
+                                    <div>{{ $row['guru'] }}</div>
+                                </div>
+                            </section>
+                        @empty
+                            <section class="mp-empty-state">
+                                <div style="font-family:'Fredoka One', cursive; font-size:22px; color:var(--midnight);">Belum ada data</div>
+                                <p style="margin:10px 0 0; font-weight:800;">Tidak ada presensi pada rentang tanggal ini.</p>
+                            </section>
+                        @endforelse
+                    </div>
                 </div>
-            </div>
             @endif
+        @endif
+    @elseif($activeMode === 'rentang')
+        @if(! $selectedKelas)
+            <section class="mp-empty-state">
+                <div class="mp-stat-icon" style="margin: 0 auto 20px;"><i class="bi bi-calendar-range"></i></div>
+                <h3 style="font-family: 'Fredoka One', cursive; color: var(--midnight); margin: 0 0 10px;">Pilih Kelas</h3>
+                <p style="margin: 0; color: var(--midnight); font-weight: 800;">Silakan pilih kelas terlebih dahulu untuk menampilkan rekap rentang tanggal.</p>
+            </section>
+        @else
+            <section class="mp-card mp-card-gold">
+                <span class="mp-label">Rekap Rentang Tanggal</span>
+                <h2 style="margin:8px 0 6px; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:30px;">{{ $selectedKelas }}</h2>
+                <p style="margin:0; color:var(--midnight); font-weight:900;">{{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($tanggalAkhir)->format('d M Y') }}</p>
+
+                <div class="mp-touch-grid" style="grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); margin-top:18px;">
+                    @foreach($rangeSummaryTotals as $label => $count)
+                        <div class="mp-card" style="padding:16px; box-shadow:4px 4px 0 var(--midnight);">
+                            <div class="mp-label">{{ $label }}</div>
+                            <div style="font-family:'Fredoka One', cursive; font-size:26px; color:var(--midnight);">{{ $count }}</div>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
+            <section class="mp-table-card mp-desktop-only">
+                <div style="padding: 24px 30px; background: var(--gold); border-bottom: 4px solid var(--midnight);">
+                    <div class="mp-label" style="margin-bottom: 6px;">Ringkasan Seluruh Siswa</div>
+                    <div style="font-family: 'Fredoka One', cursive; font-size: 24px; color: var(--midnight);">{{ $selectedKelas }}</div>
+                </div>
+
+                <div class="mp-table-wrap" style="padding: 24px;">
+                    <table style="width:100%; min-width:1100px; border-collapse:collapse; font-size:13px; font-family:'Nunito', sans-serif; color:var(--midnight);">
+                        <thead>
+                            <tr>
+                                <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">NO</th>
+                                <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">NIS</th>
+                                <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber); text-align:left;">NAMA SISWA</th>
+                                @foreach($rangeSummaryTotals as $label => $count)
+                                    <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">{{ strtoupper($label) }}</th>
+                                @endforeach
+                                <th style="border: 2px solid var(--midnight); padding: 10px; background: var(--cyber);">TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($rangeSummaryRows as $index => $row)
+                                <tr>
+                                    <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $index + 1 }}</td>
+                                    <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $row['nis'] }}</td>
+                                    <td style="border: 2px solid var(--midnight); padding: 10px;">{{ $row['nama_siswa'] }}</td>
+                                    @foreach($row['totals'] as $count)
+                                        <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $count }}</td>
+                                    @endforeach
+                                    <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center; font-weight:900;">{{ $row['total_records'] }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="{{ 4 + count($rangeSummaryTotals) }}" style="border: 2px solid var(--midnight); padding: 24px; text-align:center; font-weight:900;">Belum ada data siswa pada kelas ini.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="mp-mobile-only mp-stack-list">
+                @forelse($rangeSummaryRows as $row)
+                    <section class="mp-card">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+                            <div>
+                                <span class="mp-label">{{ $row['nis'] }}</span>
+                                <h3 style="margin:6px 0 0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:24px;">{{ $row['nama_siswa'] }}</h3>
+                            </div>
+                            <span class="mp-badge" style="background:var(--white);">{{ $row['total_records'] }} catatan</span>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;">
+                            @foreach($row['totals'] as $label => $count)
+                                <span class="mp-badge" style="background:{{ $statusColors[$label] ?? 'var(--white)' }};">{{ $label }} {{ $count }}</span>
+                            @endforeach
+                        </div>
+                    </section>
+                @empty
+                    <section class="mp-empty-state">
+                        <div style="font-family:'Fredoka One', cursive; font-size:22px; color:var(--midnight);">Belum ada data</div>
+                        <p style="margin:10px 0 0; font-weight:800;">Tidak ada siswa yang bisa ditampilkan untuk kelas ini.</p>
+                    </section>
+                @endforelse
+            </div>
         @endif
     @elseif($selectedKelas)
         @php
