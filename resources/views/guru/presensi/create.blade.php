@@ -21,7 +21,7 @@
 @endif
 
 <div style="max-width: 720px; margin-bottom: 64px;">
-    <form action="{{ route('guru.presensi.store') }}" method="POST">
+    <form action="{{ route('guru.presensi.buka') }}" method="POST">
         @csrf
 
         <div style="margin-bottom: 48px;">

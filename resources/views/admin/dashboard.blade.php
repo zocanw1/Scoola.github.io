@@ -232,7 +232,7 @@
                     <h2 class="font-anime-header text-xl text-[#1E1B29] flex items-center gap-2">
                         <span>📝</span> Absensi Masuk Terbaru
                     </h2>
-                    <a href="/admin/absensi" class="neo-btn bg-[#00CEC9] text-[#1E1B29] text-xs px-4 py-2 rounded-lg no-underline inline-flex items-center">
+                    <a href="{{ route('admin.rekap.index') }}" class="neo-btn bg-[#00CEC9] text-[#1E1B29] text-xs px-4 py-2 rounded-lg no-underline inline-flex items-center">
                         Lihat Semua →
                     </a>
                 </div>

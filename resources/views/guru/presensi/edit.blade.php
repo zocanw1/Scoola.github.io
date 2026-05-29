@@ -21,9 +21,8 @@
 @endif
 
 <div style="max-width: 720px; margin-bottom: 64px;">
-    <form action="{{ route('guru.presensi.update', $presensi->kd_presensi) }}" method="POST">
+    <form action="{{ route('guru.presensi.update-status', [$presensi->sesi_id, $presensi->NIS]) }}" method="POST">
         @csrf
-        @method('PUT')
 
         <div style="margin-bottom: 48px;">
             <label class="text-micro-caps" style="display: block; margin-bottom: 8px; color: var(--color-stone);">Tanggal</label>

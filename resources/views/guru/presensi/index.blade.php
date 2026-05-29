@@ -24,7 +24,7 @@
             </div>
         </div>
         <div style="display: flex; gap: 16px;">
-            <a href="{{ route('guru.presensi.create') }}" class="btn-primary" style="text-decoration: none; height: 48px; padding: 0 32px; display: flex; align-items: center;">+ Tambah Presensi</a>
+            <a href="{{ route('guru.presensi.index') }}" class="btn-primary" style="text-decoration: none; height: 48px; padding: 0 32px; display: flex; align-items: center;">+ Tambah Presensi</a>
         </div>
     </div>
 
@@ -67,7 +67,11 @@
                     </td>
                     <td style="text-align: right; padding-right: 40px;">
                         <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center;">
-                            <a href="{{ route('guru.presensi.edit', $p->kd_presensi) }}" class="btn-ghost" style="height: 32px; font-size: 11px; padding: 0 16px; text-decoration: none; display: inline-flex; align-items: center;">Edit</a>
+                            @if($p->sesi_id)
+                                <a href="{{ route('guru.presensi.ruang', $p->sesi_id) }}" class="btn-ghost" style="height: 32px; font-size: 11px; padding: 0 16px; text-decoration: none; display: inline-flex; align-items: center;">Edit</a>
+                            @else
+                                <span class="btn-ghost" style="height: 32px; font-size: 11px; padding: 0 16px; display: inline-flex; align-items: center; opacity: .55;">Edit</span>
+                            @endif
                         </div>
                     </td>
                 </tr>
