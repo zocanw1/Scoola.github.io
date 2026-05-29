@@ -91,7 +91,7 @@ class BreadcrumbNavigationTest extends TestCase
         $response->assertSee(route('admin.presensi-siswa.index', [], false), false);
     }
 
-    public function test_presensi_siswa_needs_explicit_detail_flag_before_showing_student_detail_state(): void
+    public function test_presensi_siswa_index_keeps_listing_mode_even_if_nis_is_present(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
@@ -115,17 +115,35 @@ class BreadcrumbNavigationTest extends TestCase
         $listingResponse->assertOk();
         $listingResponse->assertDontSee('Detail Kehadiran');
         $listingResponse->assertDontSee('scoola-breadcrumb-current">Muhammad Akhadi Al Machzumi', false);
-        $listingResponse->assertSee('detail=1', false);
+        $listingResponse->assertSee('/admin/presensi-siswa/DETAIL-001', false);
+        $listingResponse->assertSee('kelas=XI-SIJA%20DETAIL', false);
+    }
 
-        $detailResponse = $this->actingAs($admin)->get(route('admin.presensi-siswa.index', [
-            'kelas' => 'XI-SIJA DETAIL',
+    public function test_presensi_siswa_detail_uses_dedicated_page(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        Kelas::create([
+            'nama_kelas' => 'XI-SIJA ANCHOR',
+            'wali_kelas_nip' => null,
+        ]);
+
+        $siswa = Siswa::create([
+            'NIS' => 'ANCHOR-001',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Siswa Anchor',
+            'kelas' => 'XI-SIJA ANCHOR',
+        ]);
+
+        $detailResponse = $this->actingAs($admin)->get(route('admin.presensi-siswa.show', [
             'nis' => $siswa->NIS,
-            'detail' => 1,
+            'kelas' => 'XI-SIJA ANCHOR',
         ]));
 
         $detailResponse->assertOk();
         $detailResponse->assertSee('Detail Kehadiran');
-        $detailResponse->assertSee('scoola-breadcrumb-current">Muhammad Akhadi Al Machzumi', false);
+        $detailResponse->assertSee('scoola-breadcrumb-current">Siswa Anchor', false);
+        $detailResponse->assertSee(route('admin.presensi-siswa.index', ['kelas' => 'XI-SIJA ANCHOR'], false), false);
     }
 
     private function createJadwalForGuru(User $guruUser, string $kodeJp, string $kelas): JadwalPelajaran

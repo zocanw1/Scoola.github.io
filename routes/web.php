@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->middleware('role:admin,kakonsli')->group(function () {
         Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
         Route::get('/presensi-siswa', [PresensiSiswaController::class, 'index'])->name('admin.presensi-siswa.index');
+        Route::get('/presensi-siswa/{nis}', [PresensiSiswaController::class, 'show'])->where('nis', '.*')->name('admin.presensi-siswa.show');
 
         /* ===================== REKAP PRESENSI ===================== */
         Route::get('/rekap-presensi', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'index'])->name('admin.rekap.index');
@@ -145,6 +146,8 @@ Route::middleware('auth')->group(function () {
             ->name('guru.presensi.index');
         Route::get('/presensi-siswa', [PresensiSiswaController::class, 'index'])
             ->name('guru.presensi-siswa.index');
+        Route::get('/presensi-siswa/{nis}', [PresensiSiswaController::class, 'show'])->where('nis', '.*')
+            ->name('guru.presensi-siswa.show');
         Route::get('/rekap-presensi', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'index'])
             ->name('guru.rekap.index');
         Route::get('/rekap-presensi/export', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'export'])
