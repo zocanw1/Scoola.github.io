@@ -115,6 +115,14 @@
                         <p style="margin:12px 0 0; font-weight:900;">Anda tidak memiliki jadwal mengajar terdaftar untuk hari ini.</p>
                     </div>
                 @else
+                    @if($jadwalHariIni->count() > 1)
+                        <div class="mp-card" id="multipleScheduleHint" style="padding:16px; margin-bottom:18px; background:var(--gold);">
+                            <div class="mp-label">Pilihan Jadwal</div>
+                            <p style="margin:8px 0 0; font-weight:900; color:var(--midnight);">
+                                Anda memiliki {{ $jadwalHariIni->count() }} jadwal mengajar hari ini. Pilih sesi kelas yang ingin dibuka terlebih dahulu.
+                            </p>
+                        </div>
+                    @endif
                     <div class="schedule-choice-grid" role="radiogroup" aria-label="Pilih jadwal mengajar">
                         @foreach($jadwalHariIni as $j)
                             @php

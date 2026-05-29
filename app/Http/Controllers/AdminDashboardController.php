@@ -18,16 +18,24 @@ class AdminDashboardController extends Controller
 
         $totalSiswa = Siswa::count();
         $totalKelasAktif = Siswa::distinct('kelas')->count('kelas');
+        $studentCountsByClass = Siswa::query()
+            ->select('kelas', DB::raw('count(*) as total'))
+            ->groupBy('kelas')
+            ->pluck('total', 'kelas');
 
         $sesiHariIni = SesiPresensi::query()
             ->whereDate('created_at', $todayString)
             ->get(['id', 'kelas']);
-        $kelasSesiHariIni = $sesiHariIni->pluck('kelas')->unique()->values();
-        $siswaHarusAbsen = Siswa::whereIn('kelas', $kelasSesiHariIni)->count();
+        $sesiIdsHariIni = $sesiHariIni->pluck('id');
+        $sesiCountByKelas = $sesiHariIni->countBy('kelas');
+        $kelasSesiHariIni = $sesiCountByKelas->keys()->values();
+        $siswaHarusAbsen = $sesiCountByKelas
+            ->map(fn (int $sessionCount, string $kelas): int => ((int) ($studentCountsByClass[$kelas] ?? 0)) * $sessionCount)
+            ->sum();
 
         $statusCounts = Presensi::query()
             ->select('status', DB::raw('count(*) as total'))
-            ->where('tanggal', $todayString)
+            ->whereIn('sesi_id', $sesiIdsHariIni)
             ->whereIn('status', ['Hadir', 'Izin', 'Sakit'])
             ->groupBy('status')
             ->pluck('total', 'status');
@@ -38,38 +46,32 @@ class AdminDashboardController extends Controller
         $persentaseHadir = $siswaHarusAbsen > 0 ? round(($hadirHariIni / $siswaHarusAbsen) * 100, 1) : 0;
 
         $absensiTerbaru = Presensi::with('siswa')
-            ->where('tanggal', $todayString)
+            ->whereIn('sesi_id', $sesiIdsHariIni)
             ->orderBy('created_at', 'desc')
             ->take(6)
             ->get();
 
-        $siswaByKelas = Siswa::query()
-            ->select('kelas', DB::raw('count(*) as total'))
-            ->whereIn('kelas', $kelasSesiHariIni)
-            ->groupBy('kelas')
-            ->pluck('total', 'kelas');
-
         $hadirByKelas = Presensi::query()
             ->select('sesi_presensis.kelas', DB::raw('count(*) as total'))
             ->join('sesi_presensis', 'sesi_presensis.id', '=', 'presensi.sesi_id')
-            ->whereDate('sesi_presensis.created_at', $todayString)
+            ->whereIn('presensi.sesi_id', $sesiIdsHariIni)
             ->where('presensi.status', 'Hadir')
             ->groupBy('sesi_presensis.kelas')
             ->pluck('total', 'kelas');
 
-        $kelasBreakdown = $kelasSesiHariIni->map(function ($kelas) use ($siswaByKelas, $hadirByKelas) {
-            $ts = (int) ($siswaByKelas[$kelas] ?? 0);
+        $kelasBreakdown = $sesiCountByKelas->map(function (int $sessionCount, string $kelas) use ($studentCountsByClass, $hadirByKelas) {
+            $ts = ((int) ($studentCountsByClass[$kelas] ?? 0)) * $sessionCount;
             $hd = (int) ($hadirByKelas[$kelas] ?? 0);
 
             return (object) [
                 'nama' => $kelas,
                 'persentase' => $ts > 0 ? round(($hd / $ts) * 100) : 0,
             ];
-        })->all();
+        })->values()->all();
 
         $dateKeys = collect(range(6, 0))->map(fn ($i) => $today->copy()->subDays($i)->toDateString());
         $sesiPerHari = SesiPresensi::query()
-            ->selectRaw('date(created_at) as tanggal, kelas')
+            ->selectRaw('date(created_at) as tanggal, kelas, count(*) as total_sesi')
             ->whereBetween('created_at', [$today->copy()->subDays(6)->startOfDay(), $today->copy()->endOfDay()])
             ->groupByRaw('date(created_at), kelas')
             ->get()
@@ -86,8 +88,10 @@ class AdminDashboardController extends Controller
         $trendData = [];
         foreach ($dateKeys as $dateKey) {
             $date = Carbon::parse($dateKey);
-            $kelasHariIni = collect($sesiPerHari->get($dateKey, []))->pluck('kelas')->unique()->values();
-            $tSiswaDay = Siswa::whereIn('kelas', $kelasHariIni)->count();
+            $kelasHariIni = collect($sesiPerHari->get($dateKey, []));
+            $tSiswaDay = $kelasHariIni->sum(
+                fn ($row): int => ((int) ($studentCountsByClass[$row->kelas] ?? 0)) * (int) $row->total_sesi
+            );
             $dailyCounts = $presensiPerHari->get($dateKey);
             $hDay = (int) ($dailyCounts->hadir ?? 0);
             $izDay = (int) ($dailyCounts->izin_sakit ?? 0);

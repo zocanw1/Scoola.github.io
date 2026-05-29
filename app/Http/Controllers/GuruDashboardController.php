@@ -15,16 +15,23 @@ class GuruDashboardController extends Controller
         $today = Carbon::today();
         $todayString = $today->toDateString();
         $guruId = auth()->id();
+        $studentCountsByClass = Siswa::query()
+            ->select('kelas', DB::raw('count(*) as total'))
+            ->groupBy('kelas')
+            ->pluck('total', 'kelas');
 
         $sesiHariIni = SesiPresensi::where('guru_id', $guruId)
             ->whereDate('created_at', $todayString)
             ->get(['id', 'kelas']);
 
-        $kelasSesiHariIni = $sesiHariIni->pluck('kelas')->unique()->values();
-        $totalKelasDiajar = $kelasSesiHariIni->count();
-        $siswaHarusAbsen = Siswa::whereIn('kelas', $kelasSesiHariIni)->count();
-
         $sesiIds = $sesiHariIni->pluck('id');
+        $sesiCountByKelas = $sesiHariIni->countBy('kelas');
+        $kelasSesiHariIni = $sesiCountByKelas->keys()->values();
+        $totalKelasDiajar = $sesiCountByKelas->count();
+        $siswaHarusAbsen = $sesiCountByKelas
+            ->map(fn (int $sessionCount, string $kelas): int => ((int) ($studentCountsByClass[$kelas] ?? 0)) * $sessionCount)
+            ->sum();
+
         $statusCounts = Presensi::query()
             ->select('status', DB::raw('count(*) as total'))
             ->whereIn('sesi_id', $sesiIds)
@@ -43,12 +50,6 @@ class GuruDashboardController extends Controller
             ->take(6)
             ->get();
 
-        $siswaByKelas = Siswa::query()
-            ->select('kelas', DB::raw('count(*) as total'))
-            ->whereIn('kelas', $kelasSesiHariIni)
-            ->groupBy('kelas')
-            ->pluck('total', 'kelas');
-
         $hadirByKelas = Presensi::query()
             ->join('sesi_presensis', 'sesi_presensis.id', '=', 'presensi.sesi_id')
             ->select('sesi_presensis.kelas', DB::raw('count(*) as total'))
@@ -58,19 +59,19 @@ class GuruDashboardController extends Controller
             ->groupBy('sesi_presensis.kelas')
             ->pluck('total', 'kelas');
 
-        $kelasBreakdown = $kelasSesiHariIni->map(function ($kelas) use ($siswaByKelas, $hadirByKelas) {
-            $ts = (int) ($siswaByKelas[$kelas] ?? 0);
+        $kelasBreakdown = $sesiCountByKelas->map(function (int $sessionCount, string $kelas) use ($studentCountsByClass, $hadirByKelas) {
+            $ts = ((int) ($studentCountsByClass[$kelas] ?? 0)) * $sessionCount;
             $hd = (int) ($hadirByKelas[$kelas] ?? 0);
 
             return (object) [
                 'nama' => $kelas,
                 'persentase' => $ts > 0 ? round(($hd / $ts) * 100) : 0,
             ];
-        })->all();
+        })->values()->all();
 
         $dateKeys = collect(range(6, 0))->map(fn ($i) => $today->copy()->subDays($i)->toDateString());
         $sesiPerHari = SesiPresensi::query()
-            ->selectRaw('date(created_at) as tanggal, kelas')
+            ->selectRaw('date(created_at) as tanggal, kelas, count(*) as total_sesi')
             ->where('guru_id', $guruId)
             ->whereBetween('created_at', [$today->copy()->subDays(6)->startOfDay(), $today->copy()->endOfDay()])
             ->groupByRaw('date(created_at), kelas')
@@ -90,8 +91,10 @@ class GuruDashboardController extends Controller
         $trendData = [];
         foreach ($dateKeys as $dateKey) {
             $date = Carbon::parse($dateKey);
-            $kelasHariIni = collect($sesiPerHari->get($dateKey, []))->pluck('kelas')->unique()->values();
-            $tSiswaDay = Siswa::whereIn('kelas', $kelasHariIni)->count();
+            $kelasHariIni = collect($sesiPerHari->get($dateKey, []));
+            $tSiswaDay = $kelasHariIni->sum(
+                fn ($row): int => ((int) ($studentCountsByClass[$row->kelas] ?? 0)) * (int) $row->total_sesi
+            );
             $dailyCounts = $presensiPerHari->get($dateKey);
             $hDay = (int) ($dailyCounts->hadir ?? 0);
             $izDay = (int) ($dailyCounts->izin_sakit ?? 0);

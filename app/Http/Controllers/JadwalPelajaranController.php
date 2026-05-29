@@ -7,6 +7,7 @@ use App\Models\Mapel;
 use App\Models\Guru;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class JadwalPelajaranController extends Controller
 {
@@ -91,11 +92,13 @@ class JadwalPelajaranController extends Controller
         $request->validate([
             'hari'        => 'required|string|max:10',
             'kelas'       => 'required|in:XI-SIJA 1,XI-SIJA 2',
-            'kd_mapel'    => 'nullable|string|max:10',
-            'NIP'         => 'nullable|string|max:20',
+            'kd_mapel'    => 'nullable|string|max:50|exists:mapel,kd_mapel',
+            'NIP'         => 'nullable|string|max:20|exists:guru,NIP',
             'jam_mulai'   => 'required|integer|min:1|max:12',
             'jam_selesai' => 'required|integer|min:1|max:12|gte:jam_mulai',
         ]);
+
+        $this->validateGuruMapelPair($request);
 
         $overlap = JadwalPelajaran::where('hari', $request->hari)
             ->where('kelas', $request->kelas)
@@ -158,11 +161,13 @@ class JadwalPelajaranController extends Controller
         $request->validate([
             'hari'        => 'required|string|max:10',
             'kelas'       => 'required|in:XI-SIJA 1,XI-SIJA 2',
-            'kd_mapel'    => 'nullable|string|max:10',
-            'NIP'         => 'nullable|string|max:20',
+            'kd_mapel'    => 'nullable|string|max:50|exists:mapel,kd_mapel',
+            'NIP'         => 'nullable|string|max:20|exists:guru,NIP',
             'jam_mulai'   => 'required|integer|min:1|max:12',
             'jam_selesai' => 'required|integer|min:1|max:12|gte:jam_mulai',
         ]);
+
+        $this->validateGuruMapelPair($request);
 
         $overlap = JadwalPelajaran::where('hari', $request->hari)
             ->where('kelas', $request->kelas)
@@ -218,12 +223,31 @@ class JadwalPelajaranController extends Controller
      * ============================== */
     public function getGuruByMapel(string $kd_mapel)
     {
-        $guru = Guru::whereHas('mapels', function($query) use ($kd_mapel) {
+        $guru = Guru::whereHas('mapels', function ($query) use ($kd_mapel) {
                 $query->where('guru_mapel.kd_mapel', $kd_mapel);
             })
             ->orderBy('nama_guru')
             ->get(['NIP', 'nama_guru']);
 
         return response()->json($guru);
+    }
+
+    private function validateGuruMapelPair(Request $request): void
+    {
+        if (! $request->filled('kd_mapel') || ! $request->filled('NIP')) {
+            return;
+        }
+
+        $isPairValid = Guru::whereKey($request->input('NIP'))
+            ->whereHas('mapels', function ($query) use ($request) {
+                $query->where('guru_mapel.kd_mapel', $request->input('kd_mapel'));
+            })
+            ->exists();
+
+        if (! $isPairValid) {
+            throw ValidationException::withMessages([
+                'NIP' => 'Guru yang dipilih tidak terhubung dengan mata pelajaran tersebut.',
+            ]);
+        }
     }
 }

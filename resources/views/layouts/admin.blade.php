@@ -580,6 +580,11 @@
         <a href="{{ route('siswa.index') }}" class="nav-link {{ request()->routeIs('siswa.*') ? 'active' : '' }}">
             <i class="bi bi-people-fill"></i> Siswa
         </a>
+        @if(in_array(auth()->user()->role, ['admin', 'kakonsli']))
+        <a href="{{ route('admin.rekap.index') }}" class="nav-link {{ request()->routeIs('admin.rekap.*') ? 'active' : '' }}">
+            <i class="bi bi-file-earmark-spreadsheet-fill"></i> Rekap Presensi
+        </a>
+        @endif
         @if(auth()->user()->role === 'admin')
         <a href="{{ route('guru.index') }}" class="nav-link {{ request()->routeIs('guru.*') ? 'active' : '' }}">
             <i class="bi bi-person-badge-fill"></i> Guru
@@ -595,9 +600,6 @@
         </a>
         <a href="{{ route('jadwal.index') }}" class="nav-link {{ request()->routeIs('jadwal.*') ? 'active' : '' }}">
             <i class="bi bi-calendar3"></i> Jadwal Pelajaran
-        </a>
-        <a href="{{ route('admin.rekap.index') }}" class="nav-link {{ request()->routeIs('admin.rekap.*') ? 'active' : '' }}">
-            <i class="bi bi-file-earmark-spreadsheet-fill"></i> Rekap Mingguan
         </a>
 
         <div class="sb-section">Sistem</div>

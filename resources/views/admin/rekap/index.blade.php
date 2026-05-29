@@ -1,9 +1,11 @@
-@extends('layouts.admin')
+@extends($rekapLayout ?? 'layouts.admin')
 
 @section('content')
 
 @php
     $activeMode = $mode ?? 'mingguan';
+    $rekapIndexRoute = $rekapIndexRoute ?? 'admin.rekap.index';
+    $rekapExportRoute = $rekapExportRoute ?? 'admin.rekap.export';
     $statusColors = [
         'Hadir' => 'var(--cyber)',
         'Izin' => '#d9f1ff',
@@ -42,19 +44,19 @@
 
     <section class="mp-card">
         <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:22px;">
-            <a href="{{ route('admin.rekap.index', ['mode' => 'mingguan', 'kelas' => $selectedKelas, 'tanggal' => $tanggalInput ?? now()->toDateString()]) }}"
+            <a href="{{ route($rekapIndexRoute, ['mode' => 'mingguan', 'kelas' => $selectedKelas, 'tanggal' => $tanggalInput ?? now()->toDateString()]) }}"
                class="mp-btn {{ $activeMode === 'mingguan' ? '' : 'mp-btn-secondary' }}"
                style="text-decoration:none;">
                 <i class="bi bi-calendar-week"></i> Rekap Mingguan
             </a>
-            <a href="{{ route('admin.rekap.index', ['mode' => 'siswa', 'kelas' => $selectedKelas, 'nama_siswa' => $selectedNamaSiswa, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString(), 'nis' => $selectedNis ?? null]) }}"
+            <a href="{{ route($rekapIndexRoute, ['mode' => 'siswa', 'kelas' => $selectedKelas, 'nama_siswa' => $selectedNamaSiswa, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString(), 'nis' => $selectedNis ?? null]) }}"
                class="mp-btn {{ $activeMode === 'siswa' ? '' : 'mp-btn-secondary' }}"
                style="text-decoration:none;">
                 <i class="bi bi-person-vcard"></i> Rekap Per Siswa
             </a>
         </div>
 
-        <form action="{{ route('admin.rekap.index') }}" method="GET" class="mp-form-grid" style="align-items: end;">
+        <form action="{{ route($rekapIndexRoute) }}" method="GET" class="mp-form-grid" style="align-items: end;">
             <input type="hidden" name="mode" value="{{ $activeMode }}">
 
             <div class="mp-field" style="margin-bottom: 0;">
@@ -92,7 +94,7 @@
             <div class="mp-actions" style="border-top: 0; padding-top: 0; margin-top: 0;">
                 <button type="submit" class="mp-btn"><i class="bi bi-search"></i> Tampilkan</button>
                 @if(($activeMode === 'mingguan' && $selectedKelas) || ($activeMode === 'siswa' && $selectedKelas && ($selectedNis ?? null)))
-                    <button type="submit" formaction="{{ route('admin.rekap.export') }}" formmethod="GET" class="mp-btn mp-btn-green">
+                    <button type="submit" formaction="{{ route($rekapExportRoute) }}" formmethod="GET" class="mp-btn mp-btn-green">
                         <i class="bi bi-file-earmark-excel"></i> Export Excel
                     </button>
                 @endif
@@ -134,7 +136,7 @@
                                     <div style="font-family:'Fredoka One', cursive; color:var(--midnight); font-size:20px;">{{ $siswaOption->nama_siswa }}</div>
                                     <div style="color:var(--midnight); font-weight:900; margin-top:4px;">{{ $siswaOption->NIS }} &bull; {{ $siswaOption->kelas }}</div>
                                 </div>
-                                <a class="mp-btn" style="text-decoration:none;" href="{{ route('admin.rekap.index', ['mode' => 'siswa', 'kelas' => $selectedKelas, 'nama_siswa' => $siswaOption->nama_siswa, 'nis' => $siswaOption->NIS, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString()]) }}">
+                                <a class="mp-btn" style="text-decoration:none;" href="{{ route($rekapIndexRoute, ['mode' => 'siswa', 'kelas' => $selectedKelas, 'nama_siswa' => $siswaOption->nama_siswa, 'nis' => $siswaOption->NIS, 'tanggal_mulai' => $tanggalMulai ?? now()->startOfMonth()->toDateString(), 'tanggal_akhir' => $tanggalAkhir ?? now()->toDateString()]) }}">
                                     <i class="bi bi-eye"></i> Lihat Detail
                                 </a>
                             </div>
@@ -172,7 +174,7 @@
                             tanggal_akhir: endInput?.value || '',
                         });
 
-                        return `${@json(route('admin.rekap.index'))}?${params.toString()}`;
+                        return `${@json(route($rekapIndexRoute))}?${params.toString()}`;
                     };
                     const emptyHtml = (title, text, icon) => `
                         <div class="mp-empty-state" style="padding:24px;">

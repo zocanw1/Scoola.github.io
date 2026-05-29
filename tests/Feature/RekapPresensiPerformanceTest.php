@@ -556,6 +556,148 @@ class RekapPresensiPerformanceTest extends TestCase
         $response->assertSee('Hadir');
     }
 
+    public function test_kakonsli_can_view_full_rekap_for_any_class(): void
+    {
+        $kakonsli = User::factory()->create(['role' => 'kakonsli']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 1']);
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 2']);
+
+        $response = $this->actingAs($kakonsli)->get(route('admin.rekap.index', [
+            'kelas' => 'XI-SIJA 2',
+            'tanggal' => now()->toDateString(),
+        ]));
+
+        $response->assertOk();
+        $response->assertViewHas('selectedKelas', 'XI-SIJA 2');
+        $response->assertViewHas('kelas', function (Collection $kelas): bool {
+            return $kelas->pluck('nama_kelas')->contains('XI-SIJA 1')
+                && $kelas->pluck('nama_kelas')->contains('XI-SIJA 2');
+        });
+    }
+
+    public function test_wali_kelas_can_view_weekly_and_student_rekap_only_for_assigned_class(): void
+    {
+        Carbon::setTestNow('2026-05-25 08:00:00');
+
+        $waliUser = User::factory()->create(['role' => 'guru']);
+        $otherGuruUser = User::factory()->create(['role' => 'guru']);
+
+        $mapel = Mapel::create([
+            'kd_mapel' => 'RPL',
+            'nama_mapel' => 'Rekayasa Perangkat Lunak',
+        ]);
+
+        $waliGuru = Guru::create([
+            'NIP' => '198501012010011101',
+            'user_id' => $waliUser->id,
+            'nama_guru' => 'Wali SIJA 2',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        $otherGuru = Guru::create([
+            'NIP' => '198501012010011102',
+            'user_id' => $otherGuruUser->id,
+            'nama_guru' => 'Guru Lain',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 2'])->update(['wali_kelas_nip' => $waliGuru->NIP]);
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 1'])->update(['wali_kelas_nip' => $otherGuru->NIP]);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP-WALI',
+            'hari' => 'Senin',
+            'jam_mulai' => 1,
+            'jam_selesai' => 2,
+            'kd_mapel' => $mapel->kd_mapel,
+            'NIP' => $waliGuru->NIP,
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        Siswa::create([
+            'NIS' => 'SISWA-WALI',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Siswa Wali',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        $sesi = SesiPresensi::create([
+            'guru_id' => $waliUser->id,
+            'kelas' => 'XI-SIJA 2',
+            'kd_jp' => 'JP-WALI',
+            'kode_presensi' => 'WALI22',
+            'waktu_berlaku' => now()->addHours(2),
+            'status' => 'selesai',
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'PRS-WALI',
+            'sesi_id' => $sesi->id,
+            'tanggal' => now()->toDateString(),
+            'kd_jp' => null,
+            'jam_masuk' => '08:00:00',
+            'status' => 'Hadir',
+            'NIS' => 'SISWA-WALI',
+        ]);
+
+        $weeklyResponse = $this->actingAs($waliUser)->get(route('guru.rekap.index', [
+            'kelas' => 'XI-SIJA 2',
+            'tanggal' => now()->toDateString(),
+        ]));
+
+        $weeklyResponse->assertOk();
+        $weeklyResponse->assertViewHas('selectedKelas', 'XI-SIJA 2');
+        $weeklyResponse->assertViewHas('kelas', function (Collection $kelas): bool {
+            return $kelas->count() === 1
+                && $kelas->first()->nama_kelas === 'XI-SIJA 2';
+        });
+        $weeklyResponse->assertViewHas('statusMatrix', function (array $statusMatrix): bool {
+            return ($statusMatrix['SISWA-WALI']['Senin'][1] ?? null) === 'Hadir'
+                && ($statusMatrix['SISWA-WALI']['Senin'][2] ?? null) === 'Hadir';
+        });
+
+        $studentResponse = $this->actingAs($waliUser)->get(route('guru.rekap.index', [
+            'mode' => 'siswa',
+            'kelas' => 'XI-SIJA 2',
+            'nama_siswa' => 'Siswa Wali',
+            'nis' => 'SISWA-WALI',
+            'tanggal_mulai' => '2026-05-01',
+            'tanggal_akhir' => '2026-05-31',
+        ]));
+
+        $studentResponse->assertOk();
+        $studentResponse->assertViewHas('studentRows', function (Collection $studentRows): bool {
+            return $studentRows->count() === 1
+                && $studentRows->first()['nis'] === 'SISWA-WALI'
+                && $studentRows->first()['status'] === 'Hadir';
+        });
+
+        $this->actingAs($waliUser)->get(route('guru.rekap.index', [
+            'kelas' => 'XI-SIJA 1',
+            'tanggal' => now()->toDateString(),
+        ]))->assertForbidden();
+    }
+
+    public function test_non_wali_guru_cannot_view_wali_kelas_rekap(): void
+    {
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        Guru::create([
+            'NIP' => '198501012010011201',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Biasa',
+            'kd_mapel' => null,
+        ]);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 1']);
+
+        $this->actingAs($guruUser)->get(route('guru.rekap.index', [
+            'kelas' => 'XI-SIJA 1',
+            'tanggal' => now()->toDateString(),
+        ]))->assertForbidden();
+    }
+
     protected function tearDown(): void
     {
         Carbon::setTestNow();

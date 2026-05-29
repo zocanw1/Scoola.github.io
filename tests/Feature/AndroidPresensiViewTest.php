@@ -62,6 +62,37 @@ class AndroidPresensiViewTest extends TestCase
         $response->assertSee('startSessionBtn', false);
     }
 
+    public function test_wali_kelas_sees_presensi_siswa_menu_in_guru_sidebar(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-05-25 08:00:00'));
+
+        $guruUser = User::factory()->create(['role' => 'guru']);
+        $jadwal = $this->createJadwalForGuru($guruUser, 'JP-ANDROID-WALI', 'XI-SIJA 1');
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 1'])->update([
+            'wali_kelas_nip' => $jadwal->guru->NIP,
+        ]);
+
+        $response = $this->actingAs($guruUser)->get(route('guru.dashboard'));
+
+        $response->assertOk();
+        $response->assertSee('Presensi Siswa');
+        $response->assertSee(route('guru.rekap.index', [], false), false);
+    }
+
+    public function test_guru_non_wali_does_not_see_presensi_siswa_menu(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-05-25 08:00:00'));
+
+        $guruUser = User::factory()->create(['role' => 'guru']);
+        $this->createJadwalForGuru($guruUser, 'JP-ANDROID-NONWALI', 'XI-SIJA 2');
+
+        $response = $this->actingAs($guruUser)->get(route('guru.dashboard'));
+
+        $response->assertOk();
+        $response->assertDontSee('Presensi Siswa');
+    }
+
     public function test_guru_session_room_renders_mobile_student_cards(): void
     {
         $guruUser = User::factory()->create(['role' => 'guru']);

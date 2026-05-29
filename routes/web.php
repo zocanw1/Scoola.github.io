@@ -56,6 +56,10 @@ Route::middleware('auth')->group(function () {
     */
     Route::prefix('admin')->middleware('role:admin,kakonsli')->group(function () {
         Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
+
+        /* ===================== REKAP PRESENSI ===================== */
+        Route::get('/rekap-presensi', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'index'])->name('admin.rekap.index');
+        Route::get('/rekap-presensi/export', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'export'])->name('admin.rekap.export');
     });
 
     /*
@@ -68,10 +72,6 @@ Route::middleware('auth')->group(function () {
         // DASHBOARD
         Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])
             ->name('admin.dashboard');
-
-        /* ===================== REKAP PRESENSI ===================== */
-        Route::get('/rekap-presensi', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'index'])->name('admin.rekap.index');
-        Route::get('/rekap-presensi/export', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'export'])->name('admin.rekap.export');
 
         /* ===================== SISWA (MANAGE: ADMIN ONLY) ===================== */
         Route::get('/siswa/create', [SiswaController::class, 'create'])->name('siswa.create');
@@ -141,6 +141,10 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/presensi/mulai', [PresensiController::class, 'pilihKelas'])
             ->name('guru.presensi.index');
+        Route::get('/rekap-presensi', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'index'])
+            ->name('guru.rekap.index');
+        Route::get('/rekap-presensi/export', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'export'])
+            ->name('guru.rekap.export');
         Route::post('/presensi/buka', [PresensiController::class, 'bukaKelas'])
             ->name('guru.presensi.buka');
         Route::get('/presensi/ruang/{id}', [PresensiController::class, 'ruangKelas'])

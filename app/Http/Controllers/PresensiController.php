@@ -11,14 +11,6 @@ use App\Models\Guru;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
-function convertDayToIndonesian($englishDay) {
-    $days = [
-        'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
-        'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
-    ];
-    return $days[$englishDay] ?? $englishDay;
-}
-
 class PresensiController extends Controller
 {
     /* =========================
@@ -40,7 +32,7 @@ class PresensiController extends Controller
         if (!$guru) {
             $jadwalHariIni = collect();
         } else {
-            $hariIni = convertDayToIndonesian(date('l'));
+            $hariIni = $this->convertDayToIndonesian(date('l'));
             $jadwalHariIni = JadwalPelajaran::with('mapel')
                 ->where('NIP', $guru->NIP)
                 ->where('hari', $hariIni)
@@ -66,7 +58,16 @@ class PresensiController extends Controller
             'kd_jp' => 'required|string',
         ]);
 
+        $guru = Guru::where('user_id', auth()->id())->first();
+        if (!$guru) {
+            abort(403, 'Akun guru tidak terhubung dengan data pengajar.');
+        }
+
         $jadwal = JadwalPelajaran::where('kd_jp', $request->kd_jp)->firstOrFail();
+
+        if ($jadwal->NIP !== $guru->NIP) {
+            abort(403, 'Anda tidak berhak membuka sesi untuk jadwal guru lain.');
+        }
 
         // Akhiri semua sesi aktif milik guru ini (Hanya boleh 1 sesi aktif per guru)
         SesiPresensi::where('guru_id', auth()->id())
@@ -223,7 +224,7 @@ class PresensiController extends Controller
         // untuk direkap oleh Admin dan tidak lagi dihapus.
 
         return redirect()->route('guru.dashboard')
-            ->with('success', 'Sesi Kelas ' . $sesi->kelas . ' telah diakhiri. Data presensi pada sesi ini telah direset.');
+            ->with('success', 'Sesi Kelas ' . $sesi->kelas . ' telah diakhiri. Data presensi pada sesi ini tetap disimpan untuk rekap.');
     }
 
     /* =========================
@@ -267,6 +268,21 @@ class PresensiController extends Controller
 
         return redirect()->route('guru.presensi.ruang', $sesiId)
             ->with('success', 'Status presensi siswa berhasil diperbarui.');
+    }
+
+    private function convertDayToIndonesian(string $englishDay): string
+    {
+        $days = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu',
+        ];
+
+        return $days[$englishDay] ?? $englishDay;
     }
 
     private function buildAttendanceVersion(SesiPresensi $sesi): string

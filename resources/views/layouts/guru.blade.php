@@ -305,6 +305,10 @@
     </div>
 
     <div class="sb-nav">
+        @php
+            $guruProfile = auth()->user()?->guru;
+            $isWaliKelas = $guruProfile ? $guruProfile->kelasWali()->exists() : false;
+        @endphp
         <div class="sb-section">Utama</div>
         <a href="{{ route('guru.dashboard') }}" class="nav-link {{ request()->routeIs('guru.dashboard') ? 'active' : '' }}">
             <i class="bi bi-grid-fill"></i> Dashboard
@@ -312,6 +316,11 @@
         <a href="{{ route('guru.presensi.index') }}" class="nav-link {{ request()->routeIs('guru.presensi.*') ? 'active' : '' }}">
             <i class="bi bi-journal-check"></i> Mulai Mengajar
         </a>
+        @if($isWaliKelas)
+        <a href="{{ route('guru.rekap.index') }}" class="nav-link {{ request()->routeIs('guru.rekap.*') ? 'active' : '' }}">
+            <i class="bi bi-clipboard2-data-fill"></i> Presensi Siswa
+        </a>
+        @endif
     </div>
 
     <div class="sb-footer">

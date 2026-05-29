@@ -35,7 +35,7 @@ class PresensiTest extends TestCase
 
         return JadwalPelajaran::create([
             'kd_jp' => 'JP001',
-            'hari' => 'Senin',
+            'hari' => $this->currentHariIndonesia(),
             'jam_mulai' => 1,
             'jam_selesai' => 2,
             'kd_mapel' => $mapel->kd_mapel,
@@ -68,6 +68,92 @@ class PresensiTest extends TestCase
             'guru_id' => $guru->id,
             'kelas'   => 'XI-SIJA 1',
             'status'  => 'aktif',
+        ]);
+    }
+
+    public function test_guru_cannot_open_session_for_another_guru_schedule(): void
+    {
+        $guruA = User::factory()->create(['role' => 'guru']);
+        $guruB = User::factory()->create(['role' => 'guru']);
+
+        $jadwalGuruB = $this->createJadwalForGuru($guruB);
+
+        $response = $this->actingAs($guruA)->post(route('guru.presensi.buka'), [
+            'kd_jp' => $jadwalGuruB->kd_jp,
+        ]);
+
+        $response->assertForbidden();
+        $this->assertDatabaseMissing('sesi_presensis', [
+            'guru_id' => $guruA->id,
+            'kd_jp' => $jadwalGuruB->kd_jp,
+        ]);
+    }
+
+    public function test_guru_with_multiple_schedules_can_choose_which_class_to_open(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-05-25 08:00:00'));
+
+        $guru = User::factory()->create(['role' => 'guru']);
+
+        $siswaUserA = User::factory()->create(['role' => 'siswa']);
+        Siswa::create([
+            'NIS' => '77777771',
+            'user_id' => $siswaUserA->id,
+            'nama_siswa' => 'Siswa A',
+            'kelas' => 'XI-SIJA 1',
+        ]);
+
+        $siswaUserB = User::factory()->create(['role' => 'siswa']);
+        Siswa::create([
+            'NIS' => '77777772',
+            'user_id' => $siswaUserB->id,
+            'nama_siswa' => 'Siswa B',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        $jadwalPertama = $this->createJadwalForGuru($guru, 'XI-SIJA 1');
+
+        $mapelDua = Mapel::create([
+            'kd_mapel' => 'BIG2',
+            'nama_mapel' => 'Bahasa Inggris 2',
+        ]);
+
+        $guruModel = Guru::where('user_id', $guru->id)->firstOrFail();
+        $jadwalKedua = JadwalPelajaran::create([
+            'kd_jp' => 'JP002',
+            'hari' => $this->currentHariIndonesia(),
+            'jam_mulai' => 3,
+            'jam_selesai' => 4,
+            'kd_mapel' => $mapelDua->kd_mapel,
+            'NIP' => $guruModel->NIP,
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        $response = $this->actingAs($guru)->get(route('guru.presensi.index'));
+
+        $response->assertOk();
+        $response->assertSee('multipleScheduleHint', false);
+        $response->assertSee($jadwalPertama->kd_jp);
+        $response->assertSee($jadwalKedua->kd_jp);
+        $response->assertSee('XI-SIJA 1');
+        $response->assertSee('XI-SIJA 2');
+
+        $openResponse = $this->actingAs($guru)->post(route('guru.presensi.buka'), [
+            'kd_jp' => $jadwalKedua->kd_jp,
+        ]);
+
+        $openResponse->assertRedirect();
+        $this->assertDatabaseHas('sesi_presensis', [
+            'guru_id' => $guru->id,
+            'kelas' => 'XI-SIJA 2',
+            'kd_jp' => $jadwalKedua->kd_jp,
+            'status' => 'aktif',
+        ]);
+        $this->assertDatabaseMissing('sesi_presensis', [
+            'guru_id' => $guru->id,
+            'kelas' => 'XI-SIJA 1',
+            'kd_jp' => $jadwalPertama->kd_jp,
+            'status' => 'aktif',
         ]);
     }
 
@@ -155,5 +241,52 @@ class PresensiTest extends TestCase
 
         $response->assertRedirect();
         $response->assertSessionHas('error');
+    }
+
+    public function test_expired_code_does_not_end_session(): void
+    {
+        $guru = User::factory()->create(['role' => 'guru']);
+        $siswaUser = User::factory()->create(['role' => 'siswa']);
+
+        Siswa::create([
+            'NIS'        => '55555555',
+            'user_id'    => $siswaUser->id,
+            'nama_siswa' => 'Expired Session Student',
+            'kelas'      => 'XI-SIJA 1',
+        ]);
+
+        $sesi = SesiPresensi::create([
+            'guru_id'       => $guru->id,
+            'kelas'         => 'XI-SIJA 1',
+            'kode_presensi' => 'EXP123',
+            'waktu_berlaku' => Carbon::now()->subMinute(),
+            'status'        => 'aktif',
+        ]);
+
+        $response = $this->actingAs($siswaUser)->post(route('siswa.presensi.store'), [
+            'kode_presensi' => 'EXP123',
+            'latitude' => self::SCHOOL_LAT,
+            'longitude' => self::SCHOOL_LNG,
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('sesi_presensis', [
+            'id' => $sesi->id,
+            'status' => 'aktif',
+        ]);
+    }
+
+    private function currentHariIndonesia(): string
+    {
+        return [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu',
+        ][date('l')];
     }
 }

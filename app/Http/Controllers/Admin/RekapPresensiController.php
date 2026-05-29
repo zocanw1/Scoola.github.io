@@ -20,10 +20,14 @@ class RekapPresensiController extends Controller
 
     public function index(Request $request)
     {
-        $kelas = Kelas::query()->orderBy('nama_kelas')->get(['nama_kelas']);
+        $access = $this->resolveRekapAccess($request);
+        $kelas = $access['kelas'];
+        $rekapLayout = $access['isScoped'] ? 'layouts.guru' : 'layouts.admin';
+        $rekapIndexRoute = $access['isScoped'] ? 'guru.rekap.index' : 'admin.rekap.index';
+        $rekapExportRoute = $access['isScoped'] ? 'guru.rekap.export' : 'admin.rekap.export';
 
         $mode = $request->input('mode') === 'siswa' ? 'siswa' : 'mingguan';
-        $selectedKelas = $request->input('kelas');
+        $selectedKelas = $this->scopeSelectedKelas($request->input('kelas'), $kelas, $access['isScoped']);
         $tanggalInput = $request->input('tanggal') ?: now()->toDateString();
         $carbonDate = Carbon::parse($tanggalInput);
         $startOfWeek = $carbonDate->copy()->startOfWeek(Carbon::MONDAY);
@@ -63,14 +67,18 @@ class RekapPresensiController extends Controller
             'siswaOptions',
             'siswaSearchResults',
             'tanggalMulai',
-            'tanggalAkhir'
+            'tanggalAkhir',
+            'rekapLayout',
+            'rekapIndexRoute',
+            'rekapExportRoute'
         ) + $matrixData + $studentData);
     }
 
     public function export(Request $request)
     {
+        $access = $this->resolveRekapAccess($request);
         $mode = $request->input('mode') === 'siswa' ? 'siswa' : 'mingguan';
-        $selectedKelas = $request->input('kelas');
+        $selectedKelas = $this->scopeSelectedKelas($request->input('kelas'), $access['kelas'], $access['isScoped']);
 
         if ($mode === 'siswa') {
             $selectedNamaSiswa = trim((string) $request->input('nama_siswa', ''));
@@ -133,6 +141,56 @@ class RekapPresensiController extends Controller
         ) + $matrixData))
             ->header('Content-Type', 'application/vnd-ms-excel')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    private function resolveRekapAccess(Request $request): array
+    {
+        $user = $request->user();
+        $isScoped = $user?->role === 'guru';
+
+        if (! $isScoped) {
+            return [
+                'kelas' => Kelas::query()->orderBy('nama_kelas')->get(['nama_kelas']),
+                'isScoped' => false,
+            ];
+        }
+
+        $guru = $user->guru;
+
+        if (! $guru) {
+            abort(403, 'Akun guru tidak terhubung dengan data pengajar.');
+        }
+
+        $kelas = Kelas::query()
+            ->where('wali_kelas_nip', $guru->NIP)
+            ->orderBy('nama_kelas')
+            ->get(['nama_kelas']);
+
+        if ($kelas->isEmpty()) {
+            abort(403, 'Akses rekap hanya tersedia untuk wali kelas.');
+        }
+
+        return [
+            'kelas' => $kelas,
+            'isScoped' => true,
+        ];
+    }
+
+    private function scopeSelectedKelas(?string $selectedKelas, Collection $kelas, bool $isScoped): ?string
+    {
+        if (! $isScoped) {
+            return $selectedKelas;
+        }
+
+        if (! $selectedKelas) {
+            return $kelas->first()->nama_kelas ?? null;
+        }
+
+        if (! $kelas->pluck('nama_kelas')->contains($selectedKelas)) {
+            abort(403, 'Anda hanya dapat melihat rekap kelas yang Anda ampu.');
+        }
+
+        return $selectedKelas;
     }
 
     private function emptyWeeklyMatrixData(array $hariList): array

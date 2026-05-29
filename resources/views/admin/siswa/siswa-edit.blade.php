@@ -45,6 +45,12 @@
                 </div>
 
                 <div class="mp-field">
+                    <label class="mp-label">Alamat Email Institusi</label>
+                    <input type="email" name="email" class="mp-input" placeholder="nama@sekolah.com" required value="{{ old('email', $siswa->user?->email) }}">
+                    <small class="mp-hint">Email ini dipakai siswa untuk login ke sistem</small>
+                </div>
+
+                <div class="mp-field">
                     <label class="mp-label">Penempatan Kelas</label>
                     <select name="kelas" class="mp-input" required>
                         <option value="XI-SIJA 1" {{ old('kelas', $siswa->kelas) == 'XI-SIJA 1' ? 'selected' : '' }}>XI-SIJA 1</option>

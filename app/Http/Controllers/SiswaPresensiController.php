@@ -15,7 +15,7 @@ class SiswaPresensiController extends Controller
     // Koordinat Sekolah: Jl. Ki Ageng Gribig No. 28, Madyopuro, Kedungkandang, Malang
     private const SCHOOL_LAT = -7.974867815619122;
     private const SCHOOL_LNG = 112.67166658058967;
-    private const MAX_RADIUS_METERS = 50; // Radius toleransi dalam meter
+    private const MAX_RADIUS_METERS = 200; // Radius toleransi dalam meter
 
     public function dashboard()
     {
@@ -66,7 +66,6 @@ class SiswaPresensiController extends Controller
 
         // Cek validitas waktu
         if (Carbon::now()->greaterThan($sesi->waktu_berlaku)) {
-            $sesi->update(['status' => 'selesai']);
             return redirect()->back()->with('error', 'Masa berlaku kode presensi ini sudah habis.');
         }
 
