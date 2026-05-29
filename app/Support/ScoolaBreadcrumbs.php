@@ -14,6 +14,13 @@ class ScoolaBreadcrumbs
         'siswa' => ['label' => 'Siswa', 'route' => 'siswa.dashboard'],
     ];
 
+    private const ROLE_ROOTS = [
+        'admin' => ['label' => 'Admin', 'route' => 'admin.dashboard'],
+        'kakonsli' => ['label' => 'Kakonsli', 'route' => 'admin.presensi-siswa.index'],
+        'guru' => ['label' => 'Guru', 'route' => 'guru.dashboard'],
+        'siswa' => ['label' => 'Siswa', 'route' => 'siswa.dashboard'],
+    ];
+
     private const FEATURES = [
         'admin' => [
             'dashboard' => ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'noun' => 'Dashboard'],
@@ -62,9 +69,9 @@ class ScoolaBreadcrumbs
         $featureKey = $segments[1] ?? 'dashboard';
         $feature = self::resolveFeature($context, $featureKey);
         $action = self::resolveAction($route->getName(), $segments, $feature['noun'] ?? $feature['label']);
-        $subject = self::resolveSubject($viewData, $route->parameters());
+        $subject = self::resolveSubject($viewData, $route->parameters(), $action['key']);
         $crumbs = [
-            self::item(self::ROOTS[$context]['label'], self::routeUrl(self::ROOTS[$context]['route'])),
+            self::resolveRootItem($context, $request),
         ];
 
         if ($feature) {
@@ -105,7 +112,7 @@ class ScoolaBreadcrumbs
         }
 
         if (Str::startsWith($routeName, 'siswa.')) {
-            return 'admin';
+            return 'siswa';
         }
 
         if (Str::startsWith($routeName, 'admin.')) {
@@ -177,8 +184,20 @@ class ScoolaBreadcrumbs
         return [];
     }
 
-    private static function resolveSubject(array $viewData, array $routeParameters): ?string
+    private static function resolveSubject(array $viewData, array $routeParameters, string $actionKey): ?string
     {
+        foreach (['breadcrumbSubject', 'selectedSiswaDetail', 'selectedSiswa'] as $key) {
+            $label = self::extractLabel($viewData[$key] ?? null);
+
+            if ($label) {
+                return $label;
+            }
+        }
+
+        if (in_array($actionKey, ['dashboard', 'index'], true)) {
+            return null;
+        }
+
         foreach (['guru', 'siswa', 'admin', 'kakonsli', 'kelas', 'mapel', 'jadwal'] as $key) {
             $label = self::extractLabel($viewData[$key] ?? null);
 
@@ -231,6 +250,21 @@ class ScoolaBreadcrumbs
             'label' => $label,
             'url' => $url,
         ];
+    }
+
+    private static function resolveRootItem(string $context, Request $request): array
+    {
+        $role = $request->user()?->role;
+
+        if ($role && isset(self::ROLE_ROOTS[$role])) {
+            $root = self::ROLE_ROOTS[$role];
+
+            return self::item($root['label'], self::routeUrl($root['route']));
+        }
+
+        $root = self::ROOTS[$context];
+
+        return self::item($root['label'], self::routeUrl($root['route']));
     }
 
     private static function routeUrl(string $routeName): ?string

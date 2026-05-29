@@ -75,6 +75,59 @@ class BreadcrumbNavigationTest extends TestCase
         $response->assertSee(route('siswa.dashboard', [], false), false);
     }
 
+    public function test_kakonsli_uses_role_specific_root_breadcrumb_on_shared_admin_pages(): void
+    {
+        $kakonsli = User::factory()->create([
+            'role' => 'kakonsli',
+            'name' => 'Tes Kakonsli',
+        ]);
+
+        $response = $this->actingAs($kakonsli)->get(route('admin.rekap.index'));
+
+        $response->assertOk();
+        $response->assertSee('scoola-breadcrumbs', false);
+        $response->assertSee('class="scoola-breadcrumb-link">Kakonsli</a>', false);
+        $response->assertDontSee('class="scoola-breadcrumb-link">Admin</a>', false);
+        $response->assertSee(route('admin.presensi-siswa.index', [], false), false);
+    }
+
+    public function test_presensi_siswa_needs_explicit_detail_flag_before_showing_student_detail_state(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        Kelas::create([
+            'nama_kelas' => 'XI-SIJA DETAIL',
+            'wali_kelas_nip' => null,
+        ]);
+
+        $siswa = Siswa::create([
+            'NIS' => 'DETAIL-001',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Muhammad Akhadi Al Machzumi',
+            'kelas' => 'XI-SIJA DETAIL',
+        ]);
+
+        $listingResponse = $this->actingAs($admin)->get(route('admin.presensi-siswa.index', [
+            'kelas' => 'XI-SIJA DETAIL',
+            'nis' => $siswa->NIS,
+        ]));
+
+        $listingResponse->assertOk();
+        $listingResponse->assertDontSee('Detail Kehadiran');
+        $listingResponse->assertDontSee('scoola-breadcrumb-current">Muhammad Akhadi Al Machzumi', false);
+        $listingResponse->assertSee('detail=1', false);
+
+        $detailResponse = $this->actingAs($admin)->get(route('admin.presensi-siswa.index', [
+            'kelas' => 'XI-SIJA DETAIL',
+            'nis' => $siswa->NIS,
+            'detail' => 1,
+        ]));
+
+        $detailResponse->assertOk();
+        $detailResponse->assertSee('Detail Kehadiran');
+        $detailResponse->assertSee('scoola-breadcrumb-current">Muhammad Akhadi Al Machzumi', false);
+    }
+
     private function createJadwalForGuru(User $guruUser, string $kodeJp, string $kelas): JadwalPelajaran
     {
         $mapel = Mapel::create([

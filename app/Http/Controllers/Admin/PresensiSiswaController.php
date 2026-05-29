@@ -23,6 +23,7 @@ class PresensiSiswaController extends Controller
         $selectedKelas = $this->scopeSelectedKelas($request->input('kelas'), $access['kelas'], $access['isScoped']);
         $search = trim((string) $request->input('q', ''));
         $selectedNis = $request->input('nis');
+        $detailRequested = $request->boolean('detail');
         $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
         $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
         $pageLayout = $access['isScoped'] ? 'layouts.guru' : 'layouts.admin';
@@ -43,13 +44,13 @@ class PresensiSiswaController extends Controller
             ->get(['NIS', 'nama_siswa', 'kelas']);
 
         $detailKelas = $selectedKelas;
-        if ($selectedNis && ! $detailKelas) {
+        if ($detailRequested && $selectedNis && ! $detailKelas) {
             $detailKelas = Siswa::query()
                 ->where('NIS', $selectedNis)
                 ->value('kelas');
         }
 
-        $detailData = $selectedNis
+        $detailData = $detailRequested && $selectedNis
             ? $this->presensiRekapBuilder->buildStudentRecapData(
                 $detailKelas,
                 $search,
@@ -67,9 +68,11 @@ class PresensiSiswaController extends Controller
             'selectedKelas' => $selectedKelas,
             'search' => $search,
             'selectedNis' => $selectedNis,
+            'detailRequested' => $detailRequested,
             'tanggalMulai' => $tanggalMulai,
             'tanggalAkhir' => $tanggalAkhir,
             'selectedSiswaDetail' => $detailData['selectedSiswa'],
+            'breadcrumbSubject' => $detailData['selectedSiswa'],
             'detailRows' => $detailData['studentRows'],
             'detailTotals' => $detailData['studentTotals'],
         ]);

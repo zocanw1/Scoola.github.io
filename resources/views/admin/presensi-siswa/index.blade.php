@@ -59,14 +59,20 @@
 
         <div class="mp-stack-list">
             @forelse($siswas as $siswa)
-                <div class="mp-card" style="padding:16px; box-shadow:4px 4px 0 var(--midnight); display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+                @php($isSelectedSiswa = ($detailRequested ?? false) && ($selectedSiswaDetail?->NIS === $siswa->NIS))
+                <div class="mp-card" style="padding:16px; box-shadow:{{ $isSelectedSiswa ? '6px 6px 0 var(--midnight)' : '4px 4px 0 var(--midnight)' }}; background:{{ $isSelectedSiswa ? 'var(--gold)' : 'var(--white)' }}; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
                     <div>
                         <div style="font-family:'Fredoka One', cursive; color:var(--midnight); font-size:20px;">{{ $siswa->nama_siswa }}</div>
                         <div style="color:var(--midnight); font-weight:900; margin-top:4px;">{{ $siswa->NIS }} &bull; {{ $siswa->kelas }}</div>
                     </div>
-                    <a class="mp-btn" style="text-decoration:none;" href="{{ route($pageRoute ?? 'admin.presensi-siswa.index', ['q' => $search, 'kelas' => $siswa->kelas, 'nis' => $siswa->NIS, 'tanggal_mulai' => $tanggalMulai, 'tanggal_akhir' => $tanggalAkhir]) }}">
-                        <i class="bi bi-eye"></i> Lihat Detail
-                    </a>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+                        @if($isSelectedSiswa)
+                            <span class="mp-badge" style="background:var(--white);">Sedang Dibuka</span>
+                        @endif
+                        <a class="mp-btn {{ $isSelectedSiswa ? 'mp-btn-secondary' : '' }}" style="text-decoration:none;" href="{{ route($pageRoute ?? 'admin.presensi-siswa.index', ['q' => $search, 'kelas' => $siswa->kelas, 'nis' => $siswa->NIS, 'tanggal_mulai' => $tanggalMulai, 'tanggal_akhir' => $tanggalAkhir, 'detail' => 1]) }}">
+                            <i class="bi bi-eye"></i> {{ $isSelectedSiswa ? 'Lihat Lagi' : 'Lihat Detail' }}
+                        </a>
+                    </div>
                 </div>
             @empty
                 <section class="mp-empty-state" style="padding:28px 20px;">
@@ -92,6 +98,7 @@
                 <input type="hidden" name="kelas" value="{{ $selectedSiswaDetail->kelas }}">
                 <input type="hidden" name="q" value="{{ $search }}">
                 <input type="hidden" name="nis" value="{{ $selectedSiswaDetail->NIS }}">
+                <input type="hidden" name="detail" value="1">
 
                 <div class="mp-field" style="margin-bottom:0;">
                     <label class="mp-label">Tanggal Mulai</label>
