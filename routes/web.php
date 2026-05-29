@@ -145,6 +145,8 @@ Route::middleware('auth')->group(function () {
             ->name('guru.presensi.buka');
         Route::get('/presensi/ruang/{id}', [PresensiController::class, 'ruangKelas'])
             ->name('guru.presensi.ruang');
+        Route::get('/presensi/ruang/{id}/snapshot', [PresensiController::class, 'statusSnapshot'])
+            ->name('guru.presensi.snapshot');
         Route::get('/presensi/kode/{id}', [PresensiController::class, 'tampilKode'])
             ->name('guru.presensi.tampil');
         Route::post('/presensi/akhiri-presensi/{id}', [PresensiController::class, 'akhiriPresensi'])
@@ -154,6 +156,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/presensi/akhiri-kelas/{id}', [PresensiController::class, 'akhiriKelas'])
             ->name('guru.presensi.akhiri-kelas');
         Route::post('/presensi/ruang/{sesiId}/update-status/{nis}', [PresensiController::class, 'updateStatusSiswa'])
+            ->where('nis', '.*')
             ->name('guru.presensi.update-status');
 
 

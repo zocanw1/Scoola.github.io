@@ -114,7 +114,22 @@ class PresensiController extends Controller
                                             ->with('guru')
                                             ->get();
 
-        return view('guru.presensi.ruang-kelas', compact('sesi', 'siswaKelas', 'presensiHariIni', 'otherActiveSessions'));
+        $attendanceVersion = $this->buildAttendanceVersion($sesi);
+
+        return view('guru.presensi.ruang-kelas', compact('sesi', 'siswaKelas', 'presensiHariIni', 'otherActiveSessions', 'attendanceVersion'));
+    }
+
+    public function statusSnapshot($id)
+    {
+        $sesi = SesiPresensi::findOrFail($id);
+
+        if ($sesi->guru_id !== auth()->id()) {
+            abort(403, 'Anda tidak berhak mengakses sesi presensi ini.');
+        }
+
+        return response()->json([
+            'version' => $this->buildAttendanceVersion($sesi),
+        ]);
     }
 
     /* =========================
@@ -252,5 +267,39 @@ class PresensiController extends Controller
 
         return redirect()->route('guru.presensi.ruang', $sesiId)
             ->with('success', 'Status presensi siswa berhasil diperbarui.');
+    }
+
+    private function buildAttendanceVersion(SesiPresensi $sesi): string
+    {
+        $presensiState = Presensi::query()
+            ->where('sesi_id', $sesi->id)
+            ->orderBy('NIS')
+            ->get(['NIS', 'status', 'is_dalam_radius', 'updated_at'])
+            ->map(fn ($presensi) => [
+                'nis' => $presensi->NIS,
+                'status' => $presensi->status,
+                'radius' => $presensi->is_dalam_radius,
+                'updated_at' => optional($presensi->updated_at)->toJSON(),
+            ])
+            ->values();
+
+        $studentState = Siswa::query()
+            ->where('kelas', $sesi->kelas)
+            ->orderBy('NIS')
+            ->get(['NIS', 'nama_siswa', 'updated_at'])
+            ->map(fn ($siswa) => [
+                'nis' => $siswa->NIS,
+                'name' => $siswa->nama_siswa,
+                'updated_at' => optional($siswa->updated_at)->toJSON(),
+            ])
+            ->values();
+
+        return sha1(json_encode([
+            'sesi_status' => $sesi->status,
+            'sesi_code' => $sesi->kode_presensi,
+            'sesi_updated_at' => optional($sesi->updated_at)->toJSON(),
+            'presensi' => $presensiState,
+            'students' => $studentState,
+        ]));
     }
 }

@@ -137,7 +137,7 @@
     }
 </style>
 
-<div class="mp-page">
+<div class="mp-page" data-attendance-state-url="{{ route('guru.presensi.snapshot', $sesi->id) }}" data-attendance-state-version="{{ $attendanceVersion }}">
     <div class="mp-hero-wrap">
         <span class="mp-sticker">Sesi Aktif</span>
         <section class="mp-hero">
@@ -367,6 +367,67 @@
             closeModal('modalEndClass');
         }
     });
+
+    (function() {
+        const page = document.querySelector('[data-attendance-state-url]');
+        if (!page) return;
+
+        const stateUrl = page.dataset.attendanceStateUrl;
+        let currentVersion = page.dataset.attendanceStateVersion;
+        let reloadQueued = false;
+
+        const shouldWait = () => {
+            const modalOpen = Array.from(document.querySelectorAll('.mp-modal'))
+                .some((modal) => getComputedStyle(modal).display !== 'none');
+            const activeForm = document.activeElement && document.activeElement.closest('form');
+
+            return modalOpen || activeForm;
+        };
+
+        const reloadWhenIdle = () => {
+            if (reloadQueued) return;
+            reloadQueued = true;
+
+            if (shouldWait()) {
+                window.setTimeout(() => window.location.reload(), 1000);
+                return;
+            }
+
+            window.location.reload();
+        };
+
+        const checkAttendanceState = async () => {
+            if (document.hidden || reloadQueued) return;
+
+            try {
+                const response = await fetch(stateUrl, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) return;
+
+                const data = await response.json();
+                if (data.version && currentVersion && data.version !== currentVersion) {
+                    reloadWhenIdle();
+                } else if (data.version) {
+                    currentVersion = data.version;
+                }
+            } catch (error) {
+                // Polling is best-effort; the next interval will retry.
+            }
+        };
+
+        window.setInterval(checkAttendanceState, 8000);
+        window.addEventListener('focus', checkAttendanceState);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) checkAttendanceState();
+        });
+    })();
 </script>
 
 @endsection
