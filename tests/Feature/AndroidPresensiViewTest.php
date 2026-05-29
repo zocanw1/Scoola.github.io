@@ -77,6 +77,8 @@ class AndroidPresensiViewTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Presensi Siswa');
+        $response->assertSee(route('guru.presensi-siswa.index', [], false), false);
+        $response->assertSee('Rekap Presensi');
         $response->assertSee(route('guru.rekap.index', [], false), false);
     }
 

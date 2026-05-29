@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends($pageLayout ?? 'layouts.admin')
 
 @section('content')
 
@@ -26,7 +26,7 @@
     </div>
 
     <section class="mp-card">
-        <form action="{{ route('admin.presensi-siswa.index') }}" method="GET" class="mp-form-grid" style="align-items:end;">
+        <form action="{{ route($pageRoute ?? 'admin.presensi-siswa.index') }}" method="GET" class="mp-form-grid" style="align-items:end;">
             <div class="mp-field" style="margin-bottom:0;">
                 <label class="mp-label">Kelas</label>
                 <select name="kelas" class="mp-input">
@@ -64,7 +64,7 @@
                         <div style="font-family:'Fredoka One', cursive; color:var(--midnight); font-size:20px;">{{ $siswa->nama_siswa }}</div>
                         <div style="color:var(--midnight); font-weight:900; margin-top:4px;">{{ $siswa->NIS }} &bull; {{ $siswa->kelas }}</div>
                     </div>
-                    <a class="mp-btn" style="text-decoration:none;" href="{{ route('admin.presensi-siswa.index', ['q' => $search, 'kelas' => $siswa->kelas, 'nis' => $siswa->NIS, 'tanggal_mulai' => $tanggalMulai, 'tanggal_akhir' => $tanggalAkhir]) }}">
+                    <a class="mp-btn" style="text-decoration:none;" href="{{ route($pageRoute ?? 'admin.presensi-siswa.index', ['q' => $search, 'kelas' => $siswa->kelas, 'nis' => $siswa->NIS, 'tanggal_mulai' => $tanggalMulai, 'tanggal_akhir' => $tanggalAkhir]) }}">
                         <i class="bi bi-eye"></i> Lihat Detail
                     </a>
                 </div>
@@ -88,7 +88,7 @@
                 <span class="mp-badge" style="background:var(--white);">{{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($tanggalAkhir)->format('d M Y') }}</span>
             </div>
 
-            <form action="{{ route('admin.presensi-siswa.index') }}" method="GET" class="mp-form-grid" style="align-items:end; margin-top:20px;">
+            <form action="{{ route($pageRoute ?? 'admin.presensi-siswa.index') }}" method="GET" class="mp-form-grid" style="align-items:end; margin-top:20px;">
                 <input type="hidden" name="kelas" value="{{ $selectedSiswaDetail->kelas }}">
                 <input type="hidden" name="q" value="{{ $search }}">
                 <input type="hidden" name="nis" value="{{ $selectedSiswaDetail->NIS }}">

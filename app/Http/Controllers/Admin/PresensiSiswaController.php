@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Support\PresensiRekapBuilder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class PresensiSiswaController extends Controller
 {
@@ -17,13 +19,15 @@ class PresensiSiswaController extends Controller
 
     public function index(Request $request)
     {
-        $selectedKelas = $request->input('kelas') ?: null;
+        $access = $this->resolveAccess($request);
+        $selectedKelas = $this->scopeSelectedKelas($request->input('kelas'), $access['kelas'], $access['isScoped']);
         $search = trim((string) $request->input('q', ''));
         $selectedNis = $request->input('nis');
         $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
         $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
-
-        $kelas = Kelas::query()->orderBy('nama_kelas')->get(['nama_kelas']);
+        $pageLayout = $access['isScoped'] ? 'layouts.guru' : 'layouts.admin';
+        $pageRoute = $access['isScoped'] ? 'guru.presensi-siswa.index' : 'admin.presensi-siswa.index';
+        $kelas = $access['kelas'];
 
         $siswas = Siswa::query()
             ->when($selectedKelas, function ($query, string $selectedKelas): void {
@@ -56,6 +60,8 @@ class PresensiSiswaController extends Controller
             : $this->presensiRekapBuilder->emptyStudentRecapData();
 
         return view('admin.presensi-siswa.index', [
+            'pageLayout' => $pageLayout,
+            'pageRoute' => $pageRoute,
             'kelas' => $kelas,
             'siswas' => $siswas,
             'selectedKelas' => $selectedKelas,
@@ -67,5 +73,54 @@ class PresensiSiswaController extends Controller
             'detailRows' => $detailData['studentRows'],
             'detailTotals' => $detailData['studentTotals'],
         ]);
+    }
+
+    private function resolveAccess(Request $request): array
+    {
+        $user = $request->user();
+
+        if ($user?->role !== 'guru') {
+            return [
+                'kelas' => Kelas::query()->orderBy('nama_kelas')->get(['nama_kelas']),
+                'isScoped' => false,
+            ];
+        }
+
+        $guru = Guru::query()->where('user_id', $user->id)->first();
+
+        if (! $guru) {
+            abort(403, 'Akun guru tidak terhubung dengan data pengajar.');
+        }
+
+        $kelas = Kelas::query()
+            ->where('wali_kelas_nip', $guru->NIP)
+            ->orderBy('nama_kelas')
+            ->get(['nama_kelas']);
+
+        if ($kelas->isEmpty()) {
+            abort(403, 'Akses presensi siswa hanya tersedia untuk wali kelas.');
+        }
+
+        return [
+            'kelas' => $kelas,
+            'isScoped' => true,
+        ];
+    }
+
+    private function scopeSelectedKelas(?string $selectedKelas, Collection $kelas, bool $isScoped): ?string
+    {
+        if (! $isScoped) {
+            return $selectedKelas;
+        }
+
+        if (! $selectedKelas) {
+            return $kelas->first()->nama_kelas ?? null;
+        }
+
+        if (! $kelas->pluck('nama_kelas')->contains($selectedKelas)) {
+            abort(403, 'Anda hanya dapat melihat data presensi siswa di kelas yang Anda ampu.');
+        }
+
+        return $selectedKelas;
     }
 }

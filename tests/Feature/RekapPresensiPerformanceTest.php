@@ -922,6 +922,103 @@ class RekapPresensiPerformanceTest extends TestCase
         ]))->assertForbidden();
     }
 
+    public function test_wali_kelas_can_view_scoped_presensi_siswa_page(): void
+    {
+        Carbon::setTestNow('2026-05-29 08:00:00');
+
+        $waliUser = User::factory()->create(['role' => 'guru']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        $mapel = Mapel::create([
+            'kd_mapel' => 'WALI-PS',
+            'nama_mapel' => 'Presensi Wali',
+        ]);
+
+        $waliGuru = Guru::create([
+            'NIP' => '198501012010011401',
+            'user_id' => $waliUser->id,
+            'nama_guru' => 'Wali Presensi',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        Guru::create([
+            'NIP' => '198501012010011402',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Presensi',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA WALI'])->update([
+            'wali_kelas_nip' => $waliGuru->NIP,
+        ]);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP-WALI-PS',
+            'hari' => 'Senin',
+            'jam_mulai' => 1,
+            'jam_selesai' => 2,
+            'kd_mapel' => $mapel->kd_mapel,
+            'NIP' => $waliGuru->NIP,
+            'kelas' => 'XI-SIJA WALI',
+        ]);
+
+        $siswa = Siswa::create([
+            'NIS' => 'WALI-PS-01',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Sultan Wali',
+            'kelas' => 'XI-SIJA WALI',
+        ]);
+
+        $sesi = SesiPresensi::create([
+            'guru_id' => $waliUser->id,
+            'kelas' => 'XI-SIJA WALI',
+            'kd_jp' => 'JP-WALI-PS',
+            'kode_presensi' => 'WPS-1',
+            'waktu_berlaku' => now()->addHours(2),
+            'status' => 'selesai',
+            'created_at' => Carbon::parse('2026-05-12 07:00:00'),
+            'updated_at' => Carbon::parse('2026-05-12 07:00:00'),
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'PRS-WALI-PS-1',
+            'sesi_id' => $sesi->id,
+            'tanggal' => '2026-05-12',
+            'kd_jp' => null,
+            'jam_masuk' => null,
+            'status' => 'Izin',
+            'NIS' => $siswa->NIS,
+        ]);
+
+        $response = $this->actingAs($waliUser)->get(route('guru.presensi-siswa.index', [
+            'q' => 'sultan',
+            'nis' => 'WALI-PS-01',
+            'tanggal_mulai' => '2026-05-01',
+            'tanggal_akhir' => '2026-05-31',
+        ]));
+
+        $response->assertOk();
+        $response->assertViewHas('selectedKelas', 'XI-SIJA WALI');
+        $response->assertViewHas('selectedSiswaDetail', fn ($selected) => $selected?->NIS === 'WALI-PS-01');
+        $response->assertViewHas('detailTotals', fn (array $detailTotals): bool => $detailTotals['Izin'] === 1);
+        $response->assertSee('Presensi Siswa');
+        $response->assertSee('Sultan Wali');
+    }
+
+    public function test_non_wali_guru_cannot_view_scoped_presensi_siswa_page(): void
+    {
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        Guru::create([
+            'NIP' => '198501012010011403',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Biasa Presensi',
+            'kd_mapel' => null,
+        ]);
+
+        $this->actingAs($guruUser)->get(route('guru.presensi-siswa.index'))->assertForbidden();
+    }
+
     public function test_non_wali_guru_cannot_view_wali_kelas_rekap(): void
     {
         $guruUser = User::factory()->create(['role' => 'guru']);

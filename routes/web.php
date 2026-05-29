@@ -143,6 +143,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/presensi/mulai', [PresensiController::class, 'pilihKelas'])
             ->name('guru.presensi.index');
+        Route::get('/presensi-siswa', [PresensiSiswaController::class, 'index'])
+            ->name('guru.presensi-siswa.index');
         Route::get('/rekap-presensi', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'index'])
             ->name('guru.rekap.index');
         Route::get('/rekap-presensi/export', [\App\Http\Controllers\Admin\RekapPresensiController::class, 'export'])

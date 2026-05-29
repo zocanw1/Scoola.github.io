@@ -317,8 +317,11 @@
             <i class="bi bi-journal-check"></i> Mulai Mengajar
         </a>
         @if($isWaliKelas)
-        <a href="{{ route('guru.rekap.index') }}" class="nav-link {{ request()->routeIs('guru.rekap.*') ? 'active' : '' }}">
+        <a href="{{ route('guru.presensi-siswa.index') }}" class="nav-link {{ request()->routeIs('guru.presensi-siswa.*') ? 'active' : '' }}">
             <i class="bi bi-clipboard2-data-fill"></i> Presensi Siswa
+        </a>
+        <a href="{{ route('guru.rekap.index') }}" class="nav-link {{ request()->routeIs('guru.rekap.*') ? 'active' : '' }}">
+            <i class="bi bi-file-earmark-spreadsheet-fill"></i> Rekap Presensi
         </a>
         @endif
     </div>
