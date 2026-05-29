@@ -134,6 +134,100 @@
         display: none;
     }
 
+    .gps-permission-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        display: grid;
+        place-items: center;
+        padding: 22px;
+        background: rgba(30, 27, 41, .58);
+        backdrop-filter: blur(8px);
+    }
+
+    .gps-permission-backdrop[hidden] {
+        display: none;
+    }
+
+    .gps-permission-dialog {
+        width: min(100%, 430px);
+        border: 4px solid var(--midnight);
+        border-radius: 22px;
+        background: var(--white);
+        box-shadow: 8px 8px 0 var(--midnight);
+        color: var(--midnight);
+        overflow: hidden;
+    }
+
+    .gps-permission-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        border-bottom: 3px solid var(--midnight);
+        background: var(--gold);
+    }
+
+    .gps-permission-icon {
+        width: 54px;
+        height: 54px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        border: 3px solid var(--midnight);
+        border-radius: 16px;
+        background: var(--cyber);
+        box-shadow: 4px 4px 0 var(--midnight);
+        font-size: 25px;
+    }
+
+    .gps-permission-head h3 {
+        margin: 0;
+        font-family: 'Fredoka One', cursive;
+        font-size: 22px;
+        line-height: 1.12;
+    }
+
+    .gps-permission-body {
+        display: grid;
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .gps-permission-body p {
+        margin: 0;
+        font-weight: 850;
+        line-height: 1.55;
+    }
+
+    .gps-permission-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .gps-permission-btn {
+        min-height: 48px;
+        border: 3px solid var(--midnight);
+        border-radius: 13px;
+        background: var(--white);
+        box-shadow: 4px 4px 0 var(--midnight);
+        color: var(--midnight);
+        font-family: 'Fredoka One', cursive;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .gps-permission-btn.primary {
+        background: var(--sakura);
+    }
+
+    .gps-permission-btn:disabled {
+        opacity: .7;
+        cursor: wait;
+        transform: none;
+    }
+
     .submit-shell {
         margin-top: 18px;
     }
@@ -208,6 +302,15 @@
 
         .retry-gps-btn {
             width: 100%;
+        }
+
+        .gps-permission-dialog {
+            border-radius: 18px;
+            box-shadow: 6px 6px 0 var(--midnight);
+        }
+
+        .gps-permission-actions {
+            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -325,6 +428,22 @@
             @endif
         </aside>
     </div>
+
+    <div id="gpsPermissionBackdrop" class="gps-permission-backdrop" hidden>
+        <div class="gps-permission-dialog" role="dialog" aria-modal="true" aria-labelledby="gpsPermissionTitle" aria-describedby="gpsPermissionMessage">
+            <div class="gps-permission-head">
+                <div class="gps-permission-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                <h3 id="gpsPermissionTitle">Aktifkan GPS dulu</h3>
+            </div>
+            <div class="gps-permission-body">
+                <p id="gpsPermissionMessage">Presensi butuh izin lokasi supaya sistem bisa mengecek posisi perangkat kamu.</p>
+                <div class="gps-permission-actions">
+                    <button type="button" id="grantGpsBtn" class="gps-permission-btn primary">Izinkan GPS</button>
+                    <button type="button" id="dismissGpsBtn" class="gps-permission-btn">Nanti Dulu</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -340,8 +459,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const retryGpsBtn = document.getElementById('retryGpsBtn');
     const inputLat = document.getElementById('inputLat');
     const inputLng = document.getElementById('inputLng');
+    const gpsPermissionBackdrop = document.getElementById('gpsPermissionBackdrop');
+    const gpsPermissionTitle = document.getElementById('gpsPermissionTitle');
+    const gpsPermissionMessage = document.getElementById('gpsPermissionMessage');
+    const grantGpsBtn = document.getElementById('grantGpsBtn');
+    const dismissGpsBtn = document.getElementById('dismissGpsBtn');
 
     let gpsReady = false;
+    let gpsRequesting = false;
 
     function updateSubmitState() {
         submitBtn.disabled = !gpsReady || realKode.value.length < inputs.length;
@@ -365,6 +490,19 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSubmitState();
     }
 
+    function showGPSPermission(title = 'Aktifkan GPS dulu', message = 'Presensi butuh izin lokasi supaya sistem bisa mengecek posisi perangkat kamu.') {
+        gpsPermissionTitle.textContent = title;
+        gpsPermissionMessage.textContent = message;
+        gpsPermissionBackdrop.hidden = false;
+        grantGpsBtn.disabled = false;
+        grantGpsBtn.textContent = 'Izinkan GPS';
+        window.setTimeout(() => grantGpsBtn.focus(), 0);
+    }
+
+    function hideGPSPermission() {
+        gpsPermissionBackdrop.hidden = true;
+    }
+
     function initGPS() {
         if (!navigator.geolocation) {
             gpsReady = false;
@@ -373,6 +511,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         gpsReady = false;
+        gpsRequesting = true;
+        grantGpsBtn.disabled = true;
+        grantGpsBtn.textContent = 'Menunggu...';
+        gpsPermissionTitle.textContent = 'Menunggu persetujuan GPS';
+        gpsPermissionMessage.textContent = 'Pilih Izinkan pada permintaan lokasi browser, lalu tunggu sampai posisi terbaca.';
         updateGPSUI('loading', 'Meminta lokasi', 'Tunggu sebentar. Kami sedang membaca lokasi perangkat kamu.');
 
         navigator.geolocation.getCurrentPosition(
@@ -380,10 +523,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 inputLat.value = pos.coords.latitude;
                 inputLng.value = pos.coords.longitude;
                 gpsReady = true;
+                gpsRequesting = false;
+                hideGPSPermission();
                 updateGPSUI('success', 'Lokasi siap', 'Posisi perangkat sudah terdeteksi. Kamu bisa lanjut kirim presensi.');
             },
             (err) => {
                 gpsReady = false;
+                gpsRequesting = false;
                 let status = 'error';
                 let title = 'Lokasi belum siap';
                 let message = 'Kami belum bisa membaca lokasi perangkat kamu.';
@@ -398,14 +544,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     message = 'Sinyal GPS lambat. Coba lagi saat koneksi dan lokasi perangkat lebih stabil.';
                 }
 
+                hideGPSPermission();
                 updateGPSUI(status, title, message);
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
     }
 
-    initGPS();
-    retryGpsBtn.addEventListener('click', initGPS);
+    showGPSPermission();
+    grantGpsBtn.addEventListener('click', initGPS);
+    dismissGpsBtn.addEventListener('click', hideGPSPermission);
+    retryGpsBtn.addEventListener('click', () => {
+        showGPSPermission('Coba izinkan GPS lagi', 'Tekan tombol izinkan, lalu beri akses lokasi dari browser agar presensi bisa dikirim.');
+    });
 
     inputs.forEach((input, index) => {
         input.addEventListener('input', () => {
@@ -449,7 +600,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (!gpsReady) {
             e.preventDefault();
-            alert('Tunggu sampai GPS terdeteksi!');
+            if (!gpsRequesting) {
+                showGPSPermission('GPS belum aktif', 'Izinkan lokasi terlebih dahulu agar tombol presensi bisa digunakan.');
+            }
         }
     });
 });
