@@ -22,6 +22,8 @@ class RekapPresensiPerformanceTest extends TestCase
 
     public function test_rekap_index_builds_slot_and_status_matrices_for_the_selected_class(): void
     {
+        Carbon::setTestNow('2026-05-25 08:00:00');
+
         $admin = User::factory()->create(['role' => 'admin']);
         $guruUser = User::factory()->create(['role' => 'guru']);
 
@@ -273,7 +275,7 @@ class RekapPresensiPerformanceTest extends TestCase
         });
     }
 
-    public function test_rekap_marks_students_as_belum_hadir_when_a_session_was_held_without_presensi(): void
+    public function test_rekap_marks_students_as_alpa_when_a_finished_session_was_held_without_presensi(): void
     {
         Carbon::setTestNow('2026-05-26 08:00:00');
 
@@ -327,8 +329,8 @@ class RekapPresensiPerformanceTest extends TestCase
 
         $response->assertOk();
         $response->assertViewHas('statusMatrix', function (array $statusMatrix): bool {
-            return ($statusMatrix['SISWA-4']['Selasa'][5] ?? null) === 'Belum Hadir'
-                && ($statusMatrix['SISWA-4']['Selasa'][6] ?? null) === 'Belum Hadir';
+            return ($statusMatrix['SISWA-4']['Selasa'][5] ?? null) === 'Alpa'
+                && ($statusMatrix['SISWA-4']['Selasa'][6] ?? null) === 'Alpa';
         });
     }
 
@@ -427,7 +429,7 @@ class RekapPresensiPerformanceTest extends TestCase
         });
     }
 
-    public function test_student_rekap_marks_selected_student_as_belum_hadir_when_session_has_no_record(): void
+    public function test_student_rekap_marks_selected_student_as_alpa_when_finished_session_has_no_record(): void
     {
         Carbon::setTestNow('2026-05-27 08:00:00');
 
@@ -486,7 +488,7 @@ class RekapPresensiPerformanceTest extends TestCase
         $response->assertOk();
         $response->assertViewHas('studentRows', function (Collection $studentRows): bool {
             return $studentRows->count() === 1
-                && $studentRows->first()['status'] === 'Belum Hadir'
+                && $studentRows->first()['status'] === 'Alpa'
                 && $studentRows->first()['mapel'] === 'Fisika';
         });
     }

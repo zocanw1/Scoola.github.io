@@ -7,13 +7,17 @@ use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Support\PresensiRekapBuilder;
+use App\Support\PresensiStatusManager;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class PresensiSiswaController extends Controller
 {
-    public function __construct(private readonly PresensiRekapBuilder $presensiRekapBuilder)
+    public function __construct(
+        private readonly PresensiRekapBuilder $presensiRekapBuilder,
+        private readonly PresensiStatusManager $presensiStatusManager
+    )
     {
     }
 
@@ -25,6 +29,10 @@ class PresensiSiswaController extends Controller
         $selectedNis = $request->input('nis');
         $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
         $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
+
+        if ($selectedNis && ($request->boolean('detail') || $request->filled('tanggal_mulai') || $request->filled('tanggal_akhir'))) {
+            return $this->show($request, $selectedNis);
+        }
 
         $siswas = Siswa::query()
             ->when($selectedKelas, function ($query, string $selectedKelas): void {
@@ -39,15 +47,12 @@ class PresensiSiswaController extends Controller
             ->orderBy('nama_siswa')
             ->get(['NIS', 'nama_siswa', 'kelas']);
 
-        if ($request->boolean('detail') && $selectedNis) {
-            return redirect()->route($pageContext['showRoute'], [
-                'nis' => $selectedNis,
-                'kelas' => $selectedKelas,
-                'q' => $search,
-                'tanggal_mulai' => $tanggalMulai,
-                'tanggal_akhir' => $tanggalAkhir,
-            ]);
-        }
+        $alpaQueue = $this->presensiRekapBuilder->buildCorrectionQueue(
+            $selectedKelas,
+            Carbon::parse($tanggalMulai),
+            Carbon::parse($tanggalAkhir),
+            $search
+        );
 
         return view('admin.presensi-siswa.index', [
             'pageLayout' => $pageContext['layout'],
@@ -60,6 +65,7 @@ class PresensiSiswaController extends Controller
             'selectedNis' => $selectedNis,
             'tanggalMulai' => $tanggalMulai,
             'tanggalAkhir' => $tanggalAkhir,
+            'alpaQueue' => $alpaQueue,
         ]);
     }
 
@@ -104,7 +110,41 @@ class PresensiSiswaController extends Controller
             'breadcrumbSubject' => $detailData['selectedSiswa'],
             'detailRows' => $detailData['studentRows'],
             'detailTotals' => $detailData['studentTotals'],
+            'statusOptions' => PresensiStatusManager::ALLOWED_STATUSES,
         ]);
+    }
+
+    public function updateStatus(Request $request, string $nis)
+    {
+        abort_unless($request->user()?->role === 'admin', 403, 'Akses ditolak');
+
+        $validated = $request->validate([
+            'presensi_id' => 'nullable|string|required_without:sesi_id',
+            'sesi_id' => 'nullable|integer|exists:sesi_presensis,id|required_without:presensi_id',
+            'status' => 'required|in:' . implode(',', PresensiStatusManager::ALLOWED_STATUSES),
+            'correction_reason' => 'required|string|max:1000',
+            'kelas' => 'nullable|string',
+            'q' => 'nullable|string',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_akhir' => 'nullable|date',
+        ]);
+
+        $this->presensiStatusManager->correctStatus(
+            $nis,
+            $validated['presensi_id'] ?? null,
+            $validated['sesi_id'] ?? null,
+            $validated['status'],
+            $validated['correction_reason'],
+            $request->user()
+        );
+
+        return redirect()->route('admin.presensi-siswa.show', [
+            'nis' => $nis,
+            'kelas' => $validated['kelas'] ?? null,
+            'q' => $validated['q'] ?? null,
+            'tanggal_mulai' => $validated['tanggal_mulai'] ?? null,
+            'tanggal_akhir' => $validated['tanggal_akhir'] ?? null,
+        ])->with('success', 'Status presensi berhasil diperbarui.');
     }
 
     private function resolveAccess(Request $request): array

@@ -282,7 +282,7 @@ class RekapPresensiController extends Controller
         $kdJpList = $jadwals->pluck('kd_jp')->filter()->values();
         if ($kdJpList->isNotEmpty()) {
             $heldSessions = SesiPresensi::query()
-                ->select(['id', 'kd_jp'])
+                ->select(['id', 'kd_jp', 'status'])
                 ->where('kelas', $selectedKelas)
                 ->whereIn('kd_jp', $kdJpList)
                 ->whereBetween('created_at', [
@@ -293,10 +293,10 @@ class RekapPresensiController extends Controller
 
             $heldSessionIds = $heldSessions->pluck('id')->values();
             $heldSessionMap = $heldSessions
-                ->pluck('kd_jp')
-                ->filter()
-                ->unique()
-                ->mapWithKeys(fn (string $kdJp): array => [$kdJp => true])
+                ->filter(fn (SesiPresensi $session): bool => (bool) $session->kd_jp)
+                ->mapWithKeys(fn (SesiPresensi $session): array => [
+                    $session->kd_jp => $session->status === 'selesai' ? 'Alpa' : 'Belum Hadir',
+                ])
                 ->all();
 
             $presensiRecords = Presensi::query()
@@ -391,7 +391,7 @@ class RekapPresensiController extends Controller
                     }
 
                     $statusMatrix[$siswa->NIS][$hari][$jam] = $presensiMap[$siswa->NIS][$kdJp]
-                        ?? (isset($heldSessionMap[$kdJp]) ? 'Belum Hadir' : null);
+                        ?? ($heldSessionMap[$kdJp] ?? null);
                 }
             }
         }

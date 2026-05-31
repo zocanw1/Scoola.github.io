@@ -11,6 +11,7 @@
         'Belum Hadir' => 'var(--gold)',
         'Ditolak' => '#ffd9b8',
     ];
+    $canCorrect = auth()->user()?->role === 'admin';
 @endphp
 
 <div class="mp-page">
@@ -89,6 +90,7 @@
                         <th style="border:2px solid var(--midnight); padding:10px; background:var(--cyber); text-align:left;">GURU</th>
                         <th style="border:2px solid var(--midnight); padding:10px; background:var(--cyber);">JAM MASUK</th>
                         <th style="border:2px solid var(--midnight); padding:10px; background:var(--cyber);">STATUS</th>
+                        <th style="border:2px solid var(--midnight); padding:10px; background:var(--cyber); text-align:left;">KOREKSI</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,10 +106,41 @@
                             <td style="border:2px solid var(--midnight); padding:10px; text-align:center;">
                                 <span class="mp-badge" style="background:{{ $statusColors[$row['status']] ?? 'var(--white)' }};">{{ $row['status'] }}</span>
                             </td>
+                            <td style="border:2px solid var(--midnight); padding:10px; min-width:280px;">
+                                @if($canCorrect)
+                                    <form action="{{ route('admin.presensi-siswa.update-status', ['nis' => $row['nis']]) }}" method="POST" style="display:grid; gap:8px;">
+                                        @csrf
+                                        <input type="hidden" name="presensi_id" value="{{ $row['presensi_id'] }}">
+                                        <input type="hidden" name="sesi_id" value="{{ $row['sesi_id'] }}">
+                                        <input type="hidden" name="kelas" value="{{ $selectedSiswaDetail->kelas }}">
+                                        <input type="hidden" name="q" value="{{ $search }}">
+                                        <input type="hidden" name="tanggal_mulai" value="{{ $tanggalMulai }}">
+                                        <input type="hidden" name="tanggal_akhir" value="{{ $tanggalAkhir }}">
+
+                                        <select name="status" class="mp-input" style="min-height:48px;">
+                                            @foreach($statusOptions as $statusOption)
+                                                <option value="{{ $statusOption }}" {{ $row['status'] === $statusOption ? 'selected' : '' }}>{{ $statusOption }}</option>
+                                            @endforeach
+                                        </select>
+                                        <textarea name="correction_reason" class="mp-input" rows="3" placeholder="Alasan wajib, misalnya surat orang tua atau surat dokter." required>{{ old('correction_reason') }}</textarea>
+                                        <button type="submit" class="mp-btn"><i class="bi bi-save"></i> Simpan Koreksi</button>
+                                    </form>
+                                @endif
+
+                                @if($row['latest_correction_reason'])
+                                    <div style="margin-top:{{ $canCorrect ? '12px' : '0' }}; padding:10px 12px; border:2px solid var(--midnight); background:#fff7d1;">
+                                        <div class="mp-label">Riwayat Koreksi</div>
+                                        <div style="margin-top:6px; font-weight:900; color:var(--midnight);">{{ $row['latest_correction_reason'] }}</div>
+                                        <div style="margin-top:6px; color:var(--midnight); font-weight:800;">
+                                            {{ $row['latest_correction_by'] }} &bull; {{ \Carbon\Carbon::parse($row['latest_correction_at'])->format('d M Y H:i') }}
+                                        </div>
+                                    </div>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" style="border:2px solid var(--midnight); padding:24px; text-align:center; font-weight:900;">Belum ada data presensi pada rentang tanggal ini.</td>
+                            <td colspan="9" style="border:2px solid var(--midnight); padding:24px; text-align:center; font-weight:900;">Belum ada data presensi pada rentang tanggal ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -129,6 +162,34 @@
                     <div>{{ $row['jam'] }} &bull; Masuk: {{ $row['jam_masuk'] }}</div>
                     <div>{{ $row['guru'] }}</div>
                 </div>
+                @if($canCorrect)
+                    <form action="{{ route('admin.presensi-siswa.update-status', ['nis' => $row['nis']]) }}" method="POST" style="display:grid; gap:10px; margin-top:14px;">
+                        @csrf
+                        <input type="hidden" name="presensi_id" value="{{ $row['presensi_id'] }}">
+                        <input type="hidden" name="sesi_id" value="{{ $row['sesi_id'] }}">
+                        <input type="hidden" name="kelas" value="{{ $selectedSiswaDetail->kelas }}">
+                        <input type="hidden" name="q" value="{{ $search }}">
+                        <input type="hidden" name="tanggal_mulai" value="{{ $tanggalMulai }}">
+                        <input type="hidden" name="tanggal_akhir" value="{{ $tanggalAkhir }}">
+
+                        <select name="status" class="mp-input" style="min-height:48px;">
+                            @foreach($statusOptions as $statusOption)
+                                <option value="{{ $statusOption }}" {{ $row['status'] === $statusOption ? 'selected' : '' }}>{{ $statusOption }}</option>
+                            @endforeach
+                        </select>
+                        <textarea name="correction_reason" class="mp-input" rows="3" placeholder="Alasan wajib." required>{{ old('correction_reason') }}</textarea>
+                        <button type="submit" class="mp-btn"><i class="bi bi-save"></i> Simpan Koreksi</button>
+                    </form>
+                @endif
+                @if($row['latest_correction_reason'])
+                    <div style="margin-top:14px; padding:12px; border:2px solid var(--midnight); background:#fff7d1;">
+                        <div class="mp-label">Riwayat Koreksi</div>
+                        <div style="margin-top:6px; font-weight:900; color:var(--midnight);">{{ $row['latest_correction_reason'] }}</div>
+                        <div style="margin-top:6px; color:var(--midnight); font-weight:800;">
+                            {{ $row['latest_correction_by'] }} &bull; {{ \Carbon\Carbon::parse($row['latest_correction_at'])->format('d M Y H:i') }}
+                        </div>
+                    </div>
+                @endif
             </section>
         @empty
             <section class="mp-empty-state">

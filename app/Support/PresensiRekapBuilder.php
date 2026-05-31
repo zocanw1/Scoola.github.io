@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\JadwalPelajaran;
 use App\Models\Presensi;
+use App\Models\PresensiStatusHistory;
 use App\Models\SesiPresensi;
 use App\Models\Siswa;
 use Carbon\Carbon;
@@ -138,7 +139,7 @@ class PresensiRekapBuilder
                 $session,
                 $jadwal,
                 $tanggal,
-                $record->status ?? 'Belum Hadir'
+                $record->status ?? $this->resolveImplicitStatusForSession($session)
             ));
         }
 
@@ -187,6 +188,8 @@ class PresensiRekapBuilder
                 ['mapel', 'asc'],
             ])
             ->values();
+
+        $rows = $this->attachCorrectionMetadata($rows);
 
         $totals = array_fill_keys(self::STATUS_LABELS, 0);
         foreach ($rows as $row) {
@@ -242,6 +245,51 @@ class PresensiRekapBuilder
         ];
     }
 
+    public function buildCorrectionQueue(?string $selectedKelas, Carbon $tanggalMulai, Carbon $tanggalAkhir, string $search = ''): Collection
+    {
+        [$start, $end] = $this->normalizeDateRange($tanggalMulai, $tanggalAkhir);
+        $needle = trim(strtolower($search));
+
+        return Presensi::query()
+            ->with([
+                'siswa:NIS,nama_siswa,kelas',
+                'jadwal:kd_jp,kd_mapel,NIP,jam_mulai,jam_selesai',
+                'jadwal.mapel:kd_mapel,nama_mapel',
+            ])
+            ->where('status', 'Alpa')
+            ->whereBetween('tanggal', [$start->toDateString(), $end->toDateString()])
+            ->when($selectedKelas, function ($query, string $kelas): void {
+                $query->whereHas('siswa', function ($studentQuery) use ($kelas): void {
+                    $studentQuery->where('kelas', $kelas);
+                });
+            })
+            ->when($needle !== '', function ($query) use ($needle): void {
+                $query->where(function ($scope) use ($needle): void {
+                    $scope->whereHas('siswa', function ($studentQuery) use ($needle): void {
+                        $studentQuery->whereRaw('LOWER(nama_siswa) like ?', ['%' . $needle . '%'])
+                            ->orWhereRaw('LOWER(NIS) like ?', ['%' . $needle . '%']);
+                    });
+                });
+            })
+            ->orderByDesc('tanggal')
+            ->orderBy('jam_masuk')
+            ->get(['id', 'sesi_id', 'tanggal', 'kd_jp', 'jam_masuk', 'status', 'NIS'])
+            ->map(function (Presensi $presensi): array {
+                return [
+                    'presensi_id' => $presensi->id,
+                    'sesi_id' => $presensi->sesi_id,
+                    'nis' => $presensi->NIS,
+                    'nama_siswa' => $presensi->siswa?->nama_siswa ?? $presensi->NIS,
+                    'kelas' => $presensi->siswa?->kelas ?? '-',
+                    'tanggal' => $presensi->tanggal,
+                    'jam' => $presensi->jadwal ? "Jam {$presensi->jadwal->jam_mulai} - {$presensi->jadwal->jam_selesai}" : '-',
+                    'mapel' => $presensi->jadwal?->mapel?->nama_mapel ?? $presensi->kd_jp ?? '-',
+                    'status' => $presensi->status,
+                ];
+            })
+            ->values();
+    }
+
     private function normalizeDateRange(Carbon $tanggalMulai, Carbon $tanggalAkhir): array
     {
         $start = $tanggalMulai->copy()->startOfDay();
@@ -257,6 +305,8 @@ class PresensiRekapBuilder
     private function makeStudentRow(Siswa $siswa, ?Presensi $record, ?SesiPresensi $session, ?JadwalPelajaran $jadwal, Carbon $tanggal, string $status): array
     {
         return [
+            'presensi_id' => $record?->id,
+            'sesi_id' => $record?->sesi_id ?? $session?->id,
             'nis' => $siswa->NIS,
             'nama_siswa' => $siswa->nama_siswa,
             'tanggal' => $tanggal->toDateString(),
@@ -271,6 +321,57 @@ class PresensiRekapBuilder
             'sort_date' => $tanggal->toDateString(),
             'sort_jam' => $jadwal?->jam_mulai ?? 99,
         ];
+    }
+
+    private function attachCorrectionMetadata(Collection $rows): Collection
+    {
+        $presensiIds = $rows->pluck('presensi_id')->filter()->values();
+
+        if ($presensiIds->isEmpty()) {
+            return $rows->map(fn (array $row): array => $row + [
+                'latest_correction_reason' => null,
+                'latest_correction_at' => null,
+                'latest_correction_by' => null,
+                'correction_history' => collect(),
+            ]);
+        }
+
+        $historyMap = PresensiStatusHistory::query()
+            ->with('changedBy:id,name')
+            ->whereIn('presensi_id', $presensiIds)
+            ->orderByDesc('created_at')
+            ->get()
+            ->groupBy('presensi_id');
+
+        return $rows->map(function (array $row) use ($historyMap): array {
+            $history = collect($historyMap->get($row['presensi_id'], collect()))
+                ->map(fn (PresensiStatusHistory $entry): array => [
+                    'old_status' => $entry->old_status,
+                    'new_status' => $entry->new_status,
+                    'reason' => $entry->reason,
+                    'changed_at' => optional($entry->created_at)->toDateTimeString(),
+                    'changed_by' => $entry->changedBy?->name ?? '-',
+                ])
+                ->values();
+
+            $latest = $history->first();
+
+            return $row + [
+                'latest_correction_reason' => $latest['reason'] ?? null,
+                'latest_correction_at' => $latest['changed_at'] ?? null,
+                'latest_correction_by' => $latest['changed_by'] ?? null,
+                'correction_history' => $history,
+            ];
+        });
+    }
+
+    private function resolveImplicitStatusForSession(?SesiPresensi $session): string
+    {
+        if (! $session) {
+            return 'Belum Hadir';
+        }
+
+        return $session->status === 'selesai' ? 'Alpa' : 'Belum Hadir';
     }
 
     private function hariIndonesia(Carbon $date): string

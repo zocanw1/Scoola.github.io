@@ -8,11 +8,16 @@ use App\Models\Siswa;
 use App\Models\Presensi;
 use App\Models\JadwalPelajaran;
 use App\Models\Guru;
+use App\Support\PresensiStatusManager;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class PresensiController extends Controller
 {
+    public function __construct(private readonly PresensiStatusManager $presensiStatusManager)
+    {
+    }
+
     /* =========================
        1. PILIH KELAS
     ========================= */
@@ -219,6 +224,8 @@ class PresensiController extends Controller
             'status' => 'selesai',
             'kode_presensi' => null,
         ]);
+
+        $this->presensiStatusManager->finalizeMissingStudentsAsAlpa($sesi->fresh());
 
         // Sesi sekarang sudah berstatus selesai, sehingga data presensi akan tetap tersimpan 
         // untuk direkap oleh Admin dan tidak lagi dihapus.

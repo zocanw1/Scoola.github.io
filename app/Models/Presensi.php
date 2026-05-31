@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Presensi extends Model
 {
@@ -54,5 +55,10 @@ class Presensi extends Model
     public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'NIS', 'NIS');
+    }
+
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(PresensiStatusHistory::class, 'presensi_id', 'id');
     }
 }
