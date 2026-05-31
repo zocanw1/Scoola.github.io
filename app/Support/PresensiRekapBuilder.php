@@ -214,23 +214,127 @@ class PresensiRekapBuilder
         $siswas = $this->getSiswaOptions($selectedKelas);
         [$start, $end] = $this->normalizeDateRange($tanggalMulai, $tanggalAkhir);
 
-        $rows = $siswas->map(function (Siswa $siswa) use ($selectedKelas, $start, $end): array {
-            $studentData = $this->buildStudentRecapData(
-                $selectedKelas,
-                $siswa->nama_siswa,
-                $start,
-                $end,
-                $siswa->NIS
-            );
-
-            return [
+        $rowsByNis = $siswas->mapWithKeys(function (Siswa $siswa): array {
+            return [$siswa->NIS => [
                 'nis' => $siswa->NIS,
                 'nama_siswa' => $siswa->nama_siswa,
                 'kelas' => $siswa->kelas,
-                'totals' => $studentData['studentTotals'],
-                'total_records' => $studentData['studentRows']->count(),
-            ];
-        })->values();
+                'totals' => array_fill_keys(self::STATUS_LABELS, 0),
+                'total_records' => 0,
+            ]];
+        });
+
+        if ($rowsByNis->isEmpty()) {
+            return $this->emptyRangeSummaryData();
+        }
+
+        $nisList = $rowsByNis->keys()->values();
+        $jadwalKeys = JadwalPelajaran::query()
+            ->where('kelas', $selectedKelas)
+            ->pluck('kd_jp')
+            ->filter()
+            ->values();
+
+        $heldSessions = SesiPresensi::query()
+            ->where('kelas', $selectedKelas)
+            ->whereBetween('created_at', [$start, $end])
+            ->get(['id', 'status']);
+
+        $implicitSessionTotals = array_fill_keys(self::STATUS_LABELS, 0);
+        $implicitSessionStatuses = $heldSessions
+            ->mapWithKeys(function (SesiPresensi $session) use (&$implicitSessionTotals): array {
+                $status = $this->resolveImplicitStatusForSession($session);
+                $implicitSessionTotals[$status]++;
+
+                return [$session->id => $status];
+            })
+            ->all();
+
+        $baseRecordCount = count($implicitSessionStatuses);
+
+        $rowsByNis = $rowsByNis->map(function (array $row) use ($implicitSessionTotals, $baseRecordCount): array {
+            $row['totals'] = $implicitSessionTotals;
+            $row['total_records'] = $baseRecordCount;
+
+            return $row;
+        });
+
+        $heldSessionIds = array_keys($implicitSessionStatuses);
+
+        if ($heldSessionIds !== []) {
+            $sessionRecords = Presensi::query()
+                ->whereIn('NIS', $nisList)
+                ->whereIn('sesi_id', $heldSessionIds)
+                ->orderBy('updated_at')
+                ->get(['sesi_id', 'status', 'NIS']);
+
+            $latestSessionRecords = $sessionRecords
+                ->groupBy(fn (Presensi $record): string => $record->NIS . '|' . $record->sesi_id)
+                ->map(fn (Collection $records): ?Presensi => $records->last())
+                ->filter();
+
+            foreach ($latestSessionRecords as $record) {
+                $implicitStatus = $implicitSessionStatuses[$record->sesi_id] ?? null;
+
+                if (! $rowsByNis->has($record->NIS)) {
+                    continue;
+                }
+
+                $row = $rowsByNis->get($record->NIS);
+
+                if ($implicitStatus && array_key_exists($implicitStatus, $row['totals'])) {
+                    $row['totals'][$implicitStatus] = max(0, $row['totals'][$implicitStatus] - 1);
+                }
+
+                if (array_key_exists($record->status, $row['totals'])) {
+                    $row['totals'][$record->status]++;
+                }
+
+                $rowsByNis->put($record->NIS, $row);
+            }
+        }
+
+        $legacyRecords = Presensi::query()
+            ->leftJoin('sesi_presensis', 'sesi_presensis.id', '=', 'presensi.sesi_id')
+            ->select(['presensi.NIS', 'presensi.status'])
+            ->whereIn('presensi.NIS', $nisList)
+            ->whereBetween('presensi.tanggal', [$start->toDateString(), $end->toDateString()])
+            ->when($heldSessionIds !== [], function ($query) use ($heldSessionIds): void {
+                $query->where(function ($scope) use ($heldSessionIds): void {
+                    $scope->whereNull('presensi.sesi_id')
+                        ->orWhereNotIn('presensi.sesi_id', $heldSessionIds);
+                });
+            })
+            ->where(function ($query) use ($jadwalKeys, $selectedKelas): void {
+                if ($jadwalKeys->isNotEmpty()) {
+                    $query->whereIn('presensi.kd_jp', $jadwalKeys)
+                        ->orWhere('sesi_presensis.kelas', $selectedKelas);
+
+                    return;
+                }
+
+                $query->where('sesi_presensis.kelas', $selectedKelas);
+            })
+            ->orderBy('presensi.tanggal')
+            ->orderBy('presensi.jam_masuk')
+            ->get();
+
+        foreach ($legacyRecords as $record) {
+            if (! $rowsByNis->has($record->NIS)) {
+                continue;
+            }
+
+            $row = $rowsByNis->get($record->NIS);
+
+            if (array_key_exists($record->status, $row['totals'])) {
+                $row['totals'][$record->status]++;
+            }
+
+            $row['total_records']++;
+            $rowsByNis->put($record->NIS, $row);
+        }
+
+        $rows = $rowsByNis->values();
 
         $grandTotals = array_fill_keys(self::STATUS_LABELS, 0);
         foreach ($rows as $row) {

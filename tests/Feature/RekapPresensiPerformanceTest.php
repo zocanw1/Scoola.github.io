@@ -12,6 +12,7 @@ use App\Models\Siswa;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
@@ -819,6 +820,98 @@ class RekapPresensiPerformanceTest extends TestCase
                 && $second['totals']['Hadir'] === 1
                 && $second['totals']['Alpa'] === 1;
         });
+    }
+
+    public function test_range_rekap_mode_avoids_n_plus_one_queries_for_large_classes(): void
+    {
+        Carbon::setTestNow('2026-05-29 08:00:00');
+
+        $kakonsli = User::factory()->create(['role' => 'kakonsli']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA PERF']);
+
+        $mapel = Mapel::create([
+            'kd_mapel' => 'PERF',
+            'nama_mapel' => 'Pengujian Performa',
+        ]);
+
+        $guru = Guru::create([
+            'NIP' => '198501012010011399',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Performa',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP-PERF-1',
+            'hari' => 'Kamis',
+            'jam_mulai' => 1,
+            'jam_selesai' => 2,
+            'kd_mapel' => $mapel->kd_mapel,
+            'NIP' => $guru->NIP,
+            'kelas' => 'XI-SIJA PERF',
+        ]);
+
+        $students = collect(range(1, 18))->map(function (int $number): Siswa {
+            return Siswa::create([
+                'NIS' => sprintf('PERF-%02d', $number),
+                'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+                'nama_siswa' => "Siswa Perf {$number}",
+                'kelas' => 'XI-SIJA PERF',
+            ]);
+        });
+
+        $sessionDates = [
+            '2026-05-01 07:00:00',
+            '2026-05-08 07:00:00',
+            '2026-05-15 07:00:00',
+            '2026-05-22 07:00:00',
+        ];
+
+        foreach ($sessionDates as $index => $sessionDate) {
+            $session = SesiPresensi::create([
+                'guru_id' => $guruUser->id,
+                'kelas' => 'XI-SIJA PERF',
+                'kd_jp' => 'JP-PERF-1',
+                'kode_presensi' => 'PERF-' . ($index + 1),
+                'waktu_berlaku' => Carbon::parse($sessionDate)->addHours(2),
+                'status' => 'selesai',
+                'created_at' => Carbon::parse($sessionDate),
+                'updated_at' => Carbon::parse($sessionDate),
+            ]);
+
+            foreach ($students as $studentIndex => $student) {
+                Presensi::create([
+                    'kd_presensi' => sprintf('PRS-PERF-%02d-%02d', $index + 1, $studentIndex + 1),
+                    'sesi_id' => $session->id,
+                    'tanggal' => Carbon::parse($sessionDate)->toDateString(),
+                    'kd_jp' => null,
+                    'jam_masuk' => $studentIndex % 2 === 0 ? '07:00:00' : null,
+                    'status' => $studentIndex % 3 === 0 ? 'Izin' : 'Hadir',
+                    'NIS' => $student->NIS,
+                ]);
+            }
+        }
+
+        $queryCount = 0;
+        DB::listen(function () use (&$queryCount): void {
+            $queryCount++;
+        });
+
+        $response = $this->actingAs($kakonsli)->get(route('admin.rekap.index', [
+            'mode' => 'rentang',
+            'kelas' => 'XI-SIJA PERF',
+            'tanggal_mulai' => '2026-05-01',
+            'tanggal_akhir' => '2026-05-31',
+        ]));
+
+        $response->assertOk();
+        $this->assertLessThanOrEqual(
+            20,
+            $queryCount,
+            'Range rekap should aggregate data in batches instead of querying per student.'
+        );
     }
 
     public function test_wali_kelas_can_view_weekly_and_student_rekap_only_for_assigned_class(): void
