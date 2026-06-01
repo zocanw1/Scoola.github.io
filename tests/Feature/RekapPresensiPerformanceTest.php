@@ -494,6 +494,76 @@ class RekapPresensiPerformanceTest extends TestCase
         });
     }
 
+    public function test_student_rekap_falls_back_when_legacy_record_status_is_empty(): void
+    {
+        Carbon::setTestNow('2026-05-28 08:00:00');
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA LEGACY']);
+
+        $mapel = Mapel::create([
+            'kd_mapel' => 'LEGACY',
+            'nama_mapel' => 'Legacy Test',
+        ]);
+
+        $guru = Guru::create([
+            'NIP' => '198501012010011099',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Legacy',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP-LEGACY',
+            'hari' => 'Rabu',
+            'jam_mulai' => 1,
+            'jam_selesai' => 2,
+            'kd_mapel' => $mapel->kd_mapel,
+            'NIP' => $guru->NIP,
+            'kelas' => 'XI-SIJA LEGACY',
+        ]);
+
+        Siswa::create([
+            'NIS' => 'SISWA-LEGACY',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Siswa Legacy',
+            'kelas' => 'XI-SIJA LEGACY',
+        ]);
+
+        DB::table('presensi')->insert([
+            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'kd_presensi' => 'PRS-LEGACY-EMPTY',
+            'sesi_id' => null,
+            'tanggal' => '2026-05-28',
+            'kd_jp' => 'JP-LEGACY',
+            'jam_masuk' => null,
+            'status' => '',
+            'NIS' => 'SISWA-LEGACY',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.rekap.index', [
+            'mode' => 'siswa',
+            'kelas' => 'XI-SIJA LEGACY',
+            'nama_siswa' => 'Siswa Legacy',
+            'nis' => 'SISWA-LEGACY',
+            'tanggal_mulai' => '2026-05-01',
+            'tanggal_akhir' => '2026-05-31',
+        ]));
+
+        $response->assertOk();
+        $response->assertViewHas('studentRows', function (Collection $studentRows): bool {
+            return $studentRows->count() === 1
+                && $studentRows->first()['status'] === 'Belum Hadir';
+        });
+        $response->assertViewHas('studentTotals', function (array $studentTotals): bool {
+            return $studentTotals['Belum Hadir'] === 1;
+        });
+    }
+
     public function test_student_rekap_export_returns_excel_for_selected_student(): void
     {
         Carbon::setTestNow('2026-05-28 08:00:00');

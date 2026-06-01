@@ -133,6 +133,7 @@ class PresensiRekapBuilder
             $resolvedDate = $record && $record->tanggal
                 ? $this->resolveAttendanceDate($record->tanggal, $session->created_at)
                 : $this->resolveAttendanceDate($session->created_at);
+            $resolvedStatus = $this->resolveAttendanceStatus($record->status ?? null, $session);
 
             $rows->push($this->makeStudentRow(
                 $selectedSiswa,
@@ -140,7 +141,7 @@ class PresensiRekapBuilder
                 $session,
                 $jadwal,
                 $resolvedDate['date'],
-                $record->status ?? $this->resolveImplicitStatusForSession($session),
+                $resolvedStatus,
                 $resolvedDate['label']
             ));
         }
@@ -174,13 +175,14 @@ class PresensiRekapBuilder
             $session = $record->sesi;
             $jadwal = $record->jadwal ?: ($session?->jadwal ?: ($record->kd_jp ? $jadwals->get($record->kd_jp) : null));
             $resolvedDate = $this->resolveAttendanceDate($record->tanggal, $session?->created_at ?? $record->updated_at);
+            $resolvedStatus = $this->resolveAttendanceStatus($record->status, $session);
             $rows->push($this->makeStudentRow(
                 $selectedSiswa,
                 $record,
                 $session,
                 $jadwal,
                 $resolvedDate['date'],
-                $record->status,
+                $resolvedStatus,
                 $resolvedDate['label']
             ));
         }
@@ -279,6 +281,7 @@ class PresensiRekapBuilder
 
             foreach ($latestSessionRecords as $record) {
                 $implicitStatus = $implicitSessionStatuses[$record->sesi_id] ?? null;
+                $resolvedStatus = $this->resolveAttendanceStatus($record->status, null, $implicitStatus);
 
                 if (! $rowsByNis->has($record->NIS)) {
                     continue;
@@ -290,8 +293,8 @@ class PresensiRekapBuilder
                     $row['totals'][$implicitStatus] = max(0, $row['totals'][$implicitStatus] - 1);
                 }
 
-                if (array_key_exists($record->status, $row['totals'])) {
-                    $row['totals'][$record->status]++;
+                if (array_key_exists($resolvedStatus, $row['totals'])) {
+                    $row['totals'][$resolvedStatus]++;
                 }
 
                 $rowsByNis->put($record->NIS, $row);
@@ -329,9 +332,10 @@ class PresensiRekapBuilder
             }
 
             $row = $rowsByNis->get($record->NIS);
+            $resolvedStatus = $this->resolveAttendanceStatus($record->status);
 
-            if (array_key_exists($record->status, $row['totals'])) {
-                $row['totals'][$record->status]++;
+            if (array_key_exists($resolvedStatus, $row['totals'])) {
+                $row['totals'][$resolvedStatus]++;
             }
 
             $row['total_records']++;
@@ -538,5 +542,20 @@ class PresensiRekapBuilder
         } catch (Throwable) {
             return null;
         }
+    }
+
+    private function resolveAttendanceStatus(mixed $value, ?SesiPresensi $session = null, ?string $fallback = null): string
+    {
+        $status = is_string($value) ? trim($value) : '';
+
+        if ($status !== '' && in_array($status, self::STATUS_LABELS, true)) {
+            return $status;
+        }
+
+        if ($fallback && in_array($fallback, self::STATUS_LABELS, true)) {
+            return $fallback;
+        }
+
+        return $this->resolveImplicitStatusForSession($session);
     }
 }
