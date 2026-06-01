@@ -207,6 +207,68 @@ class RekapPresensiPerformanceTest extends TestCase
         $response->assertSee('Siswa 2');
     }
 
+    public function test_student_rekap_still_loads_when_presensi_status_history_table_is_missing(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA HIST']);
+
+        $mapel = Mapel::create([
+            'kd_mapel' => 'SEJ',
+            'nama_mapel' => 'Sejarah',
+        ]);
+
+        $guru = Guru::create([
+            'NIP' => '198501012010011099',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Histori',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP099',
+            'hari' => 'Senin',
+            'jam_mulai' => 1,
+            'jam_selesai' => 2,
+            'kd_mapel' => $mapel->kd_mapel,
+            'NIP' => $guru->NIP,
+            'kelas' => 'XI-SIJA HIST',
+        ]);
+
+        $siswa = Siswa::create([
+            'NIS' => 'SISWA-HIST',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Siswa Histori',
+            'kelas' => 'XI-SIJA HIST',
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'PRS-HIST',
+            'sesi_id' => null,
+            'tanggal' => '2026-05-26',
+            'kd_jp' => 'JP099',
+            'jam_masuk' => '07:00:00',
+            'status' => 'Hadir',
+            'NIS' => $siswa->NIS,
+        ]);
+
+        Schema::dropIfExists('presensi_status_histories');
+
+        $response = $this->actingAs($admin)->get(route('admin.rekap.index', [
+            'mode' => 'siswa',
+            'kelas' => 'XI-SIJA HIST',
+            'nama_siswa' => $siswa->nama_siswa,
+            'nis' => $siswa->NIS,
+            'tanggal_mulai' => '2026-05-01',
+            'tanggal_akhir' => '2026-05-31',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Riwayat Presensi');
+        $response->assertSee('Siswa Histori');
+    }
+
     public function test_rekap_uses_sesi_presensi_kd_jp_when_presensi_kd_jp_is_empty(): void
     {
         Carbon::setTestNow('2026-05-25 08:00:00');

@@ -9,7 +9,9 @@ use App\Models\SesiPresensi;
 use App\Models\Siswa;
 use Carbon\Carbon;
 use Throwable;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class PresensiRekapBuilder
 {
@@ -438,23 +440,36 @@ class PresensiRekapBuilder
 
     private function attachCorrectionMetadata(Collection $rows): Collection
     {
+        $emptyMetadata = static fn (array $row): array => $row + [
+            'latest_correction_reason' => null,
+            'latest_correction_at' => null,
+            'latest_correction_by' => null,
+            'correction_history' => collect(),
+        ];
         $presensiIds = $rows->pluck('presensi_id')->filter()->values();
 
         if ($presensiIds->isEmpty()) {
-            return $rows->map(fn (array $row): array => $row + [
-                'latest_correction_reason' => null,
-                'latest_correction_at' => null,
-                'latest_correction_by' => null,
-                'correction_history' => collect(),
-            ]);
+            return $rows->map($emptyMetadata);
         }
 
-        $historyMap = PresensiStatusHistory::query()
-            ->with('changedBy:id,name')
-            ->whereIn('presensi_id', $presensiIds)
-            ->orderByDesc('created_at')
-            ->get()
-            ->groupBy('presensi_id');
+        if (! Schema::hasTable('presensi_status_histories')) {
+            return $rows->map($emptyMetadata);
+        }
+
+        try {
+            $historyMap = PresensiStatusHistory::query()
+                ->with('changedBy:id,name')
+                ->whereIn('presensi_id', $presensiIds)
+                ->orderByDesc('created_at')
+                ->get()
+                ->groupBy('presensi_id');
+        } catch (QueryException $exception) {
+            if ($this->isMissingCorrectionHistoryTableException($exception)) {
+                return $rows->map($emptyMetadata);
+            }
+
+            throw $exception;
+        }
 
         return $rows->map(function (array $row) use ($historyMap): array {
             $history = collect($historyMap->get($row['presensi_id'], collect()))
@@ -476,6 +491,18 @@ class PresensiRekapBuilder
                 'correction_history' => $history,
             ];
         });
+    }
+
+    private function isMissingCorrectionHistoryTableException(QueryException $exception): bool
+    {
+        $message = strtolower($exception->getMessage());
+
+        return str_contains($message, 'presensi_status_histories')
+            && (
+                str_contains($message, 'no such table')
+                || str_contains($message, 'does not exist')
+                || str_contains($message, 'undefined table')
+            );
     }
 
     private function resolveImplicitStatusForSession(?SesiPresensi $session): string
