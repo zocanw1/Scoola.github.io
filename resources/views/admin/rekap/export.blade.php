@@ -5,6 +5,19 @@
     <title>Rekap Presensi</title>
 </head>
 <body>
+    @php
+        $formatDateLabel = static function ($value): string {
+            if ($value === null || $value === '') {
+                return '-';
+            }
+
+            try {
+                return \Carbon\Carbon::parse($value)->format('d M Y');
+            } catch (\Throwable) {
+                return (string) $value;
+            }
+        };
+    @endphp
     @if(($mode ?? 'mingguan') === 'siswa')
         <table border="1" cellpadding="5" cellspacing="0">
             <thead>
@@ -12,7 +25,7 @@
                     <th colspan="8" style="text-align: center; font-size: 16px; font-weight: bold; background-color: #f3f3f3;">
                         REKAP PRESENSI PER SISWA<br>
                         {{ $selectedSiswa->nama_siswa }} ({{ $selectedSiswa->NIS }}) - KELAS {{ $selectedKelas }}<br>
-                        PERIODE {{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($tanggalAkhir)->format('d M Y') }}
+                        PERIODE {{ $formatDateLabel($tanggalMulai) }} - {{ $formatDateLabel($tanggalAkhir) }}
                     </th>
                 </tr>
                 <tr>
@@ -30,7 +43,7 @@
                 @forelse($studentRows as $index => $row)
                     <tr>
                         <td style="text-align: center;">{{ $index + 1 }}</td>
-                        <td style="text-align: center;">{{ \Carbon\Carbon::parse($row['tanggal'])->format('d M Y') }}</td>
+                        <td style="text-align: center;">{{ $row['tanggal_label'] ?? $formatDateLabel($row['tanggal'] ?? null) }}</td>
                         <td style="text-align: center;">{{ $row['hari'] }}</td>
                         <td style="text-align: center;">{{ $row['jam'] }}</td>
                         <td>{{ $row['mapel'] }}</td>
@@ -62,7 +75,7 @@
                     <th colspan="{{ 4 + count($rangeSummaryTotals ?? []) }}" style="text-align: center; font-size: 16px; font-weight: bold; background-color: #f3f3f3;">
                         REKAP PRESENSI RENTANG TANGGAL<br>
                         KELAS {{ $selectedKelas }}<br>
-                        PERIODE {{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($tanggalAkhir)->format('d M Y') }}
+                        PERIODE {{ $formatDateLabel($tanggalMulai) }} - {{ $formatDateLabel($tanggalAkhir) }}
                     </th>
                 </tr>
                 <tr>

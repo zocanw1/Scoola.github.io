@@ -6,6 +6,8 @@ use App\Models\Guru;
 use App\Models\JadwalPelajaran;
 use App\Models\Kelas;
 use App\Models\Mapel;
+use App\Models\Presensi;
+use App\Models\SesiPresensi;
 use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -144,6 +146,96 @@ class BreadcrumbNavigationTest extends TestCase
         $detailResponse->assertSee('Detail Kehadiran');
         $detailResponse->assertSee('scoola-breadcrumb-current">Siswa Anchor', false);
         $detailResponse->assertSee(route('admin.presensi-siswa.index', ['kelas' => 'XI-SIJA ANCHOR'], false), false);
+    }
+
+    public function test_presensi_siswa_detail_page_accepts_literal_slash_nis_urls(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        Kelas::firstOrCreate([
+            'nama_kelas' => 'XI-SIJA 2',
+        ], [
+            'wali_kelas_nip' => null,
+        ]);
+
+        $siswa = Siswa::create([
+            'NIS' => '17588/122/065',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Literal Slash',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        $detailResponse = $this->actingAs($admin)->get(
+            '/admin/presensi-siswa/17588/122/065?q=&kelas=XI-SIJA%202&tanggal_mulai=2026-05-01&tanggal_akhir=2026-06-01'
+        );
+
+        $detailResponse->assertOk();
+        $detailResponse->assertSee($siswa->nama_siswa);
+        $detailResponse->assertSee('Detail Kehadiran');
+    }
+
+    public function test_presensi_siswa_detail_page_tolerates_malformed_legacy_attendance_dates(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 2'], ['wali_kelas_nip' => null]);
+
+        $mapel = Mapel::create([
+            'kd_mapel' => 'MAPEL-MALFORMED',
+            'nama_mapel' => 'Basis Data',
+        ]);
+
+        Guru::create([
+            'NIP' => 'NIP-MALFORMED',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Malformed',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP-MALFORMED',
+            'hari' => 'Senin',
+            'jam_mulai' => 1,
+            'jam_selesai' => 2,
+            'kd_mapel' => $mapel->kd_mapel,
+            'NIP' => 'NIP-MALFORMED',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        $siswa = Siswa::create([
+            'NIS' => '17588/122/065',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Tanggal Rusak',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        $sesi = SesiPresensi::create([
+            'guru_id' => $guruUser->id,
+            'kelas' => 'XI-SIJA 2',
+            'kd_jp' => 'JP-MALFORMED',
+            'kode_presensi' => 'BAD123',
+            'waktu_berlaku' => now()->addHour(),
+            'status' => 'selesai',
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'BAD-DATE-001',
+            'sesi_id' => $sesi->id,
+            'tanggal' => '2026-05-xx',
+            'kd_jp' => 'JP-MALFORMED',
+            'jam_masuk' => null,
+            'status' => 'Hadir',
+            'NIS' => $siswa->NIS,
+        ]);
+
+        $detailResponse = $this->actingAs($admin)->get(
+            '/admin/presensi-siswa/17588/122/065?q=&kelas=XI-SIJA%202&tanggal_mulai=2026-05-01&tanggal_akhir=2026-06-01'
+        );
+
+        $detailResponse->assertOk();
+        $detailResponse->assertSee($siswa->nama_siswa);
+        $detailResponse->assertSee('2026-05-xx');
     }
 
     private function createJadwalForGuru(User $guruUser, string $kodeJp, string $kelas): JadwalPelajaran

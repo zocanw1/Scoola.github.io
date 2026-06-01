@@ -12,6 +12,28 @@
         'Ditolak' => '#ffd9b8',
     ];
     $canCorrect = auth()->user()?->role === 'admin';
+    $formatDateLabel = static function ($value): string {
+        if ($value === null || $value === '') {
+            return '-';
+        }
+
+        try {
+            return \Carbon\Carbon::parse($value)->format('d M Y');
+        } catch (\Throwable) {
+            return (string) $value;
+        }
+    };
+    $formatDateTimeLabel = static function ($value): string {
+        if ($value === null || $value === '') {
+            return '-';
+        }
+
+        try {
+            return \Carbon\Carbon::parse($value)->format('d M Y H:i');
+        } catch (\Throwable) {
+            return (string) $value;
+        }
+    };
 @endphp
 
 <div class="mp-page">
@@ -34,7 +56,7 @@
                 <p style="margin:0; color:var(--midnight); font-weight:900;">{{ $selectedSiswaDetail->NIS }} &bull; {{ $selectedSiswaDetail->kelas }}</p>
             </div>
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                <span class="mp-badge" style="background:var(--white);">{{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($tanggalAkhir)->format('d M Y') }}</span>
+                <span class="mp-badge" style="background:var(--white);">{{ $formatDateLabel($tanggalMulai) }} - {{ $formatDateLabel($tanggalAkhir) }}</span>
                 <a href="{{ route($pageRoute ?? 'admin.presensi-siswa.index', ['kelas' => $selectedKelas, 'q' => $search]) }}" class="mp-btn mp-btn-secondary" style="text-decoration:none;">
                     <i class="bi bi-arrow-left"></i> Kembali ke Daftar
                 </a>
@@ -97,7 +119,7 @@
                     @forelse($detailRows as $index => $row)
                         <tr>
                             <td style="border:2px solid var(--midnight); padding:10px; text-align:center;">{{ $index + 1 }}</td>
-                            <td style="border:2px solid var(--midnight); padding:10px; text-align:center;">{{ \Carbon\Carbon::parse($row['tanggal'])->format('d M Y') }}</td>
+                            <td style="border:2px solid var(--midnight); padding:10px; text-align:center;">{{ $row['tanggal_label'] ?? $formatDateLabel($row['tanggal'] ?? null) }}</td>
                             <td style="border:2px solid var(--midnight); padding:10px; text-align:center;">{{ $row['hari'] }}</td>
                             <td style="border:2px solid var(--midnight); padding:10px; text-align:center;">{{ $row['jam'] }}</td>
                             <td style="border:2px solid var(--midnight); padding:10px;">{{ $row['mapel'] }}</td>
@@ -132,7 +154,7 @@
                                         <div class="mp-label">Riwayat Koreksi</div>
                                         <div style="margin-top:6px; font-weight:900; color:var(--midnight);">{{ $row['latest_correction_reason'] }}</div>
                                         <div style="margin-top:6px; color:var(--midnight); font-weight:800;">
-                                            {{ $row['latest_correction_by'] }} &bull; {{ \Carbon\Carbon::parse($row['latest_correction_at'])->format('d M Y H:i') }}
+                                            {{ $row['latest_correction_by'] }} &bull; {{ $formatDateTimeLabel($row['latest_correction_at']) }}
                                         </div>
                                     </div>
                                 @endif
@@ -153,7 +175,7 @@
             <section class="mp-card">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
                     <div>
-                        <span class="mp-label">{{ $row['hari'] }}, {{ \Carbon\Carbon::parse($row['tanggal'])->format('d M Y') }}</span>
+                        <span class="mp-label">{{ $row['hari'] }}, {{ $row['tanggal_label'] ?? $formatDateLabel($row['tanggal'] ?? null) }}</span>
                         <h3 style="margin:6px 0 0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:24px;">{{ $row['mapel'] }}</h3>
                     </div>
                     <span class="mp-badge" style="background:{{ $statusColors[$row['status']] ?? 'var(--white)' }};">{{ $row['status'] }}</span>
@@ -186,7 +208,7 @@
                         <div class="mp-label">Riwayat Koreksi</div>
                         <div style="margin-top:6px; font-weight:900; color:var(--midnight);">{{ $row['latest_correction_reason'] }}</div>
                         <div style="margin-top:6px; color:var(--midnight); font-weight:800;">
-                            {{ $row['latest_correction_by'] }} &bull; {{ \Carbon\Carbon::parse($row['latest_correction_at'])->format('d M Y H:i') }}
+                            {{ $row['latest_correction_by'] }} &bull; {{ $formatDateTimeLabel($row['latest_correction_at']) }}
                         </div>
                     </div>
                 @endif

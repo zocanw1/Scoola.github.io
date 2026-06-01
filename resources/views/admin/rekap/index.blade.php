@@ -24,6 +24,17 @@
         'rentang' => 'Rekap Rentang Tanggal',
         default => 'Rekap Mingguan',
     };
+    $formatDateLabel = static function ($value): string {
+        if ($value === null || $value === '') {
+            return '-';
+        }
+
+        try {
+            return \Carbon\Carbon::parse($value)->format('d M Y');
+        } catch (\Throwable) {
+            return (string) $value;
+        }
+    };
 @endphp
 
 <div class="mp-page">
@@ -252,7 +263,7 @@
                     <section class="mp-card mp-card-gold">
                         <span class="mp-label">Rekap Per Siswa</span>
                         <h2 style="margin:8px 0 6px; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:30px;">{{ $selectedSiswa->nama_siswa }}</h2>
-                        <p style="margin:0; color:var(--midnight); font-weight:900;">{{ $selectedSiswa->NIS }} &bull; {{ $selectedSiswa->kelas }} &bull; {{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($tanggalAkhir)->format('d M Y') }}</p>
+                        <p style="margin:0; color:var(--midnight); font-weight:900;">{{ $selectedSiswa->NIS }} &bull; {{ $selectedSiswa->kelas }} &bull; {{ $formatDateLabel($tanggalMulai) }} - {{ $formatDateLabel($tanggalAkhir) }}</p>
 
                         <div class="mp-touch-grid" style="grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); margin-top:18px;">
                             @foreach($studentTotals as $label => $count)
@@ -288,7 +299,7 @@
                                     @forelse($studentRows as $index => $row)
                                         <tr>
                                             <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $index + 1 }}</td>
-                                            <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ \Carbon\Carbon::parse($row['tanggal'])->format('d M Y') }}</td>
+                                            <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $row['tanggal_label'] ?? $formatDateLabel($row['tanggal'] ?? null) }}</td>
                                             <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $row['hari'] }}</td>
                                             <td style="border: 2px solid var(--midnight); padding: 10px; text-align:center;">{{ $row['jam'] }}</td>
                                             <td style="border: 2px solid var(--midnight); padding: 10px;">{{ $row['mapel'] }}</td>
@@ -313,7 +324,7 @@
                             <section class="mp-card rekap-student-row">
                                 <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
                                     <div>
-                                        <span class="mp-label">{{ $row['hari'] }}, {{ \Carbon\Carbon::parse($row['tanggal'])->format('d M Y') }}</span>
+                                        <span class="mp-label">{{ $row['hari'] }}, {{ $row['tanggal_label'] ?? $formatDateLabel($row['tanggal'] ?? null) }}</span>
                                         <h3 style="margin:6px 0 0; color:var(--midnight); font-family:'Fredoka One', cursive; font-size:24px;">{{ $row['mapel'] }}</h3>
                                     </div>
                                     <span class="mp-badge" style="background:{{ $statusColors[$row['status']] ?? 'var(--white)' }};">{{ $row['status'] }}</span>

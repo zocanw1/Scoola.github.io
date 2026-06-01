@@ -8,6 +8,7 @@ use App\Models\PresensiStatusHistory;
 use App\Models\SesiPresensi;
 use App\Models\Siswa;
 use Carbon\Carbon;
+use Throwable;
 use Illuminate\Support\Collection;
 
 class PresensiRekapBuilder
@@ -129,17 +130,18 @@ class PresensiRekapBuilder
         foreach ($heldSessions as $session) {
             $record = $presensiBySession->get($session->id);
             $jadwal = $session->jadwal ?: ($session->kd_jp ? $jadwals->get($session->kd_jp) : null);
-            $tanggal = $record && $record->tanggal
-                ? Carbon::parse($record->tanggal)
-                : $session->created_at->copy();
+            $resolvedDate = $record && $record->tanggal
+                ? $this->resolveAttendanceDate($record->tanggal, $session->created_at)
+                : $this->resolveAttendanceDate($session->created_at);
 
             $rows->push($this->makeStudentRow(
                 $selectedSiswa,
                 $record,
                 $session,
                 $jadwal,
-                $tanggal,
-                $record->status ?? $this->resolveImplicitStatusForSession($session)
+                $resolvedDate['date'],
+                $record->status ?? $this->resolveImplicitStatusForSession($session),
+                $resolvedDate['label']
             ));
         }
 
@@ -171,13 +173,15 @@ class PresensiRekapBuilder
         foreach ($legacyRecords as $record) {
             $session = $record->sesi;
             $jadwal = $record->jadwal ?: ($session?->jadwal ?: ($record->kd_jp ? $jadwals->get($record->kd_jp) : null));
+            $resolvedDate = $this->resolveAttendanceDate($record->tanggal, $session?->created_at ?? $record->updated_at);
             $rows->push($this->makeStudentRow(
                 $selectedSiswa,
                 $record,
                 $session,
                 $jadwal,
-                Carbon::parse($record->tanggal),
-                $record->status
+                $resolvedDate['date'],
+                $record->status,
+                $resolvedDate['label']
             ));
         }
 
@@ -406,7 +410,7 @@ class PresensiRekapBuilder
         return [$start, $end];
     }
 
-    private function makeStudentRow(Siswa $siswa, ?Presensi $record, ?SesiPresensi $session, ?JadwalPelajaran $jadwal, Carbon $tanggal, string $status): array
+    private function makeStudentRow(Siswa $siswa, ?Presensi $record, ?SesiPresensi $session, ?JadwalPelajaran $jadwal, Carbon $tanggal, string $status, ?string $tanggalLabel = null): array
     {
         return [
             'presensi_id' => $record?->id,
@@ -414,6 +418,7 @@ class PresensiRekapBuilder
             'nis' => $siswa->NIS,
             'nama_siswa' => $siswa->nama_siswa,
             'tanggal' => $tanggal->toDateString(),
+            'tanggal_label' => $tanggalLabel ?: $tanggal->format('d M Y'),
             'hari' => $jadwal->hari ?? $this->hariIndonesia($tanggal),
             'jam' => $jadwal ? "Jam {$jadwal->jam_mulai} - {$jadwal->jam_selesai}" : '-',
             'jam_masuk' => $record?->jam_masuk ?: '-',
@@ -489,5 +494,49 @@ class PresensiRekapBuilder
             'Friday' => 'Jumat',
             'Saturday' => 'Sabtu',
         ][$date->format('l')];
+    }
+
+    private function resolveAttendanceDate(mixed $value, mixed $fallback = null): array
+    {
+        $fallbackDate = $this->safeCarbon($fallback) ?? now();
+        $rawValue = is_scalar($value) ? trim((string) $value) : '';
+
+        if ($rawValue === '' && $value === null) {
+            return [
+                'date' => $fallbackDate,
+                'label' => $fallbackDate->format('d M Y'),
+            ];
+        }
+
+        try {
+            $date = Carbon::parse($value);
+
+            return [
+                'date' => $date,
+                'label' => $date->format('d M Y'),
+            ];
+        } catch (Throwable) {
+            return [
+                'date' => $fallbackDate,
+                'label' => $rawValue !== '' ? $rawValue : $fallbackDate->format('d M Y'),
+            ];
+        }
+    }
+
+    private function safeCarbon(mixed $value): ?Carbon
+    {
+        if ($value instanceof Carbon) {
+            return $value->copy();
+        }
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value);
+        } catch (Throwable) {
+            return null;
+        }
     }
 }
