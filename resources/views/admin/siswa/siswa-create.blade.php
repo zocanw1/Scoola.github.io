@@ -52,6 +52,14 @@
                 </div>
 
                 <div class="mp-field">
+                    <label class="mp-label">L / P</label>
+                    <select name="jenis_kelamin" class="mp-input" required>
+                        <option value="L" {{ old('jenis_kelamin', 'L') == 'L' ? 'selected' : '' }}>Laki-laki (L)</option>
+                        <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan (P)</option>
+                    </select>
+                </div>
+
+                <div class="mp-field">
                     <label class="mp-label">Alamat Email Institusi</label>
                     <input type="email" name="email" class="mp-input" placeholder="nama@sekolah.com" required value="{{ old('email') }}">
                 </div>

@@ -75,6 +75,12 @@ class DashboardMetricsTest extends TestCase
                     && (float) $kelas->persentase === 75.0;
             });
         });
+        $response->assertViewHas('studentComposition', function ($studentComposition) {
+            return collect($studentComposition)->contains(function ($item) {
+                return $item->label === 'XI-SIJA 1'
+                    && $item->total === 2;
+            });
+        });
     }
 
     public function test_guru_dashboard_counts_multiple_sessions_in_same_class_correctly(): void

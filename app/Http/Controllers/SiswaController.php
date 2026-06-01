@@ -48,6 +48,7 @@ class SiswaController extends Controller
             'nis'      => 'required|string|max:50|unique:siswa,NIS',
             'nama'     => 'required|string|max:255',
             'kelas'    => 'required|in:XI-SIJA 1,XI-SIJA 2',
+            'jenis_kelamin' => 'required|in:L,P',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6',
         ]);
@@ -66,6 +67,7 @@ class SiswaController extends Controller
                 'user_id'    => $user->id,
                 'nama_siswa' => $request->nama,
                 'kelas'      => $request->kelas,
+                'jenis_kelamin' => $request->jenis_kelamin,
             ]);
         });
 
@@ -122,6 +124,7 @@ class SiswaController extends Controller
                     'user_id' => $user->id,
                     'nama_siswa' => $nama,
                     'kelas' => $kelas,
+                    'jenis_kelamin' => 'L',
                 ]);
 
                 $created++;
@@ -154,6 +157,7 @@ class SiswaController extends Controller
         $request->validate([
             'nama'  => 'required|string|max:255',
             'kelas' => 'required|in:XI-SIJA 1,XI-SIJA 2',
+            'jenis_kelamin' => 'required|in:L,P',
             'email' => 'required|email|unique:users,email,' . $siswa->user_id,
         ]);
 
@@ -161,6 +165,7 @@ class SiswaController extends Controller
             $siswa->update([
                 'nama_siswa' => $request->nama,
                 'kelas'      => $request->kelas,
+                'jenis_kelamin' => $request->jenis_kelamin,
             ]);
 
             $siswa->user->update([

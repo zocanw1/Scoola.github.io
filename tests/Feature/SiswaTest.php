@@ -31,6 +31,7 @@ class SiswaTest extends TestCase
 
         $response = $this->actingAs($admin)->get(route('siswa.create'));
         $response->assertStatus(200);
+        $response->assertSee('name="jenis_kelamin"', false);
     }
 
     public function test_admin_can_create_siswa(): void
@@ -41,12 +42,13 @@ class SiswaTest extends TestCase
             'nis'      => '12345678',
             'nama'     => 'Test Siswa',
             'kelas'    => 'XI-SIJA 1',
+            'jenis_kelamin' => 'P',
             'email'    => 'siswa@test.com',
             'password' => 'password123',
         ]);
 
         $response->assertRedirect(route('siswa.index'));
-        $this->assertDatabaseHas('siswa', ['NIS' => '12345678', 'nama_siswa' => 'Test Siswa']);
+        $this->assertDatabaseHas('siswa', ['NIS' => '12345678', 'nama_siswa' => 'Test Siswa', 'jenis_kelamin' => 'P']);
         $this->assertDatabaseHas('users', ['email' => 'siswa@test.com', 'role' => 'siswa']);
     }
 
@@ -65,11 +67,12 @@ class SiswaTest extends TestCase
         $response = $this->actingAs($admin)->put(route('siswa.update', '99999999'), [
             'nama'  => 'New Name',
             'kelas' => 'XI-SIJA 1',
+            'jenis_kelamin' => 'L',
             'email' => $user->email,
         ]);
 
         $response->assertRedirect(route('siswa.index'));
-        $this->assertDatabaseHas('siswa', ['NIS' => '99999999', 'nama_siswa' => 'New Name', 'kelas' => 'XI-SIJA 1']);
+        $this->assertDatabaseHas('siswa', ['NIS' => '99999999', 'nama_siswa' => 'New Name', 'kelas' => 'XI-SIJA 1', 'jenis_kelamin' => 'L']);
     }
 
     public function test_admin_can_open_edit_form_for_siswa_with_slashes_in_nis(): void
@@ -110,6 +113,7 @@ class SiswaTest extends TestCase
         $response = $this->actingAs($admin)->put(route('siswa.update', ['nis' => '18401/076/065']), [
             'nama' => 'Slash Student Updated',
             'kelas' => 'XI-SIJA 2',
+            'jenis_kelamin' => 'P',
             'email' => 'slash@student.test',
         ]);
 
@@ -118,6 +122,7 @@ class SiswaTest extends TestCase
             'NIS' => '18401/076/065',
             'nama_siswa' => 'Slash Student Updated',
             'kelas' => 'XI-SIJA 2',
+            'jenis_kelamin' => 'P',
         ]);
     }
 
@@ -138,6 +143,6 @@ class SiswaTest extends TestCase
             'nama' => '',
         ]);
 
-        $response->assertSessionHasErrors(['nis', 'nama', 'kelas', 'email', 'password']);
+        $response->assertSessionHasErrors(['nis', 'nama', 'kelas', 'jenis_kelamin', 'email', 'password']);
     }
 }

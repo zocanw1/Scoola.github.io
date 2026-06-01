@@ -42,13 +42,14 @@ class GuruTest extends TestCase
         $response = $this->actingAs($admin)->post(route('guru.store'), [
             'nip'      => '198501012010011001',
             'nama'     => 'Test Guru',
+            'jenis_kelamin' => 'L',
             'kd_mapel' => [$mapel->kd_mapel],
             'email'    => 'guru@test.com',
             'password' => 'password123',
         ]);
 
         $response->assertRedirect(route('guru.index'));
-        $this->assertDatabaseHas('guru', ['NIP' => '198501012010011001', 'nama_guru' => 'Test Guru']);
+        $this->assertDatabaseHas('guru', ['NIP' => '198501012010011001', 'nama_guru' => 'Test Guru', 'jenis_kelamin' => 'L']);
         $this->assertDatabaseHas('users', ['email' => 'guru@test.com', 'role' => 'guru']);
     }
 
@@ -67,11 +68,12 @@ class GuruTest extends TestCase
 
         $response = $this->actingAs($admin)->put(route('guru.update', '111111111'), [
             'nama'     => 'New Guru',
+            'jenis_kelamin' => 'P',
             'kd_mapel' => [$mapel->kd_mapel],
         ]);
 
         $response->assertRedirect(route('guru.index'));
-        $this->assertDatabaseHas('guru', ['NIP' => '111111111', 'nama_guru' => 'New Guru']);
+        $this->assertDatabaseHas('guru', ['NIP' => '111111111', 'nama_guru' => 'New Guru', 'jenis_kelamin' => 'P']);
     }
 
     public function test_non_admin_cannot_access_guru(): void

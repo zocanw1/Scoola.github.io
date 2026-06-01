@@ -38,6 +38,7 @@ class GuruCredentialUpdateTest extends TestCase
 
         $response = $this->actingAs($admin)->put(route('guru.update', $guru->NIP), [
             'nama' => 'Guru Uji Baru',
+            'jenis_kelamin' => 'L',
             'kd_mapel' => [$mapel->kd_mapel],
             'email' => 'guru.baru@example.com',
             'password' => 'password-baru',
@@ -89,6 +90,7 @@ class GuruCredentialUpdateTest extends TestCase
             ->actingAs($admin)
             ->put(route('guru.update', $guru->NIP), [
                 'nama' => 'Guru Uji Baru',
+                'jenis_kelamin' => 'L',
                 'kd_mapel' => [$mapel->kd_mapel],
                 'email' => 'guru.baru@example.com',
                 'password' => 'password-baru',

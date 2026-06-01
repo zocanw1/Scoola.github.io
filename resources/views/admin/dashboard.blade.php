@@ -170,6 +170,46 @@
             grid-template-columns: 1fr;
         }
     }
+
+    .student-pie-shell {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .student-pie-chart {
+        width: 168px;
+        height: 168px;
+        border-radius: 50%;
+        border: 4px solid #1E1B29;
+        box-shadow: 6px 6px 0px 0px #1E1B29;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .student-pie-hole {
+        position: absolute;
+        inset: 28px;
+        border-radius: 50%;
+        background: #FFFFFF;
+        border: 3px solid #1E1B29;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 10px;
+    }
+
+    @media (max-width: 640px) {
+        .student-pie-shell {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .student-pie-chart {
+            margin: 0 auto;
+        }
+    }
 </style>
 
 <div class="font-anime-body text-[#1E1B29] min-h-screen w-full -m-6 p-6" >
@@ -178,7 +218,7 @@
         <div class="absolute inset-0 pattern-dot opacity-20 pointer-events-none"></div>
         
         <span class="absolute top-4 right-4 bg-[#FDCB6E] text-[#1E1B29] border-2 border-[#1E1B29] font-anime-header text-xs px-3 py-1.5 rounded-lg rotate-3 shadow-[3px_3px_0px_rgba(30,27,41,1)]">
-            ( ≧◡≦ ) HELLO!
+            ( â‰§â—¡â‰¦ ) HELLO!
         </span>
 
         <div class="relative z-10">
@@ -189,17 +229,17 @@
                 OVERVIEW
             </h1>
             <p class="font-anime-body text-base font-semibold max-w-xl text-white opacity-95 mt-2">
-                Ringkasan ekosistem Scoola hari ini. Pantau kehadiran siswa dan efektivitas pengajaran secara real-time dengan energi penuh! ⚡
+                Ringkasan ekosistem Scoola hari ini. Pantau kehadiran siswa dan efektivitas pengajaran secara real-time dengan energi penuh! âš¡
             </p>
         </div>
     </div>
 
     @php 
         $stats = [
-            ['Total Siswa', $totalSiswa, "$totalKelasAktif unit kelas aktif", '#00CEC9', '🎓'], 
-            ['Kehadiran', $persentaseHadir . '%', "$hadirHariIni siswa hadir", '#FF7675', '✨'], 
-            ['Izin / Sakit', $izinSakitHariIni, "siswa berhalangan", '#FFFFFF', '💬'], 
-            ['Absensi Alpha', $alpaHariIni, $alpaHariIni > 0 ? 'Perlu tindakan segera' : 'Data aman', '#FDCB6E', '⚠️']
+            ['Total Siswa', $totalSiswa, "$totalKelasAktif unit kelas aktif", '#00CEC9', 'ðŸŽ“'], 
+            ['Kehadiran', $persentaseHadir . '%', "$hadirHariIni siswa hadir", '#FF7675', 'âœ¨'], 
+            ['Izin / Sakit', $izinSakitHariIni, "siswa berhalangan", '#FFFFFF', 'ðŸ’¬'], 
+            ['Absensi Alpha', $alpaHariIni, $alpaHariIni > 0 ? 'Perlu tindakan segera' : 'Data aman', '#FDCB6E', 'âš ï¸']
         ];
     @endphp
 
@@ -230,10 +270,10 @@
             <div>
                 <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
                     <h2 class="font-anime-header text-xl text-[#1E1B29] flex items-center gap-2">
-                        <span>📝</span> Absensi Masuk Terbaru
+                        <span>ðŸ“</span> Absensi Masuk Terbaru
                     </h2>
                     <a href="{{ route('admin.rekap.index') }}" class="neo-btn bg-[#00CEC9] text-[#1E1B29] text-xs px-4 py-2 rounded-lg no-underline inline-flex items-center">
-                        Lihat Semua →
+                        Lihat Semua â†’
                     </a>
                 </div>
                 
@@ -256,7 +296,7 @@
                                             {{ $absen->siswa->kelas ?? '-' }}
                                         </span>
                                     </td>
-                                    <td class="font-mono text-xs">{{ $absen->jam_masuk ?? '—' }}</td>
+                                    <td class="font-mono text-xs">{{ $absen->jam_masuk ?? 'â€”' }}</td>
                                     <td>
                                         <span class="badge-anime {{ $absen->status == 'Hadir' ? 'badge-anime-hadir' : 'badge-anime-absen' }}">
                                             {{ $absen->status }}
@@ -266,7 +306,7 @@
                             @empty
                                 <tr>
                                     <td colspan="4" class="text-center py-12 text-gray-500 font-bold italic bg-[#FAF9FF]">
-                                        (′·_·`) Belum ada aktivitas terekam hari ini
+                                        (â€²Â·_Â·`) Belum ada aktivitas terekam hari ini
                                     </td>
                                 </tr>
                             @endforelse
@@ -278,7 +318,7 @@
             <div class="neo-card p-6 bg-white">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="font-anime-header text-xl text-[#1E1B29] flex items-center gap-2">
-                        <span>⚡</span> Agenda Belajar Hari Ini
+                        <span>âš¡</span> Agenda Belajar Hari Ini
                     </h2>
                     <a href="/admin/jadwal" class="neo-btn bg-[#FF7675] text-white text-xs px-4 py-2 rounded-lg no-underline inline-flex items-center">
                         Kelola
@@ -300,7 +340,7 @@
                                 </div>
                             </div>
                             <div class="font-anime-header text-sm text-[#6C5CE7] flex items-center gap-1">
-                                <span>👤</span> {{ $j[3] }}
+                                <span>ðŸ‘¤</span> {{ $j[3] }}
                             </div>
                         </div>
                     @endforeach
@@ -313,7 +353,7 @@
             
             <div class="neo-card p-6 bg-white">
                 <h2 class="font-anime-header text-xl text-[#1E1B29] mb-6 flex items-center gap-2">
-                    <span>📊</span> Analitik Kehadiran
+                    <span>ðŸ“Š</span> Analitik Kehadiran
                 </h2>
                 
                 <div class="h-48 flex items-end gap-3 border-b-4 border-[#1E1B29] pb-4 px-2 mb-4 bg-[#FAF9FF] rounded-xl border-t border-l border-r border-gray-100">
@@ -345,9 +385,59 @@
                 </div>
             </div>
 
-            <div class="neo-card p-6 bg-white">
+                        <div class="neo-card p-6 bg-white">
                 <h2 class="font-anime-header text-xl text-[#1E1B29] mb-6 flex items-center gap-2">
-                    <span>🏫</span> Data Per Kelas
+                    <span>ðŸ¥§</span> Komposisi Siswa
+                </h2>
+
+                @php
+                    $firstSegment = $studentComposition[0] ?? null;
+                    $secondSegment = $studentComposition[1] ?? null;
+                    $firstStop = $firstSegment?->percentage ?? 0;
+                    $pieBackground = $studentCompositionTotal > 0
+                        ? "conic-gradient({$firstSegment->color} 0 {$firstStop}%, {$secondSegment->color} {$firstStop}% 100%)"
+                        : 'conic-gradient(#FAF9FF 0 100%)';
+                @endphp
+
+                @if($studentCompositionTotal > 0)
+                    <div class="student-pie-shell">
+                        <div class="student-pie-chart" style="background: {{ $pieBackground }};">
+                            <div class="student-pie-hole">
+                                <div>
+                                    <div class="font-anime-header text-xs uppercase tracking-widest text-[#6C5CE7]">Total</div>
+                                    <div class="font-anime-header text-4xl text-[#1E1B29]" style="line-height: 1;">{{ $studentCompositionTotal }}</div>
+                                    <div class="text-[11px] font-black uppercase tracking-wide text-[#1E1B29]">Siswa</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 flex flex-col gap-3">
+                            @foreach($studentComposition as $segment)
+                                <div class="neo-card p-4" style="background-color: #FAF9FF;">
+                                    <div class="flex justify-between items-center gap-3 mb-2">
+                                        <div class="flex items-center gap-3">
+                                            <span class="inline-block w-4 h-4 rounded-full border-2 border-[#1E1B29]" style="background-color: {{ $segment->color }};"></span>
+                                            <span class="font-anime-header text-sm text-[#1E1B29]">{{ $segment->label }}</span>
+                                        </div>
+                                        <span class="bg-[#FDCB6E] border-2 border-[#1E1B29] px-2 py-0.5 text-xs rounded font-extrabold shadow-[1.5px_1.5px_0px_#1E1B29]">
+                                            {{ rtrim(rtrim(number_format($segment->percentage, 1), '0'), '.') }}%
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between items-center gap-3 text-sm font-black text-[#1E1B29]">
+                                        <span>{{ $segment->total }} siswa</span>
+                                        <span class="text-[#6C5CE7] uppercase">{{ $studentCompositionTotal }} total</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="text-center text-gray-400 text-sm font-bold py-6 italic">Data siswa untuk diagram belum tersedia</div>
+                @endif
+            </div>
+<div class="neo-card p-6 bg-white">
+                <h2 class="font-anime-header text-xl text-[#1E1B29] mb-6 flex items-center gap-2">
+                    <span>ðŸ«</span> Data Per Kelas
                 </h2>
                 
                 <div class="flex flex-col gap-4">
@@ -366,7 +456,7 @@
                             </div>
                         </div>
                     @empty
-                        <div class="text-center text-gray-400 text-sm font-bold py-6 italic">(′·_·`) Menunggu data...</div>
+                        <div class="text-center text-gray-400 text-sm font-bold py-6 italic">(â€²Â·_Â·`) Menunggu data...</div>
                     @endforelse
                 </div>
             </div>
@@ -375,7 +465,7 @@
                 <div class="absolute inset-0 pattern-dot opacity-10 pointer-events-none"></div>
                 
                 <h2 class="font-anime-header text-xl text-white mb-6 flex items-center gap-2" style="text-shadow: 2px 2px 0px #1E1B29; -webkit-text-stroke: 1px #1E1B29;">
-                    <span>🚨</span> Laporan Kritikal
+                    <span>ðŸš¨</span> Laporan Kritikal
                 </h2>
                 
                 <div class="flex flex-col gap-4 relative z-10">
@@ -385,7 +475,7 @@
                             Terdapat 5 siswa dengan status Alpha berulang minggu ini.
                         </p>
                         <a href="#" class="inline-block mt-3 font-anime-header text-xs text-[#6C5CE7] no-underline hover:underline">
-                            Tindak Lanjut →
+                            Tindak Lanjut â†’
                         </a>
                     </div>
                     

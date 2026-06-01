@@ -23,7 +23,8 @@ class Siswa extends Model
         'NIS',
         'user_id',
         'nama_siswa',
-        'kelas'
+        'kelas',
+        'jenis_kelamin',
     ];
 
     /* =========================

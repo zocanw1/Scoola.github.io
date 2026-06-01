@@ -52,6 +52,7 @@ class GuruController extends Controller
         $request->validate([
             'nip'        => 'required|string|max:50|unique:guru,NIP',
             'nama'       => 'required|string|max:255',
+            'jenis_kelamin' => 'required|in:L,P',
             'kd_mapel'   => 'required|array',
             'kd_mapel.*' => 'exists:mapel,kd_mapel',
             'email'      => 'required|email|unique:users,email',
@@ -71,6 +72,7 @@ class GuruController extends Controller
                 'NIP'       => $request->nip,
                 'user_id'   => $user->id,
                 'nama_guru' => $request->nama,
+                'jenis_kelamin' => $request->jenis_kelamin,
                 'kd_mapel'  => $request->kd_mapel[0], // Keep first for backward compatibility
             ]);
 
@@ -127,6 +129,7 @@ class GuruController extends Controller
                     'NIP' => $nip,
                     'user_id' => $user->id,
                     'nama_guru' => $nama,
+                    'jenis_kelamin' => 'L',
                     'kd_mapel' => null,
                 ]);
 
@@ -161,6 +164,7 @@ class GuruController extends Controller
 
         $request->validate([
             'nama'       => 'required|string|max:255',
+            'jenis_kelamin' => 'required|in:L,P',
             'kd_mapel'   => 'required|array',
             'kd_mapel.*' => 'exists:mapel,kd_mapel',
         ]);
@@ -190,6 +194,7 @@ class GuruController extends Controller
         DB::transaction(function () use ($request, $guru, $credentialsChanged, $incomingEmail, $passwordChanged) {
             $guru->update([
                 'nama_guru' => $request->nama,
+                'jenis_kelamin' => $request->jenis_kelamin,
                 'kd_mapel'  => $request->kd_mapel[0], // Keep first
             ]);
 

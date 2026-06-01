@@ -48,6 +48,14 @@
                 </div>
 
                 <div class="mp-field">
+                    <label class="mp-label">L / P</label>
+                    <select name="jenis_kelamin" class="mp-input" required>
+                        <option value="L" {{ old('jenis_kelamin', 'L') == 'L' ? 'selected' : '' }}>Laki-laki (L)</option>
+                        <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan (P)</option>
+                    </select>
+                </div>
+
+                <div class="mp-field">
                     <label class="mp-label">Kredensial Akses</label>
                     <input type="password" name="password" class="mp-input" placeholder="Minimal 6 karakter" required>
                     <small class="mp-hint">Password sementara untuk akun guru</small>

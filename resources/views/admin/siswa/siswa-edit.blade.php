@@ -57,6 +57,14 @@
                         <option value="XI-SIJA 2" {{ old('kelas', $siswa->kelas) == 'XI-SIJA 2' ? 'selected' : '' }}>XI-SIJA 2</option>
                     </select>
                 </div>
+
+                <div class="mp-field">
+                    <label class="mp-label">L / P</label>
+                    <select name="jenis_kelamin" class="mp-input" required>
+                        <option value="L" {{ old('jenis_kelamin', $siswa->jenis_kelamin ?? 'L') == 'L' ? 'selected' : '' }}>Laki-laki (L)</option>
+                        <option value="P" {{ old('jenis_kelamin', $siswa->jenis_kelamin ?? 'L') == 'P' ? 'selected' : '' }}>Perempuan (P)</option>
+                    </select>
+                </div>
             </div>
 
             <div class="mp-actions">

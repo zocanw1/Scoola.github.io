@@ -22,6 +22,20 @@ class AdminDashboardController extends Controller
             ->select('kelas', DB::raw('count(*) as total'))
             ->groupBy('kelas')
             ->pluck('total', 'kelas');
+        $studentCompositionTotal = (int) (($studentCountsByClass['XI-SIJA 1'] ?? 0) + ($studentCountsByClass['XI-SIJA 2'] ?? 0));
+        $studentComposition = collect([
+            ['label' => 'XI-SIJA 1', 'total' => (int) ($studentCountsByClass['XI-SIJA 1'] ?? 0), 'color' => '#6C5CE7'],
+            ['label' => 'XI-SIJA 2', 'total' => (int) ($studentCountsByClass['XI-SIJA 2'] ?? 0), 'color' => '#00CEC9'],
+        ])->map(function (array $item) use ($studentCompositionTotal) {
+            return (object) [
+                'label' => $item['label'],
+                'total' => $item['total'],
+                'color' => $item['color'],
+                'percentage' => $studentCompositionTotal > 0
+                    ? round(($item['total'] / $studentCompositionTotal) * 100, 1)
+                    : 0,
+            ];
+        })->all();
 
         $sesiHariIni = SesiPresensi::query()
             ->whereDate('created_at', $todayString)
@@ -114,7 +128,8 @@ class AdminDashboardController extends Controller
         return view('admin.dashboard', compact(
             'totalSiswa', 'totalKelasAktif',
             'hadirHariIni', 'izinSakitHariIni', 'alpaHariIni', 'persentaseHadir',
-            'siswaHarusAbsen', 'absensiTerbaru', 'kelasBreakdown', 'trendData'
+            'siswaHarusAbsen', 'absensiTerbaru', 'kelasBreakdown', 'trendData',
+            'studentComposition', 'studentCompositionTotal'
         ));
     }
 }
