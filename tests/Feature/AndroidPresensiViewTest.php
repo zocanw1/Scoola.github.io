@@ -38,6 +38,9 @@ class AndroidPresensiViewTest extends TestCase
         $response = $this->actingAs($siswaUser)->get(route('siswa.dashboard'));
 
         $response->assertOk();
+        $response->assertSee('id="mainSidebar"', false);
+        $response->assertSee('scoola siswa');
+        $response->assertSee('aria-label="Buka menu"', false);
         $response->assertSee('retryGpsBtn', false);
         $response->assertSee('gps-shell', false);
         $response->assertSee('gpsPermissionBackdrop', false);

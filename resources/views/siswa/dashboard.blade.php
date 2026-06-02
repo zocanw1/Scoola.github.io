@@ -372,7 +372,7 @@
                 </div>
             @endif
 
-            <section class="mp-form-card">
+            <section class="mp-form-card" id="kode-presensi">
                 <div style="display:flex; justify-content:space-between; gap:20px; align-items:flex-start; flex-wrap:wrap;">
                     <div>
                         <span class="mp-label">Kode Sesi</span>
@@ -421,7 +421,7 @@
             </section>
         </div>
 
-        <aside class="mp-card">
+        <aside class="mp-card" id="aktivitas-terakhir">
             <div class="student-profile">
                 <div class="student-avatar"><i class="bi bi-person-fill"></i></div>
                 <div style="min-width:0;">
