@@ -16,6 +16,7 @@ class SiswaPresensiController extends Controller
     private const SCHOOL_LAT = -7.974867815619122;
     private const SCHOOL_LNG = 112.67166658058967;
     private const MAX_RADIUS_METERS = 200; // Radius toleransi dalam meter
+    private const MAX_ACCURACY_ALLOWANCE_METERS = 150;
 
     public function dashboard()
     {
@@ -39,6 +40,7 @@ class SiswaPresensiController extends Controller
             'kode_presensi' => 'required|string|size:6',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
+            'accuracy' => 'nullable|numeric|min:0|max:10000',
         ]);
 
         // Rate limiting — max 10 attempts per minute per user
@@ -84,8 +86,10 @@ class SiswaPresensiController extends Controller
         // ===== Validasi GPS =====
         $latitude = (float) $request->latitude;
         $longitude = (float) $request->longitude;
+        $accuracy = $request->filled('accuracy') ? max(0, (float) $request->accuracy) : null;
         $jarak = $this->hitungJarak($latitude, $longitude, self::SCHOOL_LAT, self::SCHOOL_LNG);
-        $isDalamRadius = $jarak <= self::MAX_RADIUS_METERS;
+        $effectiveRadius = $this->effectiveRadius($accuracy);
+        $isDalamRadius = $jarak <= $effectiveRadius;
 
         // Tentukan status berdasarkan lokasi
         $statusPresensi = $isDalamRadius ? 'Hadir' : 'Ditolak';
@@ -128,7 +132,11 @@ class SiswaPresensiController extends Controller
         // Return message berdasarkan status
         if (!$isDalamRadius) {
             $jarakFormatted = round($jarak);
-            return redirect()->back()->with('error', "Presensi ditolak! Kamu berada {$jarakFormatted}m dari sekolah (maks " . self::MAX_RADIUS_METERS . "m). Hubungi guru untuk mengubah status.");
+            $accuracyHint = $accuracy !== null
+                ? ' Akurasi GPS perangkat (+/-' . round($accuracy) . 'm) sudah diperhitungkan.'
+                : '';
+
+            return redirect()->back()->with('error', "Presensi ditolak! Kamu berada {$jarakFormatted}m dari sekolah (maks " . round($effectiveRadius) . "m).{$accuracyHint} Hubungi guru untuk mengubah status.");
         }
 
         return redirect()->back()->with('success', 'Berhasil! Kehadiran kamu tercatat di sistem.');
@@ -153,5 +161,14 @@ class SiswaPresensiController extends Controller
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return $earthRadius * $c;
+    }
+
+    private function effectiveRadius(?float $accuracy): float
+    {
+        if ($accuracy === null || $accuracy <= 0) {
+            return self::MAX_RADIUS_METERS;
+        }
+
+        return self::MAX_RADIUS_METERS + min($accuracy, self::MAX_ACCURACY_ALLOWANCE_METERS);
     }
 }

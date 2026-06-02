@@ -18,6 +18,7 @@ class PresensiTest extends TestCase
 
     private const SCHOOL_LAT = -7.974867815619122;
     private const SCHOOL_LNG = 112.67166658058967;
+    private const METERS_PER_LAT_DEGREE = 111_320;
 
     private function createJadwalForGuru(User $guruUser, string $kelas = 'XI-SIJA 1'): JadwalPelajaran
     {
@@ -189,6 +190,80 @@ class PresensiTest extends TestCase
             'NIS'     => '22222222',
             'sesi_id' => $sesi->id,
             'status'  => 'Hadir',
+        ]);
+    }
+
+    public function test_siswa_can_absen_when_device_location_is_near_and_accuracy_explains_offset(): void
+    {
+        $guru = User::factory()->create(['role' => 'guru']);
+        $siswaUser = User::factory()->create(['role' => 'siswa']);
+
+        Siswa::create([
+            'NIS' => '22223333',
+            'user_id' => $siswaUser->id,
+            'nama_siswa' => 'Offset Student',
+            'kelas' => 'XI-SIJA 1',
+        ]);
+
+        $sesi = SesiPresensi::create([
+            'guru_id' => $guru->id,
+            'kelas' => 'XI-SIJA 1',
+            'kode_presensi' => 'AKURAT',
+            'waktu_berlaku' => Carbon::now()->addHours(2),
+            'status' => 'aktif',
+        ]);
+
+        $response = $this->actingAs($siswaUser)->post(route('siswa.presensi.store'), [
+            'kode_presensi' => 'AKURAT',
+            'latitude' => self::SCHOOL_LAT + (240 / self::METERS_PER_LAT_DEGREE),
+            'longitude' => self::SCHOOL_LNG,
+            'accuracy' => 80,
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+        $this->assertDatabaseHas('presensi', [
+            'NIS' => '22223333',
+            'sesi_id' => $sesi->id,
+            'status' => 'Hadir',
+            'is_dalam_radius' => true,
+        ]);
+    }
+
+    public function test_siswa_still_cannot_absen_when_offset_exceeds_accuracy_tolerance(): void
+    {
+        $guru = User::factory()->create(['role' => 'guru']);
+        $siswaUser = User::factory()->create(['role' => 'siswa']);
+
+        Siswa::create([
+            'NIS' => '22224444',
+            'user_id' => $siswaUser->id,
+            'nama_siswa' => 'Far Offset Student',
+            'kelas' => 'XI-SIJA 1',
+        ]);
+
+        $sesi = SesiPresensi::create([
+            'guru_id' => $guru->id,
+            'kelas' => 'XI-SIJA 1',
+            'kode_presensi' => 'JAUH01',
+            'waktu_berlaku' => Carbon::now()->addHours(2),
+            'status' => 'aktif',
+        ]);
+
+        $response = $this->actingAs($siswaUser)->post(route('siswa.presensi.store'), [
+            'kode_presensi' => 'JAUH01',
+            'latitude' => self::SCHOOL_LAT + (620 / self::METERS_PER_LAT_DEGREE),
+            'longitude' => self::SCHOOL_LNG,
+            'accuracy' => 80,
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('presensi', [
+            'NIS' => '22224444',
+            'sesi_id' => $sesi->id,
+            'status' => 'Ditolak',
+            'is_dalam_radius' => false,
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Siswa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class SiswaTest extends TestCase
@@ -50,6 +51,32 @@ class SiswaTest extends TestCase
         $response->assertRedirect(route('siswa.index'));
         $this->assertDatabaseHas('siswa', ['NIS' => '12345678', 'nama_siswa' => 'Test Siswa', 'jenis_kelamin' => 'P']);
         $this->assertDatabaseHas('users', ['email' => 'siswa@test.com', 'role' => 'siswa']);
+    }
+
+    public function test_admin_can_create_siswa_when_gender_column_has_not_reached_production_yet(): void
+    {
+        $admin = $this->createAdmin();
+
+        Schema::table('siswa', function ($table) {
+            $table->dropColumn('jenis_kelamin');
+        });
+
+        $response = $this->actingAs($admin)->post(route('siswa.store'), [
+            'nis' => '22334455',
+            'nama' => 'Siswa Schema Lama',
+            'kelas' => 'XI-SIJA 1',
+            'jenis_kelamin' => 'L',
+            'email' => 'schema-lama@test.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect(route('siswa.index'));
+        $this->assertDatabaseHas('siswa', [
+            'NIS' => '22334455',
+            'nama_siswa' => 'Siswa Schema Lama',
+            'kelas' => 'XI-SIJA 1',
+        ]);
+        $this->assertDatabaseHas('users', ['email' => 'schema-lama@test.com', 'role' => 'siswa']);
     }
 
     public function test_admin_can_update_siswa(): void

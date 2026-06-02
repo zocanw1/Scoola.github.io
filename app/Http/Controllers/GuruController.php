@@ -8,6 +8,7 @@ use App\Models\Mapel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -49,17 +50,19 @@ class GuruController extends Controller
 
     public function store(Request $request)
     {
+        $hasGenderColumn = $this->hasGenderColumn();
+
         $request->validate([
             'nip'        => 'required|string|max:50|unique:guru,NIP',
             'nama'       => 'required|string|max:255',
-            'jenis_kelamin' => 'required|in:L,P',
+            'jenis_kelamin' => $hasGenderColumn ? 'required|in:L,P' : 'nullable|in:L,P',
             'kd_mapel'   => 'required|array',
             'kd_mapel.*' => 'exists:mapel,kd_mapel',
             'email'      => 'required|email|unique:users,email',
             'password'   => 'required|min:6',
         ]);
 
-        DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request, $hasGenderColumn) {
             $user = User::create([
                 'name'     => $request->nama,
                 'email'    => $request->email,
@@ -68,13 +71,18 @@ class GuruController extends Controller
                 'ref_id'   => $request->nip,
             ]);
 
-            $guru = Guru::create([
+            $guruPayload = [
                 'NIP'       => $request->nip,
                 'user_id'   => $user->id,
                 'nama_guru' => $request->nama,
-                'jenis_kelamin' => $request->jenis_kelamin,
                 'kd_mapel'  => $request->kd_mapel[0], // Keep first for backward compatibility
-            ]);
+            ];
+
+            if ($hasGenderColumn) {
+                $guruPayload['jenis_kelamin'] = $request->jenis_kelamin;
+            }
+
+            $guru = Guru::create($guruPayload);
 
             $guru->mapels()->sync($request->kd_mapel);
         });
@@ -101,7 +109,9 @@ class GuruController extends Controller
         $skipped = 0;
         $seenNips = [];
 
-        DB::transaction(function () use ($rows, &$created, &$skipped, &$seenNips): void {
+        $hasGenderColumn = $this->hasGenderColumn();
+
+        DB::transaction(function () use ($rows, &$created, &$skipped, &$seenNips, $hasGenderColumn): void {
             foreach ($rows as $row) {
                 $nama = trim((string) ($row['nama'] ?? ''));
                 $nip = preg_replace('/\s+/', '', (string) ($row['nip'] ?? ''));
@@ -125,13 +135,18 @@ class GuruController extends Controller
                     'role' => 'guru',
                 ]);
 
-                Guru::create([
+                $guruPayload = [
                     'NIP' => $nip,
                     'user_id' => $user->id,
                     'nama_guru' => $nama,
-                    'jenis_kelamin' => 'L',
                     'kd_mapel' => null,
-                ]);
+                ];
+
+                if ($hasGenderColumn) {
+                    $guruPayload['jenis_kelamin'] = 'L';
+                }
+
+                Guru::create($guruPayload);
 
                 $created++;
             }
@@ -161,10 +176,11 @@ class GuruController extends Controller
     public function update(Request $request, $nip)
     {
         $guru = Guru::with('user')->findOrFail($nip);
+        $hasGenderColumn = $this->hasGenderColumn();
 
         $request->validate([
             'nama'       => 'required|string|max:255',
-            'jenis_kelamin' => 'required|in:L,P',
+            'jenis_kelamin' => $hasGenderColumn ? 'required|in:L,P' : 'nullable|in:L,P',
             'kd_mapel'   => 'required|array',
             'kd_mapel.*' => 'exists:mapel,kd_mapel',
         ]);
@@ -191,12 +207,17 @@ class GuruController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($request, $guru, $credentialsChanged, $incomingEmail, $passwordChanged) {
-            $guru->update([
+        DB::transaction(function () use ($request, $guru, $credentialsChanged, $incomingEmail, $passwordChanged, $hasGenderColumn) {
+            $guruPayload = [
                 'nama_guru' => $request->nama,
-                'jenis_kelamin' => $request->jenis_kelamin,
                 'kd_mapel'  => $request->kd_mapel[0], // Keep first
-            ]);
+            ];
+
+            if ($hasGenderColumn) {
+                $guruPayload['jenis_kelamin'] = $request->jenis_kelamin;
+            }
+
+            $guru->update($guruPayload);
 
             $guru->mapels()->sync($request->kd_mapel);
 
@@ -249,5 +270,10 @@ class GuruController extends Controller
         }
 
         return $email;
+    }
+
+    private function hasGenderColumn(): bool
+    {
+        return Schema::hasColumn('guru', 'jenis_kelamin');
     }
 }

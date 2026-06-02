@@ -202,8 +202,34 @@
 
     .gps-permission-actions {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
+    }
+
+    .gps-permission-help {
+        display: grid;
+        gap: 8px;
+        padding: 14px;
+        border: 3px solid var(--midnight);
+        border-radius: 14px;
+        background: var(--mochi);
+        box-shadow: 4px 4px 0 var(--midnight);
+        font-size: 13px;
+        font-weight: 850;
+        line-height: 1.45;
+    }
+
+    .gps-permission-help[hidden] {
+        display: none;
+    }
+
+    .gps-permission-help ol {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+    .gps-permission-help li + li {
+        margin-top: 4px;
     }
 
     .gps-permission-btn {
@@ -371,6 +397,7 @@
                     <input type="hidden" name="kode_presensi" id="realKode">
                     <input type="hidden" name="latitude" id="inputLat">
                     <input type="hidden" name="longitude" id="inputLng">
+                    <input type="hidden" name="accuracy" id="inputAccuracy">
 
                     <div class="otp-row" id="inputs">
                         @for($i=0; $i<6; $i++)
@@ -437,8 +464,17 @@
             </div>
             <div class="gps-permission-body">
                 <p id="gpsPermissionMessage">Presensi butuh izin lokasi supaya sistem bisa mengecek posisi perangkat kamu.</p>
+                <div id="gpsPermissionHelp" class="gps-permission-help" hidden>
+                    <strong>Izin lokasi bisa diaktifkan lagi dari browser.</strong>
+                    <ol>
+                        <li>Tekan ikon gembok atau setelan situs di samping alamat web.</li>
+                        <li>Pilih Lokasi, lalu ubah menjadi Izinkan.</li>
+                        <li>Kembali ke halaman ini dan tekan Cek Lagi.</li>
+                    </ol>
+                </div>
                 <div class="gps-permission-actions">
                     <button type="button" id="grantGpsBtn" class="gps-permission-btn primary">Izinkan GPS</button>
+                    <button type="button" id="openGpsSettingsBtn" class="gps-permission-btn">Cara Aktifkan</button>
                     <button type="button" id="dismissGpsBtn" class="gps-permission-btn">Nanti Dulu</button>
                 </div>
             </div>
@@ -459,14 +495,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const retryGpsBtn = document.getElementById('retryGpsBtn');
     const inputLat = document.getElementById('inputLat');
     const inputLng = document.getElementById('inputLng');
+    const inputAccuracy = document.getElementById('inputAccuracy');
     const gpsPermissionBackdrop = document.getElementById('gpsPermissionBackdrop');
     const gpsPermissionTitle = document.getElementById('gpsPermissionTitle');
     const gpsPermissionMessage = document.getElementById('gpsPermissionMessage');
+    const gpsPermissionHelp = document.getElementById('gpsPermissionHelp');
     const grantGpsBtn = document.getElementById('grantGpsBtn');
+    const openGpsSettingsBtn = document.getElementById('openGpsSettingsBtn');
     const dismissGpsBtn = document.getElementById('dismissGpsBtn');
 
     let gpsReady = false;
     let gpsRequesting = false;
+    let permissionStatus = null;
 
     function updateSubmitState() {
         submitBtn.disabled = !gpsReady || realKode.value.length < inputs.length;
@@ -490,17 +530,55 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSubmitState();
     }
 
-    function showGPSPermission(title = 'Aktifkan GPS dulu', message = 'Presensi butuh izin lokasi supaya sistem bisa mengecek posisi perangkat kamu.') {
+    function showGPSPermission(title = 'Aktifkan GPS dulu', message = 'Presensi butuh izin lokasi supaya sistem bisa mengecek posisi perangkat kamu.', options = {}) {
         gpsPermissionTitle.textContent = title;
         gpsPermissionMessage.textContent = message;
+        gpsPermissionHelp.hidden = !options.showHelp;
         gpsPermissionBackdrop.hidden = false;
         grantGpsBtn.disabled = false;
-        grantGpsBtn.textContent = 'Izinkan GPS';
+        grantGpsBtn.textContent = options.primaryText || 'Izinkan GPS';
         window.setTimeout(() => grantGpsBtn.focus(), 0);
     }
 
     function hideGPSPermission() {
         gpsPermissionBackdrop.hidden = true;
+    }
+
+    function showDeniedRecovery() {
+        showGPSPermission(
+            'Izin lokasi diblokir',
+            'Kalau tadi tidak sengaja menolak GPS, aktifkan lagi izin lokasi dari pengaturan situs browser lalu tekan Cek Lagi.',
+            { showHelp: true, primaryText: 'Cek Lagi' }
+        );
+        updateGPSUI('denied', 'Izin lokasi diblokir', 'Aktifkan lagi izin lokasi dari pengaturan situs browser, lalu tekan Coba Lagi.');
+    }
+
+    async function refreshPermissionState() {
+        if (!navigator.permissions || !navigator.permissions.query) {
+            showGPSPermission();
+            return;
+        }
+
+        try {
+            permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+            permissionStatus.onchange = () => {
+                if (permissionStatus.state === 'denied') {
+                    showDeniedRecovery();
+                    return;
+                }
+
+                showGPSPermission('GPS bisa diaktifkan lagi', 'Tekan Izinkan GPS untuk membaca ulang lokasi perangkat.');
+            };
+
+            if (permissionStatus.state === 'denied') {
+                showDeniedRecovery();
+                return;
+            }
+        } catch (error) {
+            permissionStatus = null;
+        }
+
+        showGPSPermission();
     }
 
     function initGPS() {
@@ -512,8 +590,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         gpsReady = false;
         gpsRequesting = true;
+        inputAccuracy.value = '';
         grantGpsBtn.disabled = true;
         grantGpsBtn.textContent = 'Menunggu...';
+        gpsPermissionHelp.hidden = true;
         gpsPermissionTitle.textContent = 'Menunggu persetujuan GPS';
         gpsPermissionMessage.textContent = 'Pilih Izinkan pada permintaan lokasi browser, lalu tunggu sampai posisi terbaca.';
         updateGPSUI('loading', 'Meminta lokasi', 'Tunggu sebentar. Kami sedang membaca lokasi perangkat kamu.');
@@ -522,10 +602,12 @@ document.addEventListener('DOMContentLoaded', function() {
             (pos) => {
                 inputLat.value = pos.coords.latitude;
                 inputLng.value = pos.coords.longitude;
+                inputAccuracy.value = Number.isFinite(pos.coords.accuracy) ? pos.coords.accuracy : '';
                 gpsReady = true;
                 gpsRequesting = false;
                 hideGPSPermission();
-                updateGPSUI('success', 'Lokasi siap', 'Posisi perangkat sudah terdeteksi. Kamu bisa lanjut kirim presensi.');
+                const accuracyText = inputAccuracy.value ? ` Akurasi GPS sekitar ${Math.round(pos.coords.accuracy)}m.` : '';
+                updateGPSUI('success', 'Lokasi siap', `Posisi perangkat sudah terdeteksi.${accuracyText} Kamu bisa lanjut kirim presensi.`);
             },
             (err) => {
                 gpsReady = false;
@@ -537,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (err.code === 1) {
                     status = 'denied';
                     title = 'Izin lokasi ditolak';
-                    message = 'Buka izin lokasi browser lalu tekan tombol coba lagi.';
+                    message = 'Aktifkan lagi izin lokasi dari pengaturan situs browser, lalu tekan Coba Lagi.';
                 } else if (err.code === 3) {
                     status = 'timeout';
                     title = 'Pencarian lokasi terlalu lama';
@@ -546,15 +628,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 hideGPSPermission();
                 updateGPSUI(status, title, message);
+                if (status === 'denied') {
+                    showDeniedRecovery();
+                }
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
     }
 
-    showGPSPermission();
+    refreshPermissionState();
     grantGpsBtn.addEventListener('click', initGPS);
+    openGpsSettingsBtn.addEventListener('click', () => {
+        gpsPermissionHelp.hidden = false;
+        grantGpsBtn.textContent = 'Cek Lagi';
+    });
     dismissGpsBtn.addEventListener('click', hideGPSPermission);
     retryGpsBtn.addEventListener('click', () => {
+        if (permissionStatus && permissionStatus.state === 'denied') {
+            showDeniedRecovery();
+            return;
+        }
+
         showGPSPermission('Coba izinkan GPS lagi', 'Tekan tombol izinkan, lalu beri akses lokasi dari browser agar presensi bisa dikirim.');
     });
 

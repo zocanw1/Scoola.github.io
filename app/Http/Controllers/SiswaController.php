@@ -7,6 +7,7 @@ use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 use App\Models\ActivityLog;
@@ -44,16 +45,18 @@ class SiswaController extends Controller
 
     public function store(Request $request)
     {
+        $hasGenderColumn = $this->hasGenderColumn();
+
         $request->validate([
             'nis'      => 'required|string|max:50|unique:siswa,NIS',
             'nama'     => 'required|string|max:255',
             'kelas'    => 'required|in:XI-SIJA 1,XI-SIJA 2',
-            'jenis_kelamin' => 'required|in:L,P',
+            'jenis_kelamin' => $hasGenderColumn ? 'required|in:L,P' : 'nullable|in:L,P',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6',
         ]);
 
-        DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request, $hasGenderColumn) {
             $user = User::create([
                 'name'     => $request->nama,
                 'email'    => $request->email,
@@ -62,13 +65,18 @@ class SiswaController extends Controller
                 'ref_id'   => $request->nis,
             ]);
 
-            Siswa::create([
+            $siswaPayload = [
                 'NIS'        => $request->nis,
                 'user_id'    => $user->id,
                 'nama_siswa' => $request->nama,
                 'kelas'      => $request->kelas,
-                'jenis_kelamin' => $request->jenis_kelamin,
-            ]);
+            ];
+
+            if ($hasGenderColumn) {
+                $siswaPayload['jenis_kelamin'] = $request->jenis_kelamin;
+            }
+
+            Siswa::create($siswaPayload);
         });
 
         ActivityLog::log("Menambahkan data siswa baru: {$request->nama} (NIS: {$request->nis})");
@@ -93,7 +101,9 @@ class SiswaController extends Controller
         $skipped = 0;
         $seenNis = [];
 
-        DB::transaction(function () use ($rows, &$created, &$skipped, &$seenNis): void {
+        $hasGenderColumn = $this->hasGenderColumn();
+
+        DB::transaction(function () use ($rows, &$created, &$skipped, &$seenNis, $hasGenderColumn): void {
             foreach ($rows as $row) {
                 $nis = trim((string) ($row['nis'] ?? ''));
                 $nama = trim((string) ($row['nama'] ?? ''));
@@ -119,13 +129,18 @@ class SiswaController extends Controller
                     'role' => 'siswa',
                 ]);
 
-                Siswa::create([
+                $siswaPayload = [
                     'NIS' => $nis,
                     'user_id' => $user->id,
                     'nama_siswa' => $nama,
                     'kelas' => $kelas,
-                    'jenis_kelamin' => 'L',
-                ]);
+                ];
+
+                if ($hasGenderColumn) {
+                    $siswaPayload['jenis_kelamin'] = 'L';
+                }
+
+                Siswa::create($siswaPayload);
 
                 $created++;
             }
@@ -153,20 +168,26 @@ class SiswaController extends Controller
     public function update(Request $request, $nis)
     {
         $siswa = Siswa::with('user')->findOrFail($nis);
+        $hasGenderColumn = $this->hasGenderColumn();
 
         $request->validate([
             'nama'  => 'required|string|max:255',
             'kelas' => 'required|in:XI-SIJA 1,XI-SIJA 2',
-            'jenis_kelamin' => 'required|in:L,P',
+            'jenis_kelamin' => $hasGenderColumn ? 'required|in:L,P' : 'nullable|in:L,P',
             'email' => 'required|email|unique:users,email,' . $siswa->user_id,
         ]);
 
-        DB::transaction(function () use ($request, $siswa) {
-            $siswa->update([
+        DB::transaction(function () use ($request, $siswa, $hasGenderColumn) {
+            $siswaPayload = [
                 'nama_siswa' => $request->nama,
                 'kelas'      => $request->kelas,
-                'jenis_kelamin' => $request->jenis_kelamin,
-            ]);
+            ];
+
+            if ($hasGenderColumn) {
+                $siswaPayload['jenis_kelamin'] = $request->jenis_kelamin;
+            }
+
+            $siswa->update($siswaPayload);
 
             $siswa->user->update([
                 'name'  => $request->nama,
@@ -225,5 +246,10 @@ class SiswaController extends Controller
         }
 
         return $email;
+    }
+
+    private function hasGenderColumn(): bool
+    {
+        return Schema::hasColumn('siswa', 'jenis_kelamin');
     }
 }
