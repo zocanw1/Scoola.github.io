@@ -581,6 +581,153 @@
             width: fit-content;
         }
     }
+
+    .admin-dashboard {
+        color: var(--midnight);
+        font-family: 'Nunito', sans-serif;
+    }
+
+    .dashboard-hero,
+    .metric-card,
+    .dashboard-card,
+    .dashboard-table-card,
+    .report-card,
+    .agenda-item,
+    .composition-item,
+    .class-item,
+    .empty-state {
+        border: 3px solid var(--midnight) !important;
+        border-radius: 18px !important;
+        box-shadow: 6px 6px 0 var(--midnight) !important;
+        background: var(--white) !important;
+        color: var(--midnight) !important;
+    }
+
+    .dashboard-hero {
+        background:
+            radial-gradient(var(--cosmo) 1.4px, transparent 0),
+            linear-gradient(135deg, var(--cosmo) 0%, #8577ff 100%) !important;
+        background-size: 24px 24px, auto;
+        color: var(--white) !important;
+    }
+
+    .hero-title,
+    .section-title,
+    .metric-value,
+    .agenda-title,
+    .report-title,
+    .composition-number,
+    .item-head {
+        color: var(--midnight) !important;
+        font-family: 'Fredoka One', cursive;
+        letter-spacing: 0 !important;
+    }
+
+    .dashboard-hero .hero-title {
+        color: var(--white) !important;
+        text-shadow: 3px 3px 0 var(--midnight);
+        -webkit-text-stroke: 1px var(--midnight);
+    }
+
+    .dashboard-hero .hero-description {
+        color: rgba(255, 255, 255, 0.92) !important;
+        font-weight: 800;
+    }
+
+    .hero-kicker,
+    .section-kicker,
+    .soft-pill,
+    .table-status,
+    .metric-label,
+    .agenda-time,
+    .preview-live {
+        border: 2px solid var(--midnight) !important;
+        border-radius: 12px !important;
+        background: var(--gold) !important;
+        color: var(--midnight) !important;
+        box-shadow: 3px 3px 0 var(--midnight) !important;
+        font-family: 'Fredoka One', cursive;
+        letter-spacing: 0 !important;
+    }
+
+    .clean-btn,
+    .clean-btn-secondary {
+        border: 3px solid var(--midnight) !important;
+        border-radius: 14px !important;
+        box-shadow: 4px 4px 0 var(--midnight) !important;
+        font-family: 'Fredoka One', cursive;
+        text-transform: uppercase;
+    }
+
+    .clean-btn {
+        background: var(--sakura) !important;
+        color: var(--white) !important;
+        text-shadow: 2px 2px 0 var(--midnight);
+    }
+
+    .clean-btn-secondary {
+        background: var(--cyber) !important;
+        color: var(--midnight) !important;
+    }
+
+    .clean-btn:hover,
+    .clean-btn-secondary:hover,
+    .metric-card:hover,
+    .dashboard-card:hover,
+    .report-card:hover {
+        transform: translate(-2px, -2px) !important;
+        box-shadow: 7px 7px 0 var(--midnight) !important;
+    }
+
+    .metric-card:nth-child(1) .metric-icon,
+    .preview-icon,
+    .composition-chart {
+        background: var(--cyber) !important;
+        color: var(--midnight) !important;
+        border: 3px solid var(--midnight) !important;
+    }
+
+    .metric-card:nth-child(2) .metric-icon {
+        background: var(--gold) !important;
+    }
+
+    .metric-card:nth-child(3) .metric-icon {
+        background: var(--sakura) !important;
+        color: var(--white) !important;
+    }
+
+    .metric-card:nth-child(4) .metric-icon {
+        background: var(--cosmo) !important;
+        color: var(--white) !important;
+    }
+
+    .preview-panel,
+    .preview-row,
+    .chart-shell,
+    .clean-table-wrap {
+        border: 3px solid var(--midnight) !important;
+        box-shadow: 4px 4px 0 var(--midnight) !important;
+        background: var(--white) !important;
+    }
+
+    .chart-fill,
+    .progress-fill {
+        background: var(--cosmo) !important;
+        border: 2px solid var(--midnight);
+    }
+
+    .clean-table th {
+        background: var(--gold) !important;
+        color: var(--midnight) !important;
+        border-bottom: 3px solid var(--midnight) !important;
+        font-family: 'Fredoka One', cursive;
+    }
+
+    .clean-table td {
+        color: var(--midnight) !important;
+        border-bottom: 2px solid var(--midnight) !important;
+        font-weight: 800;
+    }
 </style>
 
 <div class="admin-dashboard">
