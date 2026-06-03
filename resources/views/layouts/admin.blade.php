@@ -1,13 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Scoola - Admin</title>
+    <title>Scoola â€” Admin</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <script>
@@ -31,6 +32,8 @@
 
                 html.setAttribute('data-theme', newTheme);
                 try { localStorage.setItem(storageKey, newTheme); } catch (e) {}
+
+                console.log('Theme toggled to:', newTheme);
             };
         })();
     </script>
@@ -40,435 +43,518 @@
 
     <style>
         :root {
-            --admin-blue: #2563eb;
-            --admin-blue-dark: #1d4ed8;
-            --admin-soft-blue: #eff6ff;
-            --admin-blue-line: #dbeafe;
-            --admin-dark: #101828;
-            --admin-text: #344054;
-            --admin-muted: #667085;
-            --admin-soft: #98a2b3;
-            --admin-line: #eaecf0;
-            --admin-line-soft: #f2f4f7;
-            --admin-white: #ffffff;
-            --admin-bg: #ffffff;
-            --admin-section: #fbfcfe;
-            --admin-green: #16a34a;
-            --admin-green-soft: #ecfdf3;
-            --admin-orange: #f59e0b;
-            --admin-orange-soft: #fff7ed;
-            --admin-red: #ef4444;
-            --admin-red-soft: #fef2f2;
-            --admin-shadow-sm: 0 10px 28px rgba(16, 24, 40, 0.06);
-            --admin-shadow-md: 0 24px 70px rgba(16, 24, 40, 0.09);
-            --admin-shadow-lg: 0 32px 90px rgba(16, 24, 40, 0.12);
-            --admin-radius: 22px;
-            --font-sans: Inter, Arial, Helvetica, sans-serif;
-
-            --sakura: var(--admin-blue);
-            --cyber: var(--admin-soft-blue);
-            --cosmo: var(--admin-blue);
-            --gold: var(--admin-soft-blue);
-            --midnight: var(--admin-dark);
-            --mochi: var(--admin-section);
-            --white: var(--admin-white);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html {
-            min-height: 100%;
-            background: var(--admin-bg);
+            /* Definisi Palet Warna Resmi Manga-Pop */
+            --sakura: #FF7675;
+            --cyber: #00CEC9;
+            --cosmo: #6C5CE7;
+            --gold: #FDCB6E;
+            --midnight: #1E1B29;
+            --mochi: #FAF9FF;
+            --white: #FFFFFF;
+            --font-sans: 'Nunito', 'Inter', system-ui, sans-serif;
         }
 
         body {
-            min-height: 100vh;
-            display: flex;
-            margin: 0;
-            color: var(--admin-dark);
-            background:
-                linear-gradient(180deg, #ffffff 0%, #f8fbff 48%, #ffffff 100%);
+            /* Latar Belakang Komik Titik-Titik Pop (Mochi Cream + Radial Cosmo Violet Dots) */
+            background-color: var(--mochi);
+            background-image: radial-gradient(var(--cosmo) 1.5px, transparent 0);
+            background-size: 32px 32px;
+            background-attachment: fixed;
+
+            color: var(--midnight);
             font-family: var(--font-sans);
-            letter-spacing: 0;
+            margin: 0;
             -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
+            display: flex;
+            min-height: 100vh;
         }
 
-        button,
-        input,
-        select,
-        textarea {
-            font: inherit;
-        }
-
-        a {
-            color: inherit;
-        }
-
+        /* Sidebar - Panel Komik Manga-Pop Style */
         .runway-sidebar {
-            width: 280px;
+            width: 260px;
             position: sticky;
             top: 0;
             align-self: flex-start;
             height: 100vh;
+            background-color: var(--white);
+            /* Garis pembatas tinta tebal khas panel manga */
+            border-right: 4px solid var(--midnight);
             display: flex;
-            flex-shrink: 0;
             flex-direction: column;
+            flex-shrink: 0;
             overflow: hidden;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.96);
-            border-right: 1px solid var(--admin-line);
-            box-shadow: 12px 0 42px rgba(16, 24, 40, 0.04);
-            backdrop-filter: blur(18px);
-            transition: transform 0.24s ease;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        @media (max-width: 992px) {
+            .runway-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+            }
+            .runway-sidebar.mobile-open {
+                transform: translateX(0);
+            }
         }
 
         .sb-brand {
-            min-height: 76px;
+            height: 64px;
             display: flex;
             align-items: center;
-            padding: 0 22px;
-            border-bottom: 1px solid var(--admin-line);
-            background: var(--admin-white);
+            padding: 0 24px;
+            border-bottom: 4px solid var(--midnight);
+            background-color: var(--gold); /* Header brand bernuansa ceria */
         }
 
         .brand-logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--admin-dark);
-            font-size: 18px;
-            font-weight: 900;
-            letter-spacing: -0.02em;
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 22px;
+            color: var(--midnight);
             text-decoration: none;
-        }
-
-        .brand-logo::before {
-            content: "S";
-            width: 40px;
-            height: 40px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 14px;
-            background: var(--admin-blue);
-            color: #ffffff;
-            box-shadow: 0 16px 30px rgba(37, 99, 235, 0.20);
+            letter-spacing: -0.5px;
+            text-transform: lowercase;
+            text-shadow: 2px 2px 0px var(--white);
         }
 
         .sb-nav {
+            padding: 24px 16px;
             flex: 1;
             overflow-y: auto;
-            padding: 24px 16px;
-        }
-
-        .sb-nav::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .sb-nav::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .sb-nav::-webkit-scrollbar-thumb {
-            background: #e5e7eb;
-            border-radius: 999px;
         }
 
         .sb-section {
-            margin: 24px 8px 11px;
-            color: var(--admin-muted);
-            font-size: 11px;
-            font-weight: 900;
-            letter-spacing: 0.08em;
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
+            color: var(--midnight);
+            opacity: 0.8;
+            margin-bottom: 12px;
+            margin-top: 24px;
+            padding: 0 8px;
         }
 
         .sb-section:first-child {
             margin-top: 0;
         }
 
+        /* Tombol Navigasi Efek Hover Mekanis Neo-Brutalism */
         .nav-link {
-            min-height: 46px;
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 6px;
-            padding: 0 13px;
-            border: 1px solid transparent;
-            border-radius: 14px;
-            color: var(--admin-text);
+            padding: 10px 14px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: 800;
+            color: var(--midnight);
             text-decoration: none;
-            transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+            border: 3px solid transparent;
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 8px;
+        }
+
+        /* Efek Timbul & Melayang Solid Khas Neobrutalism */
+        .nav-link:hover, .nav-link.active {
+            color: var(--midnight) !important;
+            background-color: var(--cyber) !important; /* Cyber Oasis */
+            border-color: var(--midnight) !important;
+            box-shadow: 4px 4px 0px var(--midnight) !important;
+            transform: translate(-3px, -3px);
+        }
+
+        /* Efek Tekan yang Memuaskan saat Di-klik */
+        .nav-link:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px var(--midnight) !important;
         }
 
         .nav-link i {
-            width: 18px;
-            color: var(--admin-soft);
-            font-size: 17px;
-            transition: color 0.18s ease;
+            font-size: 16px;
+            color: var(--midnight);
+            transition: transform 0.2s;
         }
 
-        .nav-link:hover,
-        .nav-link.active {
-            color: var(--admin-blue) !important;
-            background: var(--admin-soft-blue) !important;
-            border-color: var(--admin-blue-line) !important;
-        }
-
-        .nav-link:hover i,
-        .nav-link.active i {
-            color: var(--admin-blue);
+        .nav-link:hover i {
+            transform: scale(1.15) rotate(-5deg);
         }
 
         .sb-footer {
             padding: 16px;
-            border-top: 1px solid var(--admin-line);
-            background: var(--admin-white);
+            border-top: 4px solid var(--midnight);
+            background-color: var(--white);
         }
 
         .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
-            min-width: 0;
-            padding: 10px;
-            border: 1px solid var(--admin-line);
-            border-radius: 18px;
-            background: #fbfcfe;
+            padding: 4px;
         }
 
         .user-avatar {
-            width: 42px;
-            height: 42px;
-            flex: 0 0 auto;
-            display: inline-flex;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background-color: var(--sakura); /* Sakura Burst */
+            color: var(--midnight);
+            border: 3px solid var(--midnight);
+            box-shadow: 3px 3px 0px var(--midnight);
+            display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--admin-blue-line);
-            border-radius: 14px;
-            background: var(--admin-soft-blue);
-            color: var(--admin-blue);
+            font-family: 'Fredoka One', sans-serif;
             font-size: 14px;
-            font-weight: 900;
         }
 
-        .user-name {
-            overflow: hidden;
-            color: var(--admin-dark);
-            font-size: 13px;
-            font-weight: 850;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .user-role {
-            margin-top: 3px;
-            color: var(--admin-blue);
-            font-size: 11px;
-            font-weight: 850;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
+        /* Main Content Wrapper */
         .main-wrapper {
-            min-width: 0;
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         .runway-topbar {
-            min-height: 76px;
-            position: sticky;
-            top: 0;
-            z-index: 900;
+            height: 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 18px;
-            padding: 0 34px;
-            border-bottom: 1px solid var(--admin-line);
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(18px);
-        }
-
-        .topbar-left,
-        .topbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            min-width: 0;
-        }
-
-        .scoola-breadcrumb-shell {
-            min-width: 0;
+            padding: 0 32px;
+            border-bottom: 4px solid var(--midnight);
+            background-color: var(--white);
         }
 
         .page-content {
             flex: 1;
-            padding: 38px;
-            overflow-x: hidden;
-            background: transparent;
-            padding-bottom: max(44px, env(safe-area-inset-bottom, 0px));
+            padding: 40px 40px;
+            overflow-y: auto;
+            /* Dibuat transparent agar pola titik komik latar belakang menembus sempurna */
+            background-color: transparent;
+            padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
+        }
+
+        /* Responsive Engine untuk Kartu & Tabel Mengambang */
+        @media (max-width: 768px) {
+            .page-content {
+                padding: 24px 16px !important;
+            }
+            .runway-topbar {
+                padding: 0 16px !important;
+            }
+            .display-title {
+                font-family: 'Fredoka One', sans-serif !important;
+                font-size: 28px !important;
+                letter-spacing: -0.5px !important;
+                word-break: break-word !important;
+            }
+
+            .table-container-card {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            .responsive-table {
+                background: transparent !important;
+                border-collapse: separate !important;
+                border-spacing: 0 32px !important;
+                width: 100% !important;
+                display: table !important;
+            }
+
+            .responsive-table thead {
+                display: none !important;
+            }
+
+            .responsive-table tbody,
+            .responsive-table tr,
+            .responsive-table td {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .responsive-table tr {
+                margin-bottom: 32px !important;
+                border: 4px solid var(--midnight) !important;
+                border-radius: 16px !important;
+                padding: 24px !important;
+                background: var(--white) !important;
+                box-shadow: 6px 6px 0px var(--midnight) !important;
+            }
+
+            .responsive-table td {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding: 12px 0 !important;
+                border: none !important;
+                text-align: right !important;
+                min-height: 48px;
+            }
+
+            .responsive-table td::before {
+                content: attr(data-label);
+                font-family: 'Fredoka One', sans-serif;
+                text-transform: uppercase;
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                color: var(--midnight);
+                opacity: 0.7;
+                text-align: left;
+                padding-right: 16px;
+            }
+
+            .stats-grid,
+            .responsive-card-grid,
+            div[style*="display: grid"] {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 32px !important;
+                width: 100% !important;
+            }
+
+            .card {
+                border: 4px solid var(--midnight) !important;
+                border-radius: 16px !important;
+                padding: 24px !important;
+                margin-bottom: 24px !important;
+                box-shadow: 6px 6px 0px var(--midnight) !important;
+            }
+
+            .form-actions {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 16px !important;
+                align-items: stretch !important;
+                margin-top: 40px !important;
+                padding-top: 32px !important;
+            }
+
+            .form-actions button,
+            .form-actions a {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr !important;
+                gap: 0 !important;
+            }
         }
 
         .sidebar-overlay {
             display: none;
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(30, 27, 41, 0.4);
+            backdrop-filter: blur(4px);
             z-index: 999;
-            background: rgba(16, 24, 40, 0.36);
-            backdrop-filter: blur(8px);
         }
-
         .sidebar-overlay.active {
             display: block;
         }
 
-        .menu-toggle,
-        .top-icon-btn {
-            width: 44px;
-            height: 44px;
-            flex: 0 0 auto;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--admin-line);
-            border-radius: 14px;
-            background: var(--admin-white);
-            color: var(--admin-text);
-            cursor: pointer;
-            box-shadow: 0 10px 26px rgba(16, 24, 40, 0.05);
-            transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
-        }
-
         .menu-toggle {
             display: none;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--midnight);
+            background: var(--white);
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--midnight);
+            box-shadow: 3px 3px 0px var(--midnight);
+            transition: all 0.2s;
+        }
+        .menu-toggle:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px var(--midnight);
         }
 
-        .menu-toggle:hover,
-        .top-icon-btn:hover {
-            transform: translateY(-1px);
-            background: #fbfcfe;
-            box-shadow: 0 14px 30px rgba(16, 24, 40, 0.08);
+        @media (max-width: 992px) {
+            .menu-toggle {
+                display: flex;
+            }
+        }
+
+        /* Editorial Lockup */
+        .editorial-header {
+            margin-bottom: 48px;
+        }
+
+        .eyebrow {
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--cosmo);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .display-title {
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 42px;
+            line-height: 1.1;
+            color: var(--midnight);
+            margin-bottom: 24px;
+        }
+
+        /* Form Input Bergaya Komik Panel Neobrutalism */
+        input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+        select,
+        textarea {
+            background-color: var(--white) !important;
+            color: var(--midnight) !important;
+            border: 4px solid var(--midnight) !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            font-family: var(--font-sans) !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            outline: none !important;
+            box-shadow: 4px 4px 0px var(--midnight) !important;
+            transition: all 0.15s ease !important;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            transform: translate(-2px, -2px) !important;
+            box-shadow: 6px 6px 0px var(--midnight) !important;
+            border-color: var(--cosmo) !important;
+        }
+
+        /* Floating Action Button (FAB) - Neo Brutalism Pop Style */
+        .fab-container {
+            position: fixed !important;
+            bottom: 40px !important;
+            right: 40px !important;
+            z-index: 99999 !important;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 16px;
+        }
+
+        .btn-fab {
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50% !important;
+            background-color: var(--gold) !important;
+            color: var(--midnight) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: 4px solid var(--midnight) !important;
+            box-shadow: 5px 5px 0px var(--midnight) !important;
+            cursor: pointer !important;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            text-decoration: none !important;
+            animation: fab-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
+        }
+
+        @keyframes fab-pop {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        .btn-fab:hover {
+            transform: translateY(-4px) scale(1.05) !important;
+            box-shadow: 8px 8px 0px var(--midnight) !important;
+            background-color: var(--sakura) !important;
+        }
+
+        .btn-fab:active {
+            transform: translateY(2px) scale(0.95) !important;
+            box-shadow: 2px 2px 0px var(--midnight) !important;
+        }
+
+        .fab-label {
+            position: absolute !important;
+            right: 80px !important;
+            background: var(--white) !important;
+            color: var(--midnight) !important;
+            border: 3px solid var(--midnight) !important;
+            padding: 8px 16px !important;
+            border-radius: 12px !important;
+            font-family: 'Fredoka One', sans-serif !important;
+            font-size: 12px !important;
+            text-transform: uppercase !important;
+            white-space: nowrap !important;
+            opacity: 0 !important;
+            transform: translateX(20px) !important;
+            pointer-events: none !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 4px 4px 0px var(--midnight) !important;
+        }
+
+        .btn-fab:hover .fab-label {
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+        }
+
+        /* Utilitas Button Utama Bergaya Neobrutalism Berani (Manga-Pop Action Button) */
+        .btn-primary {
+            font-family: 'Fredoka One', sans-serif !important;
+            background-color: var(--sakura) !important; /* Sakura Burst */
+            color: var(--midnight) !important;
+            border: 3px solid var(--midnight) !important;
+            border-radius: 12px !important;
+            box-shadow: 4px 4px 0px var(--midnight) !important;
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 7px 7px 0px var(--midnight) !important;
+            background-color: #ff5252 !important; /* Sedikit lebih menyala saat hover */
+        }
+        .btn-primary:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px var(--midnight) !important;
         }
 
         .btn-logout {
-            min-height: 44px;
+            font-family: 'Fredoka One', sans-serif !important;
+            background-color: var(--sakura) !important;
+            color: var(--midnight) !important;
+            border: 3px solid var(--midnight) !important;
+            border-radius: 12px !important;
+            box-shadow: 3px 3px 0px var(--midnight) !important;
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 9px;
-            padding: 0 16px;
-            border: 1px solid var(--admin-line);
-            border-radius: 14px;
-            background: var(--admin-white);
-            color: var(--admin-text);
-            font-size: 14px;
-            font-weight: 850;
-            cursor: pointer;
-            box-shadow: 0 10px 26px rgba(16, 24, 40, 0.05);
-            transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+            gap: 8px;
+            height: 40px;
+            padding: 0 14px;
+            font-weight: 900;
             white-space: nowrap;
         }
 
         .btn-logout:hover {
-            transform: translateY(-1px);
-            background: #fbfcfe;
-            box-shadow: 0 14px 30px rgba(16, 24, 40, 0.08);
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px var(--midnight) !important;
+            background-color: #ff6665 !important;
         }
 
-        input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
-        select,
-        textarea {
-            width: 100%;
-            min-height: 48px;
-            padding: 12px 15px !important;
-            border: 1px solid #d0d5dd !important;
-            border-radius: 14px !important;
-            outline: none !important;
-            background: var(--admin-white) !important;
-            color: var(--admin-dark) !important;
-            box-shadow: none !important;
-            font-family: var(--font-sans) !important;
-            font-size: 14px !important;
-            font-weight: 650 !important;
-            transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: #93c5fd !important;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10) !important;
-            transform: none !important;
-        }
-
-        .btn-primary,
-        .btn-fab,
-        .fab-button,
-        .manga-btn-primary,
-        .neo-btn-primary {
-            border: 1px solid var(--admin-blue) !important;
-            border-radius: 14px !important;
-            background: var(--admin-blue) !important;
-            color: #ffffff !important;
-            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.18) !important;
-            font-family: var(--font-sans) !important;
-            font-weight: 850 !important;
-            text-shadow: none !important;
-            -webkit-text-stroke: 0 !important;
-        }
-
-        .btn-primary:hover,
-        .btn-fab:hover,
-        .fab-button:hover,
-        .manga-btn-primary:hover,
-        .neo-btn-primary:hover {
-            transform: translateY(-2px) !important;
-            background: var(--admin-blue-dark) !important;
-            box-shadow: 0 20px 44px rgba(37, 99, 235, 0.22) !important;
-        }
-
-        @media (max-width: 992px) {
-            .runway-sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                transform: translateX(-100%);
-            }
-
-            .runway-sidebar.mobile-open {
-                transform: translateX(0);
-            }
-
-            .menu-toggle {
-                display: inline-flex;
-            }
-
-            .runway-topbar {
-                padding: 0 18px;
-            }
-
-            .page-content {
-                padding: 26px 18px;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .topbar-actions {
-                gap: 8px;
-            }
-
-            .btn-logout span {
-                display: none;
-            }
+        .btn-logout:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px var(--midnight) !important;
         }
     </style>
     @include('layouts.partials.breadcrumb-styles')
@@ -480,7 +566,7 @@
 
 <aside class="runway-sidebar" id="mainSidebar">
     <div class="sb-brand">
-        <a href="/" class="brand-logo">Scoola Admin</a>
+        <a href="/" class="brand-logo">scoola admin âœ¨</a>
     </div>
 
     <div class="sb-nav">
@@ -536,9 +622,9 @@
     <div class="sb-footer">
         <div class="user-info">
             <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
-            <div style="min-width: 0;">
-                <div class="user-name">{{ auth()->user()->name ?? auth()->user()->email }}</div>
-                <div class="user-role">{{ auth()->user()->role }}</div>
+            <div style="overflow:hidden">
+                <div style="font-size: 13px; font-weight: 800; color: var(--midnight);">{{ auth()->user()->name ?? auth()->user()->email }}</div>
+                <div style="font-size: 11px; font-weight: 700; color: var(--cosmo);">{{ auth()->user()->role }}</div>
             </div>
         </div>
     </div>
@@ -546,30 +632,31 @@
 
 <div class="main-wrapper">
     <header class="runway-topbar">
-        <div class="topbar-left">
-            <button type="button" class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Buka menu admin">
-                <i class="bi bi-list" style="font-size: 23px;"></i>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <button type="button" class="menu-toggle" onclick="toggleMobileMenu()">
+                <i class="bi bi-list" style="font-size: 24px;"></i>
             </button>
             <div class="scoola-breadcrumb-shell">
                 @include('layouts.partials.breadcrumbs', ['viewData' => get_defined_vars()])
             </div>
         </div>
 
-        <div class="topbar-actions">
+        <div style="display: flex; gap: 20px; align-items: center; position: relative; z-index: 9999;">
             <button type="button"
                     id="theme-toggle-btn"
                     onclick="window.toggleTheme()"
-                    class="top-icon-btn"
-                    title="Toggle Theme"
-                    aria-label="Toggle Theme">
-                <i class="bi bi-moon-stars" style="pointer-events: none; font-size: 18px;"></i>
+                    style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 3px solid var(--midnight); background: var(--white); font-size: 20px; color: var(--midnight); cursor: pointer; border-radius: 50%; box-shadow: 3px 3px 0px var(--midnight); transition: all 0.15s;"
+                    onmouseover="this.style.background='var(--mochi)';"
+                    onmouseout="this.style.background='var(--white)';"
+                    title="Toggle Theme">
+                <i class="bi bi-moon-stars" style="pointer-events: none;"></i>
             </button>
 
-            <form action="{{ route('logout') }}" method="POST" class="m-0">
+                        <form action="{{ route('logout') }}" method="POST" class="m-0">
                 @csrf
                 <button type="submit" class="btn-logout">
                     <i class="bi bi-box-arrow-right" style="pointer-events: none;"></i>
-                    <span>Keluar</span>
+                    Keluar
                 </button>
             </form>
         </div>
@@ -578,211 +665,6 @@
     <main class="page-content">
         @yield('content')
     </main>
-
-    <style id="admin-clean-modern-final-overrides">
-        .page-content,
-        .page-content * {
-            letter-spacing: 0 !important;
-            text-shadow: none !important;
-            -webkit-text-stroke: 0 !important;
-        }
-
-        .page-content :is(.fredoka, .font-anime-header, [style*="Fredoka One"], [style*="Fredoka"]) {
-            font-family: var(--font-sans) !important;
-        }
-
-        .page-content :is(h1, h2, h3, h4, h5, h6, .mp-title, .display-title, .card-title, .page-title, .mp-select-title) {
-            color: var(--admin-dark) !important;
-            font-family: var(--font-sans) !important;
-            font-weight: 850 !important;
-            letter-spacing: 0 !important;
-            line-height: 1.12 !important;
-        }
-
-        .page-content .scoola-container,
-        .page-content .mp-page {
-            width: 100% !important;
-            max-width: none !important;
-            display: grid !important;
-            gap: 28px !important;
-            padding: 0 !important;
-            background: transparent !important;
-            color: var(--admin-dark) !important;
-            font-family: var(--font-sans) !important;
-        }
-
-        .page-content :is(.neo-card, .manga-card, .mp-card, .mp-form-card, .mp-table-card, .mp-stat-card, .mp-empty-state, .mp-alert, .mp-select-card, .stats-card, .toolbar-card, .import-card, .table-shell, .guru-table-card, .table-container-card, .mobile-card, .student-row, .guru-row, .lesson-card, .agenda-card) {
-            background: var(--admin-white) !important;
-            color: var(--admin-dark) !important;
-            border: 1px solid var(--admin-line) !important;
-            border-radius: var(--admin-radius) !important;
-            box-shadow: var(--admin-shadow-sm) !important;
-        }
-
-        .page-content :is(.neo-card:hover, .manga-card:hover, .mp-hover:hover, .manga-hover-effect:hover, .mp-select-card:hover) {
-            transform: translateY(-3px) !important;
-            border-color: var(--admin-blue-line) !important;
-            box-shadow: var(--admin-shadow-md) !important;
-        }
-
-        .page-content :is(.hero-section, .mp-hero, .manga-card-cosmo) {
-            background:
-                radial-gradient(circle at 82% 18%, rgba(37, 99, 235, 0.10), transparent 28%),
-                linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
-            color: var(--admin-dark) !important;
-            border-color: var(--admin-line) !important;
-        }
-
-        .page-content :is(.neo-card, .manga-card, .mp-card, .mp-form-card, .mp-stat-card, .mp-select-card, .stats-card, .toolbar-card, .import-card, .table-shell)[style*="#6C5CE7"],
-        .page-content :is(.neo-card, .manga-card, .mp-card, .mp-form-card, .mp-stat-card, .mp-select-card, .stats-card, .toolbar-card, .import-card, .table-shell)[style*="rgb(108, 92, 231)"],
-        .page-content :is(.neo-card, .manga-card, .mp-card, .mp-form-card, .mp-stat-card, .mp-select-card, .stats-card, .toolbar-card, .import-card, .table-shell)[style*="#00CEC9"],
-        .page-content :is(.neo-card, .manga-card, .mp-card, .mp-form-card, .mp-stat-card, .mp-select-card, .stats-card, .toolbar-card, .import-card, .table-shell)[style*="#FDCB6E"],
-        .page-content :is(.neo-card, .manga-card, .mp-card, .mp-form-card, .mp-stat-card, .mp-select-card, .stats-card, .toolbar-card, .import-card, .table-shell)[style*="#FF7675"],
-        .page-content :is(.neo-card, .manga-card, .mp-card, .mp-form-card, .mp-stat-card, .mp-select-card, .stats-card, .toolbar-card, .import-card, .table-shell)[style*="var(--cyber)"],
-        .page-content :is(.neo-card, .manga-card, .mp-card, .mp-form-card, .mp-stat-card, .mp-select-card, .stats-card, .toolbar-card, .import-card, .table-shell)[style*="var(--gold)"],
-        .page-content :is(.neo-card, .manga-card, .mp-card, .mp-form-card, .mp-stat-card, .mp-select-card, .stats-card, .toolbar-card, .import-card, .table-shell)[style*="var(--sakura)"] {
-            background: var(--admin-white) !important;
-            color: var(--admin-dark) !important;
-            border-color: var(--admin-line) !important;
-        }
-
-        .page-content :is(span, div, a, button, th, td)[style*="#00CEC9"],
-        .page-content :is(span, div, a, button, th, td)[style*="#FDCB6E"],
-        .page-content :is(span, div, a, button, th, td)[style*="#FF7675"],
-        .page-content :is(span, div, a, button, th, td)[style*="#6C5CE7"],
-        .page-content :is(span, div, a, button, th, td)[style*="var(--cyber)"],
-        .page-content :is(span, div, a, button, th, td)[style*="var(--gold)"],
-        .page-content :is(span, div, a, button, th, td)[style*="var(--sakura)"] {
-            border-color: var(--admin-blue-line) !important;
-            background: var(--admin-soft-blue) !important;
-            color: var(--admin-blue) !important;
-            box-shadow: none !important;
-        }
-
-        .page-content .mp-sticker {
-            position: static !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            width: fit-content !important;
-            margin-bottom: 14px !important;
-            padding: 8px 13px !important;
-            transform: none !important;
-            border: 1px solid var(--admin-blue-line) !important;
-            border-radius: 999px !important;
-            background: var(--admin-soft-blue) !important;
-            color: var(--admin-blue) !important;
-            box-shadow: none !important;
-            font-family: var(--font-sans) !important;
-            font-size: 12px !important;
-            font-weight: 850 !important;
-            letter-spacing: 0.02em !important;
-        }
-
-        .page-content :is(.mp-kicker, .mp-label, .mp-small, .mp-badge, .mp-tab, .badge, .status-pill, .mini-chip, .manga-pagination__sticker, [class*="badge"]) {
-            border: 1px solid var(--admin-blue-line) !important;
-            border-radius: 999px !important;
-            background: var(--admin-soft-blue) !important;
-            color: var(--admin-blue) !important;
-            box-shadow: none !important;
-            font-family: var(--font-sans) !important;
-            font-weight: 850 !important;
-            text-shadow: none !important;
-        }
-
-        .page-content :is(.mp-btn, .mp-btn-green, .neo-btn, .neo-btn-primary, .btn-primary, .btn-fab, .fab-button, .manga-btn-primary, button[type="submit"]:not(.btn-logout)) {
-            min-height: 44px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 8px !important;
-            border: 1px solid var(--admin-blue) !important;
-            border-radius: 14px !important;
-            background: var(--admin-blue) !important;
-            color: #ffffff !important;
-            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.18) !important;
-            font-family: var(--font-sans) !important;
-            font-weight: 850 !important;
-            text-decoration: none !important;
-            text-shadow: none !important;
-        }
-
-        .page-content :is(.mp-btn-secondary, a[class*="btn"][href]:not(.btn-logout):not(.mp-btn):not(.btn-primary)) {
-            min-height: 44px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 8px !important;
-            border: 1px solid var(--admin-line) !important;
-            border-radius: 14px !important;
-            background: var(--admin-white) !important;
-            color: var(--admin-text) !important;
-            box-shadow: 0 10px 26px rgba(16, 24, 40, 0.05) !important;
-            font-family: var(--font-sans) !important;
-            font-weight: 850 !important;
-            text-decoration: none !important;
-        }
-
-        .page-content table {
-            border-collapse: collapse !important;
-            color: var(--admin-text) !important;
-            font-family: var(--font-sans) !important;
-        }
-
-        .page-content th {
-            background: #f8fbff !important;
-            color: var(--admin-muted) !important;
-            border: 0 !important;
-            border-bottom: 1px solid var(--admin-line) !important;
-            font-family: var(--font-sans) !important;
-            font-size: 12px !important;
-            font-weight: 850 !important;
-            text-transform: uppercase !important;
-        }
-
-        .page-content td {
-            background: var(--admin-white) !important;
-            color: var(--admin-text) !important;
-            border: 0 !important;
-            border-bottom: 1px solid var(--admin-line) !important;
-        }
-
-        .page-content :is(.mp-table-wrap, .table-wrapper, .manga-table-wrap, .overflow-x-auto) {
-            border: 1px solid var(--admin-line) !important;
-            border-radius: var(--admin-radius) !important;
-            background: var(--admin-white) !important;
-            box-shadow: var(--admin-shadow-sm) !important;
-        }
-
-        .page-content :is(.manga-pagination-wrap, .manga-pagination) {
-            border: 0 !important;
-            background: transparent !important;
-            box-shadow: none !important;
-        }
-
-        .page-content :is(.manga-page-link, .manga-page-gap) {
-            border: 1px solid var(--admin-line) !important;
-            border-radius: 12px !important;
-            background: var(--admin-white) !important;
-            color: var(--admin-text) !important;
-            box-shadow: none !important;
-            font-family: var(--font-sans) !important;
-        }
-
-        .page-content .manga-page-link.is-active {
-            border-color: var(--admin-blue) !important;
-            background: var(--admin-blue) !important;
-            color: #ffffff !important;
-        }
-
-        @media (max-width: 768px) {
-            .page-content :is(.responsive-table tr, .mobile-card, .student-row, .guru-row) {
-                background: var(--admin-white) !important;
-                border: 1px solid var(--admin-line) !important;
-                border-radius: 18px !important;
-                box-shadow: var(--admin-shadow-sm) !important;
-            }
-        }
-    </style>
 </div>
 
 @stack('scripts')
