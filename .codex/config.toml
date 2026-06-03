@@ -1,0 +1,42 @@
+# Project-local Codex subagent manifest for Scoola.
+# Codex CLI/IDE runtime settings are still loaded from ~/.codex/config.toml.
+# This file is a project convention referenced by AGENTS.md.
+
+version = 1
+project = "Scoola"
+entrypoint = "AGENTS.md"
+description = "Project-local subagent team manifest for Codex IDE/CLI sessions in Scoola."
+compatibility_note = "Use AGENTS.md as the Codex IDE entrypoint; agent TOML files are project-local role definitions."
+
+active_agents = [
+  "default_coordinator",
+  "ui_designer",
+  "bug_hunter",
+  "database_checker",
+  "security_reviewer",
+]
+
+[usage]
+root = 'C:\coding\laravel\Scoola'
+ide_instruction = "Open the Scoola project root in Codex IDE, then ask Codex to use one of the agents by name."
+cli_example = 'codex -C C:\coding\laravel\Scoola "Gunakan agent ui_designer untuk audit admin layout"'
+
+[agents.default_coordinator]
+path = ".codex/agents/default_coordinator.toml"
+trigger_phrases = ["prompt besar", "bagi tugas otomatis", "default coordinator", "rombak fitur", "ganti desain"]
+
+[agents.ui_designer]
+path = ".codex/agents/ui_designer.toml"
+trigger_phrases = ["gunakan agent ui_designer", "pakai ui_designer", "audit UI", "review desain"]
+
+[agents.bug_hunter]
+path = ".codex/agents/bug_hunter.toml"
+trigger_phrases = ["gunakan agent bug_hunter", "cari bug", "debug fitur", "cek error"]
+
+[agents.database_checker]
+path = ".codex/agents/database_checker.toml"
+trigger_phrases = ["gunakan agent database_checker", "cek database", "audit migration", "cek query"]
+
+[agents.security_reviewer]
+path = ".codex/agents/security_reviewer.toml"
+trigger_phrases = ["gunakan agent security_reviewer", "audit keamanan", "cek login role", "review validasi"]

@@ -1,291 +1,665 @@
 @extends('layouts.admin')
 
 @section('content')
+@php
+    $formatAgendaLabel = static function ($jamMulai, $jamSelesai): string {
+        $mulai = trim((string) $jamMulai);
+        $selesai = trim((string) $jamSelesai);
 
-<script src="https://cdn.tailwindcss.com"></script>
+        if (is_numeric($mulai) && is_numeric($selesai)) {
+            return "Jam {$mulai}-{$selesai}";
+        }
+
+        if ($selesai === '' || $selesai === $mulai) {
+            return $mulai !== '' ? $mulai : '-';
+        }
+
+        return trim($mulai . ' - ' . $selesai);
+    };
+
+    $stats = [
+        ['label' => 'Total Siswa', 'value' => $totalSiswa, 'hint' => "{$totalKelasAktif} unit kelas aktif", 'icon' => 'bi-people'],
+        ['label' => 'Kehadiran', 'value' => $persentaseHadir . '%', 'hint' => "{$hadirHariIni} siswa hadir", 'icon' => 'bi-graph-up-arrow'],
+        ['label' => 'Izin / Sakit', 'value' => $izinSakitHariIni, 'hint' => 'siswa berhalangan', 'icon' => 'bi-heart-pulse'],
+        ['label' => 'Absensi Alpha', 'value' => $alpaHariIni, 'hint' => $alpaHariIni > 0 ? 'Perlu tindak lanjut' : 'Data aman', 'icon' => 'bi-exclamation-circle'],
+    ];
+
+    $trendCount = max(count($trendData ?? []), 1);
+@endphp
 
 <style>
-    .font-anime-header {
-        font-family: 'Fredoka One', cursive, sans-serif !important;
-    }
-
-    .font-anime-body {
-        font-family: 'Nunito', sans-serif !important;
-    }
-
-    .flex { display: flex !important; }
-    .flex-col { flex-direction: column !important; }
-    .flex-row { flex-direction: row !important; }
-    .flex-wrap { flex-wrap: wrap !important; }
-    .justify-between { justify-content: space-between !important; }
-    .items-center { align-items: center !important; }
-    .inline-block { display: inline-block !important; }
-
-    .grid { display: grid !important; }
-    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
-
-    .p-8 { padding: 32px !important; }
-    .p-6 { padding: 24px !important; }
-    .p-4 { padding: 16px !important; }
-    .px-4 { padding-left: 16px !important; padding-right: 16px !important; }
-    .py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
-    .px-3 { padding-left: 12px !important; padding-right: 12px !important; }
-    .py-1 { padding-top: 4px !important; padding-bottom: 4px !important; }
-    .py-1\.5 { padding-top: 6px !important; padding-bottom: 6px !important; }
-
-    .mb-8 { margin-bottom: 32px !important; }
-    .mb-6 { margin-bottom: 24px !important; }
-    .mb-4 { margin-bottom: 16px !important; }
-    .mb-3 { margin-bottom: 12px !important; }
-    .mb-1\.5 { margin-bottom: 6px !important; }
-    .mt-4 { margin-top: 16px !important; }
-    .mt-3 { margin-top: 12px !important; }
-
-    .gap-6 { gap: 24px !important; }
-    .gap-4 { gap: 16px !important; }
-    .gap-3 { gap: 12px !important; }
-
-    .w-full { width: 100% !important; }
-    .h-full { height: 100% !important; }
-    .h-48 { height: 192px !important; }
-    .flex-1 { flex: 1 1 0% !important; }
-
-    @media (min-width: 640px) {
-        .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-        .sm\:flex-row { flex-direction: row !important; }
-    }
-
-    @media (min-width: 1024px) {
-        .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
-    }
-
-    .text-xs { font-size: 12px !important; }
-    .text-sm { font-size: 14px !important; }
-    .text-base { font-size: 16px !important; }
-    .text-lg { font-size: 18px !important; }
-    .text-xl { font-size: 20px !important; }
-    .text-4xl { font-size: 32px !important; }
-    .text-5xl { font-size: 40px !important; }
-
-    .neo-card {
-        background: #FFFFFF;
-        border: 3px solid #1E1B29 !important;
-        box-shadow: 6px 6px 0px 0px #1E1B29 !important;
-        border-radius: 16px !important;
-        transition: all 0.2s ease;
-        position: relative;
-    }
-
-    .neo-card:hover {
-        transform: translate(-2px, -2px);
-        box-shadow: 8px 8px 0px 0px #1E1B29 !important;
-    }
-
-    .neo-btn {
-        font-family: 'Fredoka One', cursive, sans-serif;
-        border: 3px solid #1E1B29 !important;
-        box-shadow: 3px 3px 0px 0px #1E1B29 !important;
-        transition: all 0.15s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .neo-btn:hover {
-        transform: translate(-1px, -1px);
-        box-shadow: 4px 4px 0px 0px #1E1B29 !important;
-    }
-
-    .neo-btn:active {
-        transform: translate(2px, 2px);
-        box-shadow: 1px 1px 0px 0px #1E1B29 !important;
-    }
-
-    .neo-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    .neo-table th {
-        background-color: #FAF9FF;
-        border-bottom: 3px solid #1E1B29;
-        font-family: 'Fredoka One', sans-serif;
-        color: #1E1B29;
-        text-transform: uppercase;
-        font-size: 13px;
-        letter-spacing: 0.5px;
-        padding: 16px;
-    }
-
-    .neo-table td {
-        padding: 16px;
-        border-bottom: 2px solid #1E1B29;
-        font-family: 'Nunito', sans-serif;
-        font-weight: 700;
-        color: #1E1B29;
-    }
-
-    .neo-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    .badge-anime {
-        display: inline-block;
-        padding: 6px 12px;
-        font-family: 'Fredoka One', sans-serif;
-        font-size: 11px;
-        text-transform: uppercase;
-        border: 2px solid #1E1B29;
-        border-radius: 8px;
-        box-shadow: 2px 2px 0px 0px #1E1B29;
-    }
-
-    .badge-anime-hadir {
-        background-color: #00CEC9;
-        color: #1E1B29;
-    }
-
-    .badge-anime-absen {
-        background-color: #FF7675;
-        color: #FFFFFF;
-    }
-
-    .neo-layout {
+    .admin-dashboard {
         display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 32px;
+        gap: 28px;
+        color: var(--admin-dark);
+        font-family: var(--font-sans);
+    }
+
+    .dashboard-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+        gap: 34px;
+        align-items: stretch;
+        min-height: 320px;
+        padding: 42px;
+        background:
+            radial-gradient(circle at 82% 18%, rgba(37, 99, 235, 0.10), transparent 28%),
+            linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--admin-line);
+        border-radius: 28px;
+        box-shadow: var(--admin-shadow-md);
+        overflow: hidden;
+    }
+
+    .hero-copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 680px;
+    }
+
+    .hero-kicker,
+    .section-kicker,
+    .metric-label,
+    .table-status,
+    .soft-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+
+    .hero-kicker,
+    .soft-pill {
+        padding: 8px 13px;
+        border: 1px solid var(--admin-blue-line);
+        background: var(--admin-soft-blue);
+        color: var(--admin-blue);
+    }
+
+    .hero-title {
+        max-width: 640px;
+        margin: 20px 0 18px;
+        color: var(--admin-dark);
+        font-size: clamp(40px, 5vw, 64px);
+        font-weight: 850;
+        line-height: 1;
+        letter-spacing: 0;
+    }
+
+    .hero-description {
+        max-width: 600px;
+        margin: 0;
+        color: var(--admin-muted);
+        font-size: 17px;
+        font-weight: 500;
+        line-height: 1.75;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    .clean-btn,
+    .clean-btn-secondary {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 0 18px;
+        border-radius: 14px;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none !important;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    }
+
+    .clean-btn {
+        border: 1px solid var(--admin-blue);
+        background: var(--admin-blue);
+        color: #ffffff !important;
+        box-shadow: 0 16px 34px rgba(37, 99, 235, 0.18);
+    }
+
+    .clean-btn:hover {
+        background: var(--admin-blue-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 20px 44px rgba(37, 99, 235, 0.22);
+    }
+
+    .clean-btn-secondary {
+        border: 1px solid var(--admin-line);
+        background: var(--admin-white);
+        color: var(--admin-text) !important;
+        box-shadow: 0 10px 26px rgba(16, 24, 40, 0.05);
+    }
+
+    .hero-preview {
+        position: relative;
+        display: grid;
+        align-content: center;
+        gap: 16px;
+        min-height: 260px;
+    }
+
+    .preview-panel {
+        position: relative;
+        display: grid;
+        gap: 16px;
+        padding: 22px;
+        border: 1px solid var(--admin-line);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.86);
+        box-shadow: var(--admin-shadow-lg);
+        backdrop-filter: blur(16px);
+    }
+
+    .preview-row {
+        display: grid;
+        grid-template-columns: 44px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+        border: 1px solid var(--admin-line-soft);
+        border-radius: 18px;
+        background: #ffffff;
+    }
+
+    .preview-icon,
+    .metric-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--admin-blue);
+        background: var(--admin-soft-blue);
+        border: 1px solid var(--admin-blue-line);
+    }
+
+    .preview-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        font-size: 18px;
+    }
+
+    .preview-line {
+        height: 9px;
+        border-radius: 999px;
+        background: #eef2ff;
+    }
+
+    .preview-line.short { width: 72%; }
+    .preview-line.long { width: 100%; margin-top: 8px; }
+
+    .preview-live {
+        color: var(--admin-green);
+        background: var(--admin-green-soft);
+        border: 1px solid #bbf7d0;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .metric-card,
+    .dashboard-card,
+    .dashboard-table-card,
+    .report-card {
+        border: 1px solid var(--admin-line);
+        border-radius: 24px;
+        background: var(--admin-white);
+        box-shadow: var(--admin-shadow-sm);
+    }
+
+    .metric-card {
+        min-height: 150px;
+        display: grid;
+        gap: 16px;
+        padding: 22px;
+    }
+
+    .metric-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .metric-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        font-size: 20px;
+    }
+
+    .metric-label {
+        color: var(--admin-muted);
+    }
+
+    .metric-value {
+        color: var(--admin-dark);
+        font-size: 38px;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .metric-hint {
+        color: var(--admin-muted);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+        gap: 24px;
         align-items: start;
     }
 
-    @media (max-width: 1024px) {
-        .neo-layout {
+    .dashboard-column {
+        display: grid;
+        gap: 24px;
+    }
+
+    .dashboard-card,
+    .dashboard-table-card {
+        overflow: hidden;
+    }
+
+    .dashboard-card {
+        padding: 26px;
+    }
+
+    .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .section-kicker {
+        color: var(--admin-blue);
+    }
+
+    .section-title {
+        margin: 6px 0 0;
+        color: var(--admin-dark);
+        font-size: 22px;
+        font-weight: 850;
+        line-height: 1.2;
+    }
+
+    .clean-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .clean-table {
+        width: 100%;
+        min-width: 720px;
+        border-collapse: collapse;
+    }
+
+    .clean-table th,
+    .clean-table td {
+        padding: 17px 22px;
+        text-align: left;
+        border-bottom: 1px solid var(--admin-line);
+    }
+
+    .clean-table th {
+        background: #f8fbff;
+        color: var(--admin-muted);
+        font-size: 12px;
+        font-weight: 850;
+        text-transform: uppercase;
+    }
+
+    .clean-table td {
+        color: var(--admin-text);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .clean-table tbody tr:hover td {
+        background: #fbfcfe;
+    }
+
+    .table-status {
+        padding: 6px 11px;
+        border: 1px solid var(--admin-blue-line);
+        background: var(--admin-soft-blue);
+        color: var(--admin-blue);
+    }
+
+    .agenda-list,
+    .report-list,
+    .class-list,
+    .composition-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .agenda-item,
+    .composition-item,
+    .class-item,
+    .report-card {
+        padding: 16px;
+        border: 1px solid var(--admin-line);
+        border-radius: 18px;
+        background: #ffffff;
+    }
+
+    .agenda-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .agenda-time {
+        min-width: 92px;
+        color: var(--admin-blue);
+        background: var(--admin-soft-blue);
+        border: 1px solid var(--admin-blue-line);
+        border-radius: 999px;
+        padding: 7px 11px;
+        font-size: 12px;
+        font-weight: 850;
+        text-align: center;
+    }
+
+    .agenda-title,
+    .report-title {
+        margin: 0;
+        color: var(--admin-dark);
+        font-size: 15px;
+        font-weight: 850;
+    }
+
+    .agenda-meta,
+    .report-summary,
+    .empty-copy {
+        margin: 6px 0 0;
+        color: var(--admin-muted);
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1.55;
+    }
+
+    .chart-shell {
+        display: flex;
+        align-items: end;
+        gap: 12px;
+        height: 210px;
+        padding: 18px 14px 12px;
+        border: 1px solid var(--admin-line);
+        border-radius: 20px;
+        background: #f8fbff;
+    }
+
+    .chart-bar {
+        position: relative;
+        flex: 1;
+        min-width: 22px;
+        display: flex;
+        align-items: end;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .chart-fill {
+        width: 100%;
+        min-height: 8px;
+        border-radius: 999px 999px 8px 8px;
+        background: linear-gradient(180deg, #60a5fa 0%, var(--admin-blue) 100%);
+        box-shadow: 0 12px 28px rgba(37, 99, 235, 0.18);
+    }
+
+    .chart-tooltip {
+        position: absolute;
+        top: -10px;
+        transform: translateY(-100%);
+        opacity: 0;
+        color: #ffffff;
+        background: var(--admin-dark);
+        border-radius: 999px;
+        padding: 5px 9px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+        transition: opacity 0.18s ease;
+    }
+
+    .chart-bar:hover .chart-tooltip {
+        opacity: 1;
+    }
+
+    .chart-labels {
+        display: grid;
+        grid-template-columns: repeat({{ $trendCount }}, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+        color: var(--admin-muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .composition-shell {
+        display: grid;
+        gap: 18px;
+    }
+
+    .composition-chart {
+        width: min(220px, 100%);
+        aspect-ratio: 1;
+        margin: 0 auto;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        box-shadow: 0 22px 52px rgba(16, 24, 40, 0.10);
+    }
+
+    .composition-center {
+        width: 58%;
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #ffffff;
+        text-align: center;
+    }
+
+    .composition-number {
+        color: var(--admin-dark);
+        font-size: 34px;
+        font-weight: 850;
+        line-height: 1;
+    }
+
+    .composition-item,
+    .class-item {
+        display: grid;
+        gap: 8px;
+    }
+
+    .item-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--admin-dark);
+        font-size: 14px;
+        font-weight: 850;
+    }
+
+    .progress-track {
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #eef2ff;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: var(--admin-blue);
+    }
+
+    .report-card {
+        box-shadow: none;
+    }
+
+    .report-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 12px;
+        color: var(--admin-blue);
+        font-size: 13px;
+        font-weight: 850;
+        text-decoration: none;
+    }
+
+    .empty-state {
+        padding: 34px 24px;
+        border: 1px dashed var(--admin-line);
+        border-radius: 20px;
+        background: #fbfcfe;
+        text-align: center;
+    }
+
+    @media (max-width: 1180px) {
+        .dashboard-hero,
+        .dashboard-grid {
             grid-template-columns: 1fr;
         }
-    }
 
-    .student-pie-shell {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .student-pie-chart {
-        width: 168px;
-        height: 168px;
-        border-radius: 50%;
-        border: 4px solid #1E1B29;
-        box-shadow: 6px 6px 0px 0px #1E1B29;
-        position: relative;
-        flex-shrink: 0;
-    }
-
-    .student-pie-hole {
-        position: absolute;
-        inset: 28px;
-        border-radius: 50%;
-        background: #FFFFFF;
-        border: 3px solid #1E1B29;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 10px;
+        .metrics-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
     }
 
     @media (max-width: 640px) {
-        .student-pie-shell {
-            flex-direction: column;
-            align-items: stretch;
+        .dashboard-hero {
+            padding: 28px 22px;
+            border-radius: 22px;
         }
 
-        .student-pie-chart {
-            margin: 0 auto;
+        .hero-title {
+            font-size: 38px;
+        }
+
+        .metrics-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .section-head,
+        .agenda-item {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .agenda-time {
+            width: fit-content;
         }
     }
 </style>
 
-<div class="font-anime-body text-[#1E1B29] min-h-screen w-full -m-6 p-6">
-    <div class="neo-card p-8 mb-8 relative overflow-hidden" style="background-color: #6C5CE7; color: #FFFFFF;">
-        <div class="absolute inset-0 pattern-dot opacity-20 pointer-events-none"></div>
-
-        <span class="absolute top-4 right-4 bg-[#FDCB6E] text-[#1E1B29] border-2 border-[#1E1B29] font-anime-header text-xs px-3 py-1.5 rounded-lg rotate-3 shadow-[3px_3px_0px_rgba(30,27,41,1)]">
-            ( ≧◡≦ ) HELLO!
-        </span>
-
-        <div class="relative z-10">
-            <span class="font-anime-header text-xs uppercase tracking-widest bg-[#00CEC9] text-[#1E1B29] border-2 border-[#1E1B29] px-3 py-1 rounded-full shadow-[2px_2px_0px_#1E1B29] inline-block">
-                Dashboard Utama
-            </span>
-            <h1 class="font-anime-header text-4xl lg:text-5xl mt-4 mb-3 tracking-wide" style="text-shadow: 3px 3px 0px #1E1B29; -webkit-text-stroke: 1.5px #1E1B29; line-height: 1.2;">
-                OVERVIEW
-            </h1>
-            <p class="font-anime-body text-base font-semibold max-w-xl text-white opacity-95 mt-2">
-                Ringkasan ekosistem Scoola hari ini. Pantau kehadiran siswa dan efektivitas pengajaran secara real-time dengan energi penuh! ⚡
+<div class="admin-dashboard">
+    <section class="dashboard-hero">
+        <div class="hero-copy">
+            <span class="hero-kicker"><i class="bi bi-speedometer2"></i> Dashboard Utama</span>
+            <h1 class="hero-title">Overview Scoola</h1>
+            <p class="hero-description">
+                Ringkasan operasional sekolah hari ini dalam tampilan ringan, rapi, dan mudah dipindai.
+                Pantau kehadiran, agenda belajar, dan laporan penting tanpa kehilangan konteks data.
             </p>
+            <div class="hero-actions">
+                <a href="{{ route('admin.rekap.index') }}" class="clean-btn">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Lihat Rekap
+                </a>
+                <a href="{{ route('jadwal.index') }}" class="clean-btn-secondary">
+                    <i class="bi bi-calendar3"></i> Kelola Jadwal
+                </a>
+            </div>
         </div>
-    </div>
 
-    @php
-        $stats = [
-            ['Total Siswa', $totalSiswa, "$totalKelasAktif unit kelas aktif", '#00CEC9', '🎓'],
-            ['Kehadiran', $persentaseHadir . '%', "$hadirHariIni siswa hadir", '#FF7675', '✨'],
-            ['Izin / Sakit', $izinSakitHariIni, "siswa berhalangan", '#FFFFFF', '💬'],
-            ['Absensi Alpha', $alpaHariIni, $alpaHariIni > 0 ? 'Perlu tindakan segera' : 'Data aman', '#FDCB6E', '⚠️'],
-        ];
-    @endphp
-
-    @php
-        $formatAgendaLabel = static function ($jamMulai, $jamSelesai): string {
-            $mulai = trim((string) $jamMulai);
-            $selesai = trim((string) $jamSelesai);
-
-            if (is_numeric($mulai) && is_numeric($selesai)) {
-                return "Jam {$mulai}-{$selesai}";
-            }
-
-            if ($selesai === '' || $selesai === $mulai) {
-                return $mulai !== '' ? $mulai : '-';
-            }
-
-            return trim($mulai . ' - ' . $selesai);
-        };
-    @endphp
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        @foreach($stats as $s)
-            <div class="neo-card p-6 flex flex-col justify-between" style="background-color: {{ $s[3] }}; min-height: 180px;">
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="font-anime-header text-xs uppercase tracking-wider text-[#1E1B29] opacity-80">{{ $s[0] }}</span>
-                        <span class="text-xl">{{ $s[4] }}</span>
+        <div class="hero-preview" aria-hidden="true">
+            <div class="preview-panel">
+                <span class="soft-pill"><i class="bi bi-broadcast"></i> Live Preview</span>
+                <div class="preview-row">
+                    <span class="preview-icon"><i class="bi bi-people"></i></span>
+                    <div>
+                        <div class="preview-line short"></div>
+                        <div class="preview-line long"></div>
                     </div>
-                    <div class="font-anime-header text-4xl text-[#1E1B29]" style="text-shadow: 2px 2px 0px #FFFFFF, -1px -1px 0px #1E1B29; -webkit-text-stroke: 1px #1E1B29; line-height: 1.1;">
-                        {{ $s[1] }}
-                    </div>
+                    <span class="preview-live">{{ $persentaseHadir }}%</span>
                 </div>
-                <div class="mt-4 pt-3 border-t-2 border-dashed border-[#1E1B29]">
-                    <span class="text-xs font-black uppercase tracking-wide text-[#1E1B29]">
-                        {{ $s[2] }}
-                    </span>
+                <div class="preview-row">
+                    <span class="preview-icon"><i class="bi bi-calendar-check"></i></span>
+                    <div>
+                        <div class="preview-line long"></div>
+                        <div class="preview-line short"></div>
+                    </div>
+                    <span class="preview-live">{{ $hadirHariIni }}</span>
+                </div>
+                <div class="preview-row">
+                    <span class="preview-icon"><i class="bi bi-building"></i></span>
+                    <div>
+                        <div class="preview-line short"></div>
+                        <div class="preview-line long"></div>
+                    </div>
+                    <span class="preview-live">{{ $totalKelasAktif }}</span>
                 </div>
             </div>
-        @endforeach
-    </div>
+        </div>
+    </section>
 
-    <div class="neo-layout">
-        <div class="flex flex-col gap-8">
-            <div>
-                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-                    <h2 class="font-anime-header text-xl text-[#1E1B29] flex items-center gap-2">
-                        <span>📝</span> Absensi Masuk Terbaru
-                    </h2>
-                    <a href="{{ route('admin.rekap.index') }}" class="neo-btn bg-[#00CEC9] text-[#1E1B29] text-xs px-4 py-2 rounded-lg no-underline inline-flex items-center">
-                        Lihat Semua →
-                    </a>
+    <section class="metrics-grid">
+        @foreach($stats as $stat)
+            <article class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-label">{{ $stat['label'] }}</span>
+                    <span class="metric-icon"><i class="bi {{ $stat['icon'] }}"></i></span>
                 </div>
+                <div>
+                    <div class="metric-value">{{ $stat['value'] }}</div>
+                    <div class="metric-hint">{{ $stat['hint'] }}</div>
+                </div>
+            </article>
+        @endforeach
+    </section>
 
-                <div class="overflow-x-auto border-[3px] border-[#1E1B29] rounded-xl">
-                    <table class="neo-table">
+    <section class="dashboard-grid">
+        <div class="dashboard-column">
+            <article class="dashboard-table-card">
+                <div class="section-head" style="padding: 26px 26px 0;">
+                    <div>
+                        <span class="section-kicker"><i class="bi bi-clock-history"></i> Aktivitas Presensi</span>
+                        <h2 class="section-title">Absensi Masuk Terbaru</h2>
+                    </div>
+                    <a href="{{ route('admin.rekap.index') }}" class="clean-btn-secondary">Lihat Semua</a>
+                </div>
+                <div class="clean-table-wrap">
+                    <table class="clean-table">
                         <thead>
                             <tr>
                                 <th>Siswa</th>
@@ -297,189 +671,165 @@
                         <tbody>
                             @forelse($absensiTerbaru as $absen)
                                 <tr>
-                                    <td class="font-bold text-[#1E1B29]">{{ $absen->siswa->nama_siswa ?? '-' }}</td>
-                                    <td>
-                                        <span class="bg-[#FAF9FF] border-2 border-[#1E1B29] px-2.5 py-1 rounded-md text-xs font-extrabold inline-block">
-                                            {{ $absen->siswa->kelas ?? '-' }}
-                                        </span>
-                                    </td>
-                                    <td class="font-mono text-xs">{{ $absen->jam_masuk ?? '—' }}</td>
-                                    <td>
-                                        <span class="badge-anime {{ $absen->status == 'Hadir' ? 'badge-anime-hadir' : 'badge-anime-absen' }}">
-                                            {{ $absen->status }}
-                                        </span>
-                                    </td>
+                                    <td>{{ $absen->siswa->nama_siswa ?? '-' }}</td>
+                                    <td>{{ $absen->siswa->kelas ?? '-' }}</td>
+                                    <td>{{ $absen->jam_masuk ?? '-' }}</td>
+                                    <td><span class="table-status">{{ $absen->status }}</span></td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-12 text-gray-500 font-bold italic bg-[#FAF9FF]">
-                                        (′·_·`) Belum ada aktivitas terekam hari ini
+                                    <td colspan="4">
+                                        <div class="empty-state">
+                                            <div class="empty-copy">Belum ada aktivitas terekam hari ini.</div>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </article>
 
-            <div class="neo-card p-6 bg-white">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="font-anime-header text-xl text-[#1E1B29] flex items-center gap-2">
-                        <span>⚡</span> Agenda Belajar Hari Ini
-                    </h2>
-                    <a href="{{ route('jadwal.index') }}" class="neo-btn bg-[#FF7675] text-white text-xs px-4 py-2 rounded-lg no-underline inline-flex items-center">
-                        Kelola
-                    </a>
+            <article class="dashboard-card">
+                <div class="section-head">
+                    <div>
+                        <span class="section-kicker"><i class="bi bi-calendar-week"></i> Agenda</span>
+                        <h2 class="section-title">Agenda Belajar Hari Ini</h2>
+                    </div>
+                    <a href="{{ route('jadwal.index') }}" class="clean-btn-secondary">Kelola</a>
                 </div>
 
-                <div class="flex flex-col gap-4">
+                <div class="agenda-list">
                     @forelse($agendaHariIni as $agenda)
-                        <div class="neo-card p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:scale-[1.01]" style="background-color: #FAF9FF; border-left: 8px solid #00CEC9 !important;">
-                            <div class="flex items-center gap-4">
-                                <div class="font-anime-header bg-[#1E1B29] text-white py-1 px-3 rounded-lg text-sm shadow-[2px_2px_0px_#6C5CE7]">
-                                    {{ $formatAgendaLabel($agenda->jam_mulai, $agenda->jam_selesai) }}
-                                </div>
-                                <div>
-                                    <h4 class="font-anime-header text-lg text-[#1E1B29] leading-tight mb-1">{{ $agenda->mapel?->nama_mapel ?? $agenda->kd_jp }}</h4>
-                                    <span class="bg-[#1E1B29] text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded inline-block">
-                                        Kelas {{ $agenda->kelas }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="font-anime-header text-sm text-[#6C5CE7] flex items-center gap-1">
-                                <span>👤</span> {{ $agenda->guru?->nama_guru ?? '-' }}
+                        <div class="agenda-item">
+                            <span class="agenda-time">{{ $formatAgendaLabel($agenda->jam_mulai, $agenda->jam_selesai) }}</span>
+                            <div style="flex: 1;">
+                                <h3 class="agenda-title">{{ $agenda->mapel?->nama_mapel ?? $agenda->kd_jp }}</h3>
+                                <p class="agenda-meta">Kelas {{ $agenda->kelas }} dengan {{ $agenda->guru?->nama_guru ?? '-' }}</p>
                             </div>
                         </div>
                     @empty
-                        <div class="neo-card p-5 text-sm font-bold text-gray-500 italic" style="background-color: #FAF9FF;">
-                            Belum ada jadwal pelajaran yang tercatat untuk hari ini.
+                        <div class="empty-state">
+                            <div class="empty-copy">Belum ada jadwal pelajaran yang tercatat untuk hari ini.</div>
                         </div>
                     @endforelse
                 </div>
-            </div>
+            </article>
         </div>
 
-        <div class="flex flex-col gap-8">
-            <div class="neo-card p-6 bg-white">
-                <h2 class="font-anime-header text-xl text-[#1E1B29] mb-6 flex items-center gap-2">
-                    <span>📊</span> Analitik Kehadiran
-                </h2>
-
-                <div class="h-48 flex items-end gap-3 border-b-4 border-[#1E1B29] pb-4 px-2 mb-4 bg-[#FAF9FF] rounded-xl border-t border-l border-r border-gray-100">
+        <aside class="dashboard-column">
+            <article class="dashboard-card">
+                <div class="section-head">
+                    <div>
+                        <span class="section-kicker"><i class="bi bi-bar-chart-line"></i> Analitik</span>
+                        <h2 class="section-title">Tren Kehadiran</h2>
+                    </div>
+                </div>
+                <div class="chart-shell">
                     @foreach($trendData as $trend)
-                        <div class="flex-1 flex flex-col justify-end items-center h-full group relative">
-                            <span class="absolute -top-8 bg-[#1E1B29] text-white text-[10px] font-anime-header px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30">
-                                {{ $trend->is_empty ? '0' : $trend->pct_hadir }}%
-                            </span>
-
-                            <div class="w-full rounded-t-md transition-all duration-300 border-2 border-[#1E1B29]"
-                                 style="height: {{ $trend->is_empty ? '10px' : ($trend->pct_hadir . '%') }}; background-color: {{ $trend->is_empty ? '#FAF9FF' : ($loop->iteration % 2 === 0 ? '#00CEC9' : '#6C5CE7') }}; box-shadow: 2px 0px 0px 0px #1E1B29;">
-                            </div>
+                        <div class="chart-bar">
+                            <span class="chart-tooltip">{{ $trend->is_empty ? '0' : $trend->pct_hadir }}%</span>
+                            <div class="chart-fill" style="height: {{ $trend->is_empty ? '8px' : ($trend->pct_hadir . '%') }};"></div>
                         </div>
                     @endforeach
                 </div>
-
-                <div class="flex justify-between px-1">
+                <div class="chart-labels">
                     @foreach($trendData as $trend)
-                        <div class="font-anime-header text-xs text-[#1E1B29] uppercase tracking-wider text-center w-full">
-                            {{ substr($trend->hari, 0, 3) }}
-                        </div>
+                        <span>{{ substr($trend->hari, 0, 3) }}</span>
                     @endforeach
                 </div>
-            </div>
+            </article>
 
-            <div class="neo-card p-6 bg-white">
-                <h2 class="font-anime-header text-xl text-[#1E1B29] mb-6 flex items-center gap-2">
-                    <span>🥧</span> Komposisi Siswa
-                </h2>
+            <article class="dashboard-card">
+                <div class="section-head">
+                    <div>
+                        <span class="section-kicker"><i class="bi bi-pie-chart"></i> Siswa</span>
+                        <h2 class="section-title">Komposisi Siswa</h2>
+                    </div>
+                </div>
 
                 @php
                     $firstSegment = $studentComposition[0] ?? null;
                     $secondSegment = $studentComposition[1] ?? null;
                     $firstStop = $firstSegment?->percentage ?? 0;
                     $pieBackground = $studentCompositionTotal > 0
-                        ? "conic-gradient({$firstSegment->color} 0 {$firstStop}%, {$secondSegment->color} {$firstStop}% 100%)"
-                        : 'conic-gradient(#FAF9FF 0 100%)';
+                        ? "conic-gradient(#2563eb 0 {$firstStop}%, #93c5fd {$firstStop}% 100%)"
+                        : 'conic-gradient(#eff6ff 0 100%)';
                 @endphp
 
                 @if($studentCompositionTotal > 0)
-                    <div class="student-pie-shell">
-                        <div class="student-pie-chart" style="background: {{ $pieBackground }};">
-                            <div class="student-pie-hole">
+                    <div class="composition-shell">
+                        <div class="composition-chart" style="background: {{ $pieBackground }};">
+                            <div class="composition-center">
                                 <div>
-                                    <div class="font-anime-header text-xs uppercase tracking-widest text-[#6C5CE7]">Total</div>
-                                    <div class="font-anime-header text-4xl text-[#1E1B29]" style="line-height: 1;">{{ $studentCompositionTotal }}</div>
-                                    <div class="text-[11px] font-black uppercase tracking-wide text-[#1E1B29]">Siswa</div>
+                                    <div class="composition-number">{{ $studentCompositionTotal }}</div>
+                                    <div class="metric-hint">Siswa</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex-1 flex flex-col gap-3">
+                        <div class="composition-list">
                             @foreach($studentComposition as $segment)
-                                <div class="neo-card p-4" style="background-color: #FAF9FF;">
-                                    <div class="flex justify-between items-center gap-3 mb-2">
-                                        <div class="flex items-center gap-3">
-                                            <span class="inline-block w-4 h-4 rounded-full border-2 border-[#1E1B29]" style="background-color: {{ $segment->color }};"></span>
-                                            <span class="font-anime-header text-sm text-[#1E1B29]">{{ $segment->label }}</span>
-                                        </div>
-                                        <span class="bg-[#FDCB6E] border-2 border-[#1E1B29] px-2 py-0.5 text-xs rounded font-extrabold shadow-[1.5px_1.5px_0px_#1E1B29]">
-                                            {{ rtrim(rtrim(number_format($segment->percentage, 1), '0'), '.') }}%
-                                        </span>
+                                <div class="composition-item">
+                                    <div class="item-head">
+                                        <span>{{ $segment->label }}</span>
+                                        <span>{{ rtrim(rtrim(number_format($segment->percentage, 1), '0'), '.') }}%</span>
                                     </div>
-                                    <div class="flex justify-between items-center gap-3 text-sm font-black text-[#1E1B29]">
-                                        <span>{{ $segment->total }} siswa</span>
-                                        <span class="text-[#6C5CE7] uppercase">{{ $studentCompositionTotal }} total</span>
-                                    </div>
+                                    <div class="metric-hint">{{ $segment->total }} siswa dari {{ $studentCompositionTotal }} total</div>
                                 </div>
                             @endforeach
                         </div>
                     </div>
                 @else
-                    <div class="text-center text-gray-400 text-sm font-bold py-6 italic">Data siswa untuk diagram belum tersedia</div>
+                    <div class="empty-state">
+                        <div class="empty-copy">Data siswa untuk diagram belum tersedia.</div>
+                    </div>
                 @endif
-            </div>
+            </article>
 
-            <div class="neo-card p-6 bg-white">
-                <h2 class="font-anime-header text-xl text-[#1E1B29] mb-6 flex items-center gap-2">
-                    <span>🏫</span> Data Per Kelas
-                </h2>
+            <article class="dashboard-card">
+                <div class="section-head">
+                    <div>
+                        <span class="section-kicker"><i class="bi bi-building"></i> Kelas</span>
+                        <h2 class="section-title">Data Per Kelas</h2>
+                    </div>
+                </div>
 
-                <div class="flex flex-col gap-4">
+                <div class="class-list">
                     @forelse($kelasBreakdown as $kb)
-                        <div>
-                            <div class="flex justify-between items-center mb-1.5 font-bold text-sm">
-                                <span class="font-anime-header text-[#1E1B29]">{{ $kb->nama }}</span>
-                                <span class="bg-[#FDCB6E] border-2 border-[#1E1B29] px-2 py-0.5 text-xs rounded font-extrabold shadow-[1.5px_1.5px_0px_#1E1B29]">
-                                    {{ $kb->persentase }}%
-                                </span>
+                        <div class="class-item">
+                            <div class="item-head">
+                                <span>{{ $kb->nama }}</span>
+                                <span>{{ $kb->persentase }}%</span>
                             </div>
-                            <div class="w-full h-4 bg-[#FAF9FF] border-2 border-[#1E1B29] rounded-full overflow-hidden">
-                                <div class="h-full border-r-2 border-[#1E1B29]" style="width: {{ $kb->persentase }}%; background-color: #6C5CE7;"></div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: {{ $kb->persentase }}%;"></div>
                             </div>
                         </div>
                     @empty
-                        <div class="text-center text-gray-400 text-sm font-bold py-6 italic">(′·_·`) Menunggu data...</div>
+                        <div class="empty-state">
+                            <div class="empty-copy">Menunggu data kelas.</div>
+                        </div>
                     @endforelse
                 </div>
-            </div>
+            </article>
 
-            <div class="neo-card p-6 bg-[#FF7675] text-[#1E1B29] relative overflow-hidden">
-                <div class="absolute inset-0 pattern-dot opacity-10 pointer-events-none"></div>
+            <article class="dashboard-card">
+                <div class="section-head">
+                    <div>
+                        <span class="section-kicker"><i class="bi bi-shield-check"></i> Monitoring</span>
+                        <h2 class="section-title">Laporan Kritikal</h2>
+                    </div>
+                </div>
 
-                <h2 class="font-anime-header text-xl text-white mb-6 flex items-center gap-2" style="text-shadow: 2px 2px 0px #1E1B29; -webkit-text-stroke: 1px #1E1B29;">
-                    <span>🚨</span> Laporan Kritikal
-                </h2>
-
-                <div class="flex flex-col gap-4 relative z-10">
+                <div class="report-list">
                     @forelse($criticalReports as $report)
-                        <div class="bg-white p-4 border-2 border-[#1E1B29] rounded-xl shadow-[3px_3px_0px_0px_#1E1B29]">
-                            <h4 class="font-anime-header text-base text-[#1E1B29] mb-1">{{ $report->title }}</h4>
-                            <p class="text-xs text-gray-700 font-semibold leading-relaxed">
-                                {{ $report->summary }}
-                            </p>
+                        <div class="report-card">
+                            <h3 class="report-title">{{ $report->title }}</h3>
+                            <p class="report-summary">{{ $report->summary }}</p>
 
                             @if(collect($report->items ?? [])->isNotEmpty())
-                                <ul class="mt-3 mb-0 pl-4 text-xs text-[#1E1B29] font-semibold space-y-1">
+                                <ul style="margin: 12px 0 0; padding-left: 18px; color: var(--admin-text); font-size: 13px; font-weight: 700; line-height: 1.6;">
                                     @foreach($report->items as $item)
                                         <li>{{ $item }}</li>
                                     @endforeach
@@ -487,41 +837,20 @@
                             @endif
 
                             @if(!empty($report->action_url))
-                                <a href="{{ $report->action_url }}" class="inline-block mt-3 font-anime-header text-xs text-[#6C5CE7] no-underline hover:underline">
-                                    {{ $report->action_label ?? 'Buka Detail' }} â†’
+                                <a href="{{ $report->action_url }}" class="report-link">
+                                    {{ $report->action_label ?? 'Buka Detail' }} <i class="bi bi-arrow-right"></i>
                                 </a>
                             @endif
                         </div>
                     @empty
-                        <div class="bg-white p-4 border-2 border-[#1E1B29] rounded-xl shadow-[3px_3px_0px_0px_#1E1B29]">
-                            <h4 class="font-anime-header text-base text-[#1E1B29] mb-1">Tidak Ada Alert</h4>
-                            <p class="text-xs text-gray-700 font-semibold leading-relaxed">
-                                Belum ada anomali presensi atau sesi yang perlu ditindaklanjuti hari ini.
-                            </p>
+                        <div class="report-card">
+                            <h3 class="report-title">Tidak Ada Alert</h3>
+                            <p class="report-summary">Belum ada anomali presensi atau sesi yang perlu ditindaklanjuti hari ini.</p>
                         </div>
                     @endforelse
-                    @if(false)
-                    <div class="bg-white p-4 border-2 border-[#1E1B29] rounded-xl shadow-[3px_3px_0px_0px_#1E1B29]">
-                        <h4 class="font-anime-header text-base text-[#1E1B29] mb-1">Anomali Kehadiran</h4>
-                        <p class="text-xs text-gray-700 font-semibold leading-relaxed">
-                            Terdapat 5 siswa dengan status Alpha berulang minggu ini.
-                        </p>
-                        <a href="#" class="inline-block mt-3 font-anime-header text-xs text-[#6C5CE7] no-underline hover:underline">
-                            Tindak Lanjut →
-                        </a>
-                    </div>
-
-                    <div class="bg-white p-4 border-2 border-[#1E1B29] rounded-xl shadow-[3px_3px_0px_0px_#1E1B29]">
-                        <h4 class="font-anime-header text-base text-[#1E1B29] mb-1">Sesi Belum Lengkap</h4>
-                        <p class="text-xs text-gray-700 font-semibold leading-relaxed">
-                            Kelas XII-A belum mengunggah rekap presensi jam ke-4.
-                        </p>
-                    </div>
-                    @endif
                 </div>
-            </div>
-        </div>
-    </div>
+            </article>
+        </aside>
+    </section>
 </div>
-
 @endsection
