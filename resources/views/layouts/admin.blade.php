@@ -43,25 +43,45 @@
 
     <style>
         :root {
-            /* Definisi Palet Warna Resmi Manga-Pop */
-            --sakura: #FF7675;
-            --cyber: #00CEC9;
-            --cosmo: #6C5CE7;
-            --gold: #FDCB6E;
-            --midnight: #1E1B29;
-            --mochi: #FAF9FF;
-            --white: #FFFFFF;
-            --font-sans: 'Nunito', 'Inter', system-ui, sans-serif;
+            --admin-blue: #2563eb;
+            --admin-blue-dark: #1d4ed8;
+            --admin-soft-blue: #eff6ff;
+            --admin-blue-line: #dbeafe;
+            --admin-dark: #101828;
+            --admin-text: #344054;
+            --admin-muted: #667085;
+            --admin-soft: #98a2b3;
+            --admin-line: #eaecf0;
+            --admin-line-soft: #f2f4f7;
+            --admin-white: #ffffff;
+            --admin-bg: #fbfcfe;
+            --admin-green: #16a34a;
+            --admin-green-soft: #ecfdf3;
+            --admin-orange: #f59e0b;
+            --admin-orange-soft: #fff7ed;
+            --admin-red: #ef4444;
+            --admin-red-soft: #fef2f2;
+            --admin-shadow-sm: 0 10px 28px rgba(16, 24, 40, 0.06);
+            --admin-shadow-md: 0 24px 70px rgba(16, 24, 40, 0.09);
+            --admin-shadow-lg: 0 32px 90px rgba(16, 24, 40, 0.12);
+            --admin-radius: 22px;
+            --sakura: var(--admin-blue);
+            --cyber: var(--admin-soft-blue);
+            --cosmo: var(--admin-blue);
+            --gold: var(--admin-soft-blue);
+            --midnight: var(--admin-dark);
+            --mochi: var(--admin-bg);
+            --white: var(--admin-white);
+            --font-sans: Arial, Helvetica, 'Nunito', sans-serif;
         }
 
         body {
-            /* Latar Belakang Komik Titik-Titik Pop (Mochi Cream + Radial Cosmo Violet Dots) */
-            background-color: var(--mochi);
-            background-image: radial-gradient(var(--cosmo) 1.5px, transparent 0);
-            background-size: 32px 32px;
+            background:
+                radial-gradient(circle at 10% 5%, rgba(37, 99, 235, 0.05), transparent 30%),
+                radial-gradient(circle at 90% 10%, rgba(96, 165, 250, 0.08), transparent 32%),
+                linear-gradient(180deg, #f9fbff 0%, #ffffff 42%, #fbfcfe 100%);
             background-attachment: fixed;
-            
-            color: var(--midnight);
+            color: var(--admin-dark);
             font-family: var(--font-sans);
             margin: 0;
             -webkit-font-smoothing: antialiased;
@@ -76,9 +96,9 @@
             top: 0;
             align-self: flex-start;
             height: 100vh;
-            background-color: var(--white);
-            /* Garis pembatas tinta tebal khas panel manga */
-            border-right: 4px solid var(--midnight);
+            background-color: rgba(255, 255, 255, 0.96);
+            border-right: 1px solid var(--admin-line);
+            box-shadow: 14px 0 36px rgba(16, 24, 40, 0.04);
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
@@ -105,18 +125,19 @@
             display: flex;
             align-items: center;
             padding: 0 24px;
-            border-bottom: 4px solid var(--midnight);
-            background-color: var(--gold); /* Header brand bernuansa ceria */
+            border-bottom: 1px solid var(--admin-line);
+            background-color: var(--admin-white);
         }
 
         .brand-logo {
-            font-family: 'Fredoka One', sans-serif;
-            font-size: 22px;
-            color: var(--midnight);
+            font-family: var(--font-sans);
+            font-size: 20px;
+            color: var(--admin-dark);
             text-decoration: none;
             letter-spacing: -0.5px;
             text-transform: lowercase;
-            text-shadow: 2px 2px 0px var(--white);
+            font-weight: 900;
+            text-shadow: none;
         }
 
         .sb-nav {
@@ -126,11 +147,11 @@
         }
 
         .sb-section {
-            font-family: 'Fredoka One', sans-serif;
+            font-family: var(--font-sans);
             font-size: 12px;
             letter-spacing: 0.5px;
             text-transform: uppercase;
-            color: var(--midnight);
+            color: var(--admin-muted);
             opacity: 0.8;
             margin-bottom: 12px;
             margin-top: 24px;
@@ -150,42 +171,40 @@
             border-radius: 12px;
             font-size: 14px;
             font-weight: 800;
-            color: var(--midnight);
+            color: var(--admin-text);
             text-decoration: none;
-            border: 3px solid transparent;
-            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
             margin-bottom: 8px;
         }
 
-        /* Efek Timbul & Melayang Solid Khas Neobrutalism */
         .nav-link:hover, .nav-link.active {
-            color: var(--midnight) !important;
-            background-color: var(--cyber) !important; /* Cyber Oasis */
-            border-color: var(--midnight) !important;
-            box-shadow: 4px 4px 0px var(--midnight) !important;
-            transform: translate(-3px, -3px);
+            color: var(--admin-blue) !important;
+            background-color: var(--admin-soft-blue) !important;
+            border-color: var(--admin-blue-line) !important;
+            box-shadow: none !important;
+            transform: none;
         }
 
-        /* Efek Tekan yang Memuaskan saat Di-klik */
         .nav-link:active {
-            transform: translate(1px, 1px);
-            box-shadow: 1px 1px 0px var(--midnight) !important;
+            transform: scale(0.99);
+            box-shadow: none !important;
         }
 
         .nav-link i {
             font-size: 16px;
-            color: var(--midnight);
+            color: inherit;
             transition: transform 0.2s;
         }
 
         .nav-link:hover i {
-            transform: scale(1.15) rotate(-5deg);
+            transform: none;
         }
 
         .sb-footer {
             padding: 16px;
-            border-top: 4px solid var(--midnight);
-            background-color: var(--white);
+            border-top: 1px solid var(--admin-line);
+            background-color: var(--admin-white);
         }
 
         .user-info {
@@ -198,11 +217,11 @@
         .user-avatar {
             width: 38px;
             height: 38px;
-            border-radius: 10px;
-            background-color: var(--sakura); /* Sakura Burst */
-            color: var(--midnight);
-            border: 3px solid var(--midnight);
-            box-shadow: 3px 3px 0px var(--midnight);
+            border-radius: 12px;
+            background-color: var(--admin-soft-blue);
+            color: var(--admin-blue);
+            border: 1px solid var(--admin-blue-line);
+            box-shadow: none;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -224,15 +243,15 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 32px;
-            border-bottom: 4px solid var(--midnight);
-            background-color: var(--white);
+            border-bottom: 1px solid var(--admin-line);
+            background-color: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(14px);
         }
 
         .page-content {
             flex: 1;
             padding: 40px 40px;
             overflow-y: auto;
-            /* Dibuat transparent agar pola titik komik latar belakang menembus sempurna */
             background-color: transparent; 
             padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
         }
@@ -369,17 +388,17 @@
             height: 44px;
             align-items: center;
             justify-content: center;
-            border: 3px solid var(--midnight);
-            background: var(--white);
-            border-radius: 50%;
+            border: 1px solid #d0d5dd;
+            background: var(--admin-white);
+            border-radius: 12px;
             cursor: pointer;
-            color: var(--midnight);
-            box-shadow: 3px 3px 0px var(--midnight);
-            transition: all 0.2s;
+            color: var(--admin-text);
+            box-shadow: none;
+            transition: all 0.2s ease;
         }
         .menu-toggle:active {
-            transform: translate(2px, 2px);
-            box-shadow: 1px 1px 0px var(--midnight);
+            transform: scale(0.98);
+            box-shadow: none;
         }
 
         @media (max-width: 992px) {
@@ -390,48 +409,50 @@
 
         /* Editorial Lockup */
         .editorial-header {
-            margin-bottom: 48px;
+            margin-bottom: 36px;
         }
 
         .eyebrow {
-            font-family: 'Fredoka One', sans-serif;
+            font-family: var(--font-sans);
             font-size: 13px;
             letter-spacing: 0.5px;
             text-transform: uppercase;
-            color: var(--cosmo);
+            color: var(--admin-blue);
             margin-bottom: 12px;
             display: block;
+            font-weight: 900;
         }
 
         .display-title {
-            font-family: 'Fredoka One', sans-serif;
+            font-family: var(--font-sans);
             font-size: 42px;
             line-height: 1.1;
-            color: var(--midnight);
+            color: var(--admin-dark);
             margin-bottom: 24px;
+            font-weight: 900;
+            letter-spacing: 0;
         }
 
-        /* Form Input Bergaya Komik Panel Neobrutalism */
         input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
         select,
         textarea {
-            background-color: var(--white) !important;
-            color: var(--midnight) !important;
-            border: 4px solid var(--midnight) !important;
-            border-radius: 12px !important;
+            background-color: var(--admin-white) !important;
+            color: var(--admin-dark) !important;
+            border: 1px solid #d0d5dd !important;
+            border-radius: 14px !important;
             padding: 12px 16px !important;
             font-family: var(--font-sans) !important;
             font-size: 14px !important;
             font-weight: 700 !important;
             outline: none !important;
-            box-shadow: 4px 4px 0px var(--midnight) !important;
-            transition: all 0.15s ease !important;
+            box-shadow: none !important;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
         }
 
         input:focus, select:focus, textarea:focus {
-            transform: translate(-2px, -2px) !important;
-            box-shadow: 6px 6px 0px var(--midnight) !important;
-            border-color: var(--cosmo) !important;
+            transform: none !important;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10) !important;
+            border-color: #93c5fd !important;
         }
 
         /* Floating Action Button (FAB) - Neo Brutalism Pop Style */
@@ -447,18 +468,18 @@
         }
 
         .btn-fab {
-            width: 60px !important;
-            height: 60px !important;
-            border-radius: 50% !important;
-            background-color: var(--gold) !important; 
-            color: var(--midnight) !important;
+            width: 58px !important;
+            height: 58px !important;
+            border-radius: 16px !important;
+            background-color: var(--admin-blue) !important;
+            color: #ffffff !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            border: 4px solid var(--midnight) !important;
-            box-shadow: 5px 5px 0px var(--midnight) !important;
+            border: 1px solid var(--admin-blue) !important;
+            box-shadow: 0 18px 38px rgba(37, 99, 235, 0.22) !important;
             cursor: pointer !important;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            transition: all 0.2s ease !important;
             text-decoration: none !important;
             animation: fab-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
         }
@@ -469,25 +490,25 @@
         }
 
         .btn-fab:hover {
-            transform: translateY(-4px) scale(1.05) !important;
-            box-shadow: 8px 8px 0px var(--midnight) !important;
-            background-color: var(--sakura) !important; 
+            transform: translateY(-3px) !important;
+            box-shadow: 0 24px 52px rgba(37, 99, 235, 0.28) !important;
+            background-color: var(--admin-blue-dark) !important;
         }
         
         .btn-fab:active {
-            transform: translateY(2px) scale(0.95) !important;
-            box-shadow: 2px 2px 0px var(--midnight) !important;
+            transform: translateY(0) scale(0.98) !important;
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18) !important;
         }
 
         .fab-label {
             position: absolute !important;
             right: 80px !important;
-            background: var(--white) !important;
-            color: var(--midnight) !important;
-            border: 3px solid var(--midnight) !important;
+            background: var(--admin-white) !important;
+            color: var(--admin-dark) !important;
+            border: 1px solid var(--admin-line) !important;
             padding: 8px 16px !important;
             border-radius: 12px !important;
-            font-family: 'Fredoka One', sans-serif !important;
+            font-family: var(--font-sans) !important;
             font-size: 12px !important;
             text-transform: uppercase !important;
             white-space: nowrap !important;
@@ -495,7 +516,7 @@
             transform: translateX(20px) !important;
             pointer-events: none !important;
             transition: all 0.3s ease !important;
-            box-shadow: 4px 4px 0px var(--midnight) !important;
+            box-shadow: var(--admin-shadow-sm) !important;
         }
 
         .btn-fab:hover .fab-label {
@@ -503,39 +524,38 @@
             transform: translateX(0) !important;
         }
 
-        /* Utilitas Button Utama Bergaya Neobrutalism Berani (Manga-Pop Action Button) */
         .btn-primary {
-            font-family: 'Fredoka One', sans-serif !important;
-            background-color: var(--sakura) !important; /* Sakura Burst */
-            color: var(--midnight) !important;
-            border: 3px solid var(--midnight) !important;
+            font-family: var(--font-sans) !important;
+            background-color: var(--admin-blue) !important;
+            color: #ffffff !important;
+            border: 1px solid var(--admin-blue) !important;
             border-radius: 12px !important;
-            box-shadow: 4px 4px 0px var(--midnight) !important;
-            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.16) !important;
+            transition: all 0.2s ease;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-weight: bold;
+            font-weight: 900;
         }
         .btn-primary:hover {
-            transform: translate(-3px, -3px);
-            box-shadow: 7px 7px 0px var(--midnight) !important;
-            background-color: #ff5252 !important; /* Sedikit lebih menyala saat hover */
+            transform: translateY(-2px);
+            box-shadow: 0 18px 36px rgba(37, 99, 235, 0.20) !important;
+            background-color: var(--admin-blue-dark) !important;
         }
         .btn-primary:active {
-            transform: translate(1px, 1px);
-            box-shadow: 1px 1px 0px var(--midnight) !important;
+            transform: translateY(0);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.12) !important;
         }
 
         .btn-logout {
-            font-family: 'Fredoka One', sans-serif !important;
-            background-color: var(--sakura) !important;
-            color: var(--midnight) !important;
-            border: 3px solid var(--midnight) !important;
+            font-family: var(--font-sans) !important;
+            background-color: var(--admin-white) !important;
+            color: var(--admin-text) !important;
+            border: 1px solid #d0d5dd !important;
             border-radius: 12px !important;
-            box-shadow: 3px 3px 0px var(--midnight) !important;
-            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: none !important;
+            transition: all 0.2s ease;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -547,14 +567,14 @@
         }
 
         .btn-logout:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 5px 5px 0px var(--midnight) !important;
-            background-color: #ff6665 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 12px 26px rgba(16, 24, 40, 0.08) !important;
+            background-color: #f9fafb !important;
         }
 
         .btn-logout:active {
-            transform: translate(1px, 1px);
-            box-shadow: 1px 1px 0px var(--midnight) !important;
+            transform: translateY(0);
+            box-shadow: none !important;
         }
     </style>
     @include('layouts.partials.breadcrumb-styles')
@@ -623,8 +643,8 @@
         <div class="user-info">
             <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
             <div style="overflow:hidden">
-                <div style="font-size: 13px; font-weight: 800; color: var(--midnight);">{{ auth()->user()->name ?? auth()->user()->email }}</div>
-                <div style="font-size: 11px; font-weight: 700; color: var(--cosmo);">{{ auth()->user()->role }}</div>
+                <div style="font-size: 13px; font-weight: 800; color: var(--admin-dark);">{{ auth()->user()->name ?? auth()->user()->email }}</div>
+                <div style="font-size: 11px; font-weight: 700; color: var(--admin-blue); text-transform: uppercase;">{{ auth()->user()->role }}</div>
             </div>
         </div>
     </div>
@@ -645,9 +665,9 @@
             <button type="button" 
                     id="theme-toggle-btn"
                     onclick="window.toggleTheme()" 
-                    style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 3px solid var(--midnight); background: var(--white); font-size: 20px; color: var(--midnight); cursor: pointer; border-radius: 50%; box-shadow: 3px 3px 0px var(--midnight); transition: all 0.15s;" 
-                    onmouseover="this.style.background='var(--mochi)';"
-                    onmouseout="this.style.background='var(--white)';"
+                    style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid #d0d5dd; background: var(--admin-white); font-size: 20px; color: var(--admin-text); cursor: pointer; border-radius: 12px; box-shadow: none; transition: all 0.2s ease;"
+                    onmouseover="this.style.background='#f9fafb';"
+                    onmouseout="this.style.background='var(--admin-white)';"
                     title="Toggle Theme">
                 <i class="bi bi-moon-stars" style="pointer-events: none;"></i>
             </button>
@@ -665,6 +685,198 @@
     <main class="page-content">
         @yield('content')
     </main>
+
+    <style id="admin-clean-modern-final-overrides">
+        .page-content,
+        .page-content * {
+            letter-spacing: 0 !important;
+        }
+
+        .page-content .scoola-container {
+            background: transparent !important;
+            color: var(--admin-dark) !important;
+            font-family: var(--font-sans) !important;
+            padding: 0 !important;
+            gap: 28px !important;
+        }
+
+        .page-content .fredoka,
+        .page-content .mp-title,
+        .page-content .display-title,
+        .page-content h1,
+        .page-content h2,
+        .page-content h3,
+        .page-content h4,
+        .page-content h5,
+        .page-content h6 {
+            font-family: var(--font-sans) !important;
+            letter-spacing: 0 !important;
+            text-shadow: none !important;
+            -webkit-text-stroke: 0 !important;
+        }
+
+        .page-content .neo-card,
+        .page-content .manga-card,
+        .page-content .stats-card,
+        .page-content .toolbar-card,
+        .page-content .import-card,
+        .page-content .table-shell,
+        .page-content .guru-table-card,
+        .page-content .table-container-card {
+            background: var(--admin-white) !important;
+            color: var(--admin-dark) !important;
+            border: 1px solid var(--admin-line) !important;
+            border-radius: var(--admin-radius) !important;
+            box-shadow: var(--admin-shadow-sm) !important;
+        }
+
+        .page-content .neo-card:hover,
+        .page-content .manga-card:hover,
+        .page-content .manga-hover-effect:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: var(--admin-shadow-md) !important;
+        }
+
+        .page-content .hero-section,
+        .page-content .manga-card-cosmo,
+        .page-content .neo-card[style*="#6C5CE7"],
+        .page-content .neo-card[style*="rgb(108, 92, 231)"] {
+            background:
+                radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.08), transparent 30%),
+                linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+            color: var(--admin-dark) !important;
+            overflow: hidden !important;
+        }
+
+        .page-content .manga-card-gold,
+        .page-content .manga-card-cyber,
+        .page-content .mp-card-gold,
+        .page-content .mp-card-cyber,
+        .page-content .mp-card-sakura,
+        .page-content .neo-card[style*="#00CEC9"],
+        .page-content .neo-card[style*="#FDCB6E"],
+        .page-content .neo-card[style*="#FF7675"] {
+            background: var(--admin-white) !important;
+            color: var(--admin-dark) !important;
+        }
+
+        .page-content .neo-card *,
+        .page-content .manga-card *,
+        .page-content .hero-section * {
+            text-shadow: none !important;
+            -webkit-text-stroke: 0 !important;
+        }
+
+        .page-content .neo-card :is(h1, h2, h3, h4, h5, h6, p, span, div, label, small),
+        .page-content .manga-card :is(h1, h2, h3, h4, h5, h6, p, span, div, label, small),
+        .page-content .hero-section :is(h1, h2, h3, h4, h5, h6, p, span, div, label, small) {
+            color: inherit !important;
+        }
+
+        .page-content .neo-btn-primary,
+        .page-content .btn-primary,
+        .page-content .btn-fab,
+        .page-content .fab-button,
+        .page-content .manga-btn-primary,
+        .page-content button[type="submit"]:not(.btn-logout),
+        .page-content a[class*="btn"][href]:not(.mp-btn-secondary):not(.btn-logout) {
+            background: var(--admin-blue) !important;
+            color: #ffffff !important;
+            border: 1px solid var(--admin-blue) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.16) !important;
+            font-family: var(--font-sans) !important;
+            font-weight: 900 !important;
+            text-shadow: none !important;
+            -webkit-text-stroke: 0 !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .page-content .neo-btn-primary:hover,
+        .page-content .btn-primary:hover,
+        .page-content .btn-fab:hover,
+        .page-content .fab-button:hover,
+        .page-content .manga-btn-primary:hover {
+            background: var(--admin-blue-dark) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 18px 36px rgba(37, 99, 235, 0.20) !important;
+        }
+
+        .page-content .badge,
+        .page-content .status-pill,
+        .page-content .mini-chip,
+        .page-content span[style*="background"] {
+            border: 1px solid var(--admin-blue-line) !important;
+            border-radius: 999px !important;
+            background: var(--admin-soft-blue) !important;
+            color: var(--admin-blue) !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            font-family: var(--font-sans) !important;
+            font-weight: 900 !important;
+        }
+
+        .page-content table {
+            border-collapse: collapse !important;
+            color: var(--admin-text) !important;
+        }
+
+        .page-content th {
+            background: #f8fbff !important;
+            color: var(--admin-muted) !important;
+            border-bottom: 1px solid var(--admin-line) !important;
+            font-family: var(--font-sans) !important;
+            font-size: 12px !important;
+            font-weight: 900 !important;
+            text-transform: uppercase !important;
+        }
+
+        .page-content td {
+            background: var(--admin-white) !important;
+            color: var(--admin-text) !important;
+            border-bottom: 1px solid var(--admin-line) !important;
+        }
+
+        .page-content .table-wrapper,
+        .page-content .manga-table-wrap {
+            border: 1px solid var(--admin-line) !important;
+            border-radius: var(--admin-radius) !important;
+            box-shadow: var(--admin-shadow-sm) !important;
+            background: var(--admin-white) !important;
+        }
+
+        .page-content input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+        .page-content select,
+        .page-content textarea {
+            background: var(--admin-white) !important;
+            color: var(--admin-dark) !important;
+            border: 1px solid #d0d5dd !important;
+            border-radius: 14px !important;
+            box-shadow: none !important;
+            font-family: var(--font-sans) !important;
+            font-weight: 700 !important;
+        }
+
+        .page-content input:focus,
+        .page-content select:focus,
+        .page-content textarea:focus {
+            border-color: #93c5fd !important;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10) !important;
+            transform: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .page-content .responsive-table tr,
+            .page-content .mobile-card,
+            .page-content .student-row,
+            .page-content .guru-row {
+                background: var(--admin-white) !important;
+                border: 1px solid var(--admin-line) !important;
+                border-radius: 18px !important;
+                box-shadow: var(--admin-shadow-sm) !important;
+            }
+        }
+    </style>
 </div>
 
 @stack('scripts')

@@ -134,18 +134,22 @@
                 </div>
 
                 <div style="display:flex; flex-direction:column; gap:16px;">
-                    @foreach([['07:00','Matematika','X-A'],['08:30','Matematika','XI-B'],['12:30','Matematika','X-B']] as $j)
+                    @forelse($agendaMengajar as $agenda)
                         <div class="agenda-card">
                             <div style="display:flex; align-items:center; gap:16px;">
-                                <span class="mp-badge" style="background:var(--cyber);">{{ $j[0] }}</span>
+                                <span class="mp-badge" style="background:var(--cyber);">{{ $agenda->jam_label }}</span>
                                 <div>
-                                    <div style="font-family:'Fredoka One', cursive; font-size:20px; color:var(--midnight);">{{ $j[1] }}</div>
-                                    <div style="font-size:12px; font-weight:900; color:var(--cosmo); text-transform:uppercase;">Kelas {{ $j[2] }}</div>
+                                    <div style="font-family:'Fredoka One', cursive; font-size:20px; color:var(--midnight);">{{ $agenda->mapel }}</div>
+                                    <div style="font-size:12px; font-weight:900; color:var(--cosmo); text-transform:uppercase;">Kelas {{ $agenda->kelas }}</div>
                                 </div>
                             </div>
-                            <span class="mp-badge" style="background:var(--gold);">Aktif</span>
+                            <span class="mp-badge" style="background:{{ $agenda->status_color }};">{{ $agenda->status_label }}</span>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="agenda-card" style="justify-content:center; color:var(--midnight); font-weight:900;">
+                            Belum ada jadwal mengajar untuk hari ini.
+                        </div>
+                    @endforelse
                 </div>
             </section>
         </div>
@@ -191,16 +195,17 @@
             </section>
 
             <section class="mp-card mp-card-sakura">
-                <span class="mp-badge" style="background:var(--gold);">Pusat Info</span>
+                <span class="mp-badge" style="background:var(--gold);">Status Sesi Hari Ini</span>
                 <div style="display:flex; flex-direction:column; gap:18px; margin-top:22px;">
-                    <div style="padding:18px; border:3px solid var(--midnight); border-radius:14px; background:var(--white); color:var(--midnight); box-shadow:4px 4px 0 var(--midnight);">
-                        <strong>Pemberitahuan Presensi</strong>
-                        <p style="margin:8px 0 0; font-weight:800;">Pastikan data presensi jam pertama diunggah sebelum pukul 09:00.</p>
-                    </div>
-                    <div style="padding:18px; border:3px solid var(--midnight); border-radius:14px; background:var(--white); color:var(--midnight); box-shadow:4px 4px 0 var(--midnight);">
-                        <strong>Rapat Evaluasi</strong>
-                        <p style="margin:8px 0 0; font-weight:800;">Pertemuan bulanan guru akan diadakan besok di Aula Utama.</p>
-                    </div>
+                    @foreach($statusSesiHariIni as $statusSesi)
+                        <div style="padding:18px; border:3px solid var(--midnight); border-radius:14px; background:var(--white); color:var(--midnight); box-shadow:4px 4px 0 var(--midnight);">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                                <strong>{{ $statusSesi->title }}</strong>
+                                <span class="mp-badge" style="background:var(--cyber);">{{ $statusSesi->value }}</span>
+                            </div>
+                            <p style="margin:8px 0 0; font-weight:800;">{{ $statusSesi->description }}</p>
+                        </div>
+                    @endforeach
                 </div>
             </section>
         </aside>

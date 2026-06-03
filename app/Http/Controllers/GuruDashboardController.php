@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Guru;
+use App\Models\JadwalPelajaran;
 use App\Models\Siswa;
 use App\Models\Presensi;
 use App\Models\SesiPresensi;
@@ -14,7 +16,9 @@ class GuruDashboardController extends Controller
     {
         $today = Carbon::today();
         $todayString = $today->toDateString();
+        $hariIni = $this->hariIndonesia($today);
         $guruId = auth()->id();
+        $guru = Guru::query()->where('user_id', $guruId)->first();
         $studentCountsByClass = Siswa::query()
             ->select('kelas', DB::raw('count(*) as total'))
             ->groupBy('kelas')
@@ -22,7 +26,7 @@ class GuruDashboardController extends Controller
 
         $sesiHariIni = SesiPresensi::where('guru_id', $guruId)
             ->whereDate('created_at', $todayString)
-            ->get(['id', 'kelas']);
+            ->get(['id', 'kelas', 'kd_jp', 'status']);
 
         $sesiIds = $sesiHariIni->pluck('id');
         $sesiCountByKelas = $sesiHariIni->countBy('kelas');
@@ -114,10 +118,91 @@ class GuruDashboardController extends Controller
             ];
         }
 
+        $todaySessionsBySchedule = $sesiHariIni->keyBy(fn (SesiPresensi $session): string => $session->kd_jp . '|' . $session->kelas);
+        $agendaMengajar = $guru
+            ? JadwalPelajaran::query()
+                ->with('mapel:kd_mapel,nama_mapel')
+                ->where('NIP', $guru->NIP)
+                ->where('hari', $hariIni)
+                ->orderBy('jam_mulai')
+                ->get(['kd_jp', 'hari', 'jam_mulai', 'jam_selesai', 'kd_mapel', 'NIP', 'kelas'])
+                ->map(function (JadwalPelajaran $jadwal) use ($todaySessionsBySchedule) {
+                    $session = $todaySessionsBySchedule->get($jadwal->kd_jp . '|' . $jadwal->kelas);
+
+                    return (object) [
+                        'jam_label' => $this->formatJamPelajaran($jadwal->jam_mulai, $jadwal->jam_selesai),
+                        'mapel' => $jadwal->mapel?->nama_mapel ?? $jadwal->kd_jp,
+                        'kelas' => $jadwal->kelas,
+                        'status_label' => match ($session?->status) {
+                            'aktif' => 'Aktif',
+                            'selesai' => 'Selesai',
+                            default => 'Belum Dimulai',
+                        },
+                        'status_color' => match ($session?->status) {
+                            'aktif' => 'var(--gold)',
+                            'selesai' => 'var(--cyber)',
+                            default => 'var(--white)',
+                        },
+                    ];
+                })
+            : collect();
+
+        $statusSesiHariIni = collect([
+            (object) [
+                'title' => 'Jadwal Hari Ini',
+                'value' => $agendaMengajar->count(),
+                'description' => 'slot mengajar terjadwal',
+            ],
+            (object) [
+                'title' => 'Sesi Aktif',
+                'value' => $sesiHariIni->where('status', 'aktif')->count(),
+                'description' => 'kelas sedang dibuka',
+            ],
+            (object) [
+                'title' => 'Sesi Selesai',
+                'value' => $sesiHariIni->where('status', 'selesai')->count(),
+                'description' => 'kelas sudah ditutup',
+            ],
+            (object) [
+                'title' => 'Belum Dimulai',
+                'value' => max(0, $agendaMengajar->count() - $sesiHariIni->pluck('kd_jp')->unique()->count()),
+                'description' => 'jadwal belum dibuka',
+            ],
+        ]);
+
         return view('guru.dashboard', compact(
             'totalKelasDiajar', 'siswaHarusAbsen',
             'hadirHariIni', 'izinSakitHariIni', 'alpaHariIni', 'persentaseHadir',
-            'absensiTerbaru', 'kelasBreakdown', 'trendData'
+            'absensiTerbaru', 'kelasBreakdown', 'trendData', 'agendaMengajar', 'statusSesiHariIni'
         ));
+    }
+
+    private function hariIndonesia(Carbon $date): string
+    {
+        return [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu',
+        ][$date->format('l')];
+    }
+
+    private function formatJamPelajaran(mixed $jamMulai, mixed $jamSelesai): string
+    {
+        $mulai = trim((string) $jamMulai);
+        $selesai = trim((string) $jamSelesai);
+
+        if (is_numeric($mulai) && is_numeric($selesai)) {
+            return "Jam {$mulai}-{$selesai}";
+        }
+
+        if ($selesai === '' || $selesai === $mulai) {
+            return $mulai !== '' ? $mulai : '-';
+        }
+
+        return trim($mulai . ' - ' . $selesai);
     }
 }

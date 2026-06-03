@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Siswa;
 use App\Models\Guru;
+use App\Models\JadwalPelajaran;
 use App\Models\Presensi;
 use App\Models\SesiPresensi;
 use Carbon\Carbon;
@@ -15,6 +16,8 @@ class AdminDashboardController extends Controller
     {
         $today = Carbon::today();
         $todayString = $today->toDateString();
+        $weekStart = $today->copy()->subDays(6);
+        $hariIni = $this->hariIndonesia($today);
 
         $totalSiswa = Siswa::count();
         $totalKelasAktif = Siswa::distinct('kelas')->count('kelas');
@@ -125,11 +128,94 @@ class AdminDashboardController extends Controller
             ];
         }
 
+        $agendaHariIni = JadwalPelajaran::query()
+            ->with([
+                'mapel:kd_mapel,nama_mapel',
+                'guru:NIP,nama_guru',
+            ])
+            ->where('hari', $hariIni)
+            ->orderBy('jam_mulai')
+            ->orderBy('kelas')
+            ->limit(6)
+            ->get(['kd_jp', 'hari', 'jam_mulai', 'jam_selesai', 'kd_mapel', 'NIP', 'kelas']);
+
+        $anomalyRows = Presensi::query()
+            ->with('siswa:NIS,nama_siswa,kelas')
+            ->select('NIS', DB::raw('count(*) as total_alpha'))
+            ->where('status', 'Alpa')
+            ->whereBetween('tanggal', [$weekStart->toDateString(), $todayString])
+            ->groupBy('NIS')
+            ->havingRaw('count(*) >= 2')
+            ->orderByDesc('total_alpha')
+            ->limit(3)
+            ->get();
+
+        $overdueSessions = SesiPresensi::query()
+            ->with(['jadwal.mapel:kd_mapel,nama_mapel'])
+            ->whereDate('created_at', $todayString)
+            ->where('status', 'aktif')
+            ->whereNotNull('waktu_berlaku')
+            ->where('waktu_berlaku', '<', now())
+            ->orderBy('waktu_berlaku')
+            ->limit(3)
+            ->get(['id', 'kelas', 'kd_jp', 'waktu_berlaku', 'status', 'created_at']);
+
+        $criticalReports = collect();
+
+        if ($anomalyRows->isNotEmpty()) {
+            $criticalReports->push((object) [
+                'title' => 'Anomali Kehadiran',
+                'summary' => $anomalyRows->count() . ' siswa mencatat Alpha berulang minggu ini.',
+                'items' => $anomalyRows->map(function (Presensi $row): string {
+                    $nama = $row->siswa?->nama_siswa ?? $row->NIS;
+                    $kelas = $row->siswa?->kelas ?? '-';
+
+                    return "{$nama} ({$kelas}) • {$row->total_alpha} Alpha";
+                })->values(),
+                'action_url' => route('admin.presensi-siswa.index', [
+                    'tanggal_mulai' => $weekStart->toDateString(),
+                    'tanggal_akhir' => $todayString,
+                ]),
+                'action_label' => 'Tinjau Presensi',
+            ]);
+        }
+
+        if ($overdueSessions->isNotEmpty()) {
+            $criticalReports->push((object) [
+                'title' => 'Sesi Aktif Melewati Batas Waktu',
+                'summary' => $overdueSessions->count() . ' sesi masih aktif meski waktu presensinya sudah habis.',
+                'items' => $overdueSessions->map(function (SesiPresensi $session): string {
+                    $mapel = $session->jadwal?->mapel?->nama_mapel ?? $session->kd_jp ?? '-';
+                    $expiredAt = optional($session->waktu_berlaku)?->format('H:i') ?? '-';
+
+                    return "{$session->kelas} • {$mapel} • berakhir {$expiredAt}";
+                })->values(),
+                'action_url' => route('admin.rekap.index', [
+                    'kelas' => $overdueSessions->first()?->kelas,
+                    'tanggal' => $todayString,
+                ]),
+                'action_label' => 'Buka Rekap',
+            ]);
+        }
+
         return view('admin.dashboard', compact(
             'totalSiswa', 'totalKelasAktif',
             'hadirHariIni', 'izinSakitHariIni', 'alpaHariIni', 'persentaseHadir',
             'siswaHarusAbsen', 'absensiTerbaru', 'kelasBreakdown', 'trendData',
-            'studentComposition', 'studentCompositionTotal'
+            'studentComposition', 'studentCompositionTotal', 'agendaHariIni', 'criticalReports'
         ));
+    }
+
+    private function hariIndonesia(Carbon $date): string
+    {
+        return [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu',
+        ][$date->format('l')];
     }
 }

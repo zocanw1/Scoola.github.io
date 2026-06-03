@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\JadwalPelajaran;
+use App\Models\Guru;
+use App\Models\Mapel;
 use App\Models\Presensi;
 use App\Models\SesiPresensi;
 use App\Models\Siswa;
@@ -130,6 +132,89 @@ class DashboardMetricsTest extends TestCase
         });
     }
 
+    public function test_admin_dashboard_renders_real_schedule_and_critical_data_instead_of_dummy_blocks(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+        $guru = $this->createGuruProfile($guruUser, 'GURU-ADMIN-DASH', 'Guru Admin Dash', 'MAPEL-ADMIN-DASH', 'Sejarah');
+
+        $this->createStudentsForClass('XI-SIJA 9', 2);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP-ADMIN-DASH',
+            'hari' => 'Senin',
+            'jam_mulai' => 1,
+            'jam_selesai' => 2,
+            'kd_mapel' => 'MAPEL-ADMIN-DASH',
+            'NIP' => $guru->NIP,
+            'kelas' => 'XI-SIJA 9',
+        ]);
+
+        $sesi = SesiPresensi::create([
+            'guru_id' => $guruUser->id,
+            'kelas' => 'XI-SIJA 9',
+            'kd_jp' => 'JP-ADMIN-DASH',
+            'kode_presensi' => 'ADMIN9',
+            'waktu_berlaku' => now()->subMinutes(15),
+            'status' => 'aktif',
+        ]);
+
+        $this->createPresensi('P-ADMIN-1', $sesi->id, 'JP-ADMIN-DASH', 'SISWA-1', 'Alpa');
+        $this->createPresensi('P-ADMIN-2', $sesi->id, 'JP-ADMIN-DASH', 'SISWA-2', 'Alpa');
+
+        Presensi::create([
+            'kd_presensi' => 'P-ADMIN-3',
+            'sesi_id' => null,
+            'tanggal' => now()->subDay()->toDateString(),
+            'kd_jp' => 'JP-ADMIN-DASH',
+            'jam_masuk' => null,
+            'status' => 'Alpa',
+            'NIS' => 'SISWA-1',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+        $response->assertOk();
+        $response->assertSee('Sejarah');
+        $response->assertSee('Guru Admin Dash');
+        $response->assertSee('XI-SIJA 9');
+        $response->assertSee('Anomali Kehadiran');
+        $response->assertSee('Sesi Aktif Melewati Batas Waktu');
+        $response->assertDontSee('Terdapat 5 siswa dengan status Alpha berulang minggu ini.');
+        $response->assertDontSee('Kelas XII-A belum mengunggah rekap presensi jam ke-4.');
+        $response->assertDontSee('Pak Hendra');
+        $response->assertDontSee('Bu Dewi');
+        $response->assertDontSee('Pak Rizal');
+    }
+
+    public function test_guru_dashboard_renders_logged_in_teacher_schedule_instead_of_dummy_agenda(): void
+    {
+        $guruUser = User::factory()->create(['role' => 'guru']);
+        $guru = $this->createGuruProfile($guruUser, 'GURU-GURU-DASH', 'Guru Jadwal', 'MAPEL-GURU-DASH', 'Biologi');
+
+        $this->createStudentsForClass('XI-SIJA 8', 2);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP-GURU-DASH',
+            'hari' => 'Senin',
+            'jam_mulai' => 3,
+            'jam_selesai' => 4,
+            'kd_mapel' => 'MAPEL-GURU-DASH',
+            'NIP' => $guru->NIP,
+            'kelas' => 'XI-SIJA 8',
+        ]);
+
+        $response = $this->actingAs($guruUser)->get(route('guru.dashboard'));
+
+        $response->assertOk();
+        $response->assertSee('Biologi');
+        $response->assertSee('XI-SIJA 8');
+        $response->assertDontSee('Kelas X-A');
+        $response->assertDontSee('Kelas XI-B');
+        $response->assertDontSee('Pastikan data presensi jam pertama diunggah sebelum pukul 09:00.');
+        $response->assertDontSee('Pertemuan bulanan guru akan diadakan besok di Aula Utama.');
+    }
+
     private function createStudentsForClass(string $kelas, int $count): void
     {
         foreach (range(1, $count) as $index) {
@@ -168,6 +253,21 @@ class DashboardMetricsTest extends TestCase
             'jam_mulai' => 1,
             'jam_selesai' => 2,
             'kelas' => $kelas,
+        ]);
+    }
+
+    private function createGuruProfile(User $user, string $nip, string $namaGuru, string $kdMapel, string $namaMapel): Guru
+    {
+        Mapel::create([
+            'kd_mapel' => $kdMapel,
+            'nama_mapel' => $namaMapel,
+        ]);
+
+        return Guru::create([
+            'NIP' => $nip,
+            'user_id' => $user->id,
+            'nama_guru' => $namaGuru,
+            'kd_mapel' => $kdMapel,
         ]);
     }
 }

@@ -234,6 +234,23 @@
         ];
     @endphp
 
+    @php
+        $formatAgendaLabel = static function ($jamMulai, $jamSelesai): string {
+            $mulai = trim((string) $jamMulai);
+            $selesai = trim((string) $jamSelesai);
+
+            if (is_numeric($mulai) && is_numeric($selesai)) {
+                return "Jam {$mulai}-{$selesai}";
+            }
+
+            if ($selesai === '' || $selesai === $mulai) {
+                return $mulai !== '' ? $mulai : '-';
+            }
+
+            return trim($mulai . ' - ' . $selesai);
+        };
+    @endphp
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         @foreach($stats as $s)
             <div class="neo-card p-6 flex flex-col justify-between" style="background-color: {{ $s[3] }}; min-height: 180px;">
@@ -310,30 +327,34 @@
                     <h2 class="font-anime-header text-xl text-[#1E1B29] flex items-center gap-2">
                         <span>⚡</span> Agenda Belajar Hari Ini
                     </h2>
-                    <a href="/admin/jadwal" class="neo-btn bg-[#FF7675] text-white text-xs px-4 py-2 rounded-lg no-underline inline-flex items-center">
+                    <a href="{{ route('jadwal.index') }}" class="neo-btn bg-[#FF7675] text-white text-xs px-4 py-2 rounded-lg no-underline inline-flex items-center">
                         Kelola
                     </a>
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    @foreach([['07:00','Matematika','X-A','Pak Hendra', '#00CEC9'],['08:30','B. Indonesia','XI-B','Bu Dewi', '#FDCB6E'],['10:15','Fisika','XII-C','Pak Rizal', '#FF7675']] as $j)
-                        <div class="neo-card p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:scale-[1.01]" style="background-color: #FAF9FF; border-left: 8px solid {{ $j[4] }} !important;">
+                    @forelse($agendaHariIni as $agenda)
+                        <div class="neo-card p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:scale-[1.01]" style="background-color: #FAF9FF; border-left: 8px solid #00CEC9 !important;">
                             <div class="flex items-center gap-4">
                                 <div class="font-anime-header bg-[#1E1B29] text-white py-1 px-3 rounded-lg text-sm shadow-[2px_2px_0px_#6C5CE7]">
-                                    {{ $j[0] }}
+                                    {{ $formatAgendaLabel($agenda->jam_mulai, $agenda->jam_selesai) }}
                                 </div>
                                 <div>
-                                    <h4 class="font-anime-header text-lg text-[#1E1B29] leading-tight mb-1">{{ $j[1] }}</h4>
+                                    <h4 class="font-anime-header text-lg text-[#1E1B29] leading-tight mb-1">{{ $agenda->mapel?->nama_mapel ?? $agenda->kd_jp }}</h4>
                                     <span class="bg-[#1E1B29] text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded inline-block">
-                                        Kelas {{ $j[2] }}
+                                        Kelas {{ $agenda->kelas }}
                                     </span>
                                 </div>
                             </div>
                             <div class="font-anime-header text-sm text-[#6C5CE7] flex items-center gap-1">
-                                <span>👤</span> {{ $j[3] }}
+                                <span>👤</span> {{ $agenda->guru?->nama_guru ?? '-' }}
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="neo-card p-5 text-sm font-bold text-gray-500 italic" style="background-color: #FAF9FF;">
+                            Belum ada jadwal pelajaran yang tercatat untuk hari ini.
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -351,12 +372,8 @@
                                 {{ $trend->is_empty ? '0' : $trend->pct_hadir }}%
                             </span>
 
-                            @php
-                                $trendHeight = $trend->is_empty ? '10px' : ($trend->pct_hadir . '%');
-                                $trendBg = $trend->is_empty ? '#FAF9FF' : ($loop->iteration % 2 === 0 ? '#00CEC9' : '#6C5CE7');
-                            @endphp
                             <div class="w-full rounded-t-md transition-all duration-300 border-2 border-[#1E1B29]"
-                                 style="height: {{ $trendHeight }}; background-color: {{ $trendBg }}; box-shadow: 2px 0px 0px 0px #1E1B29;">
+                                 style="height: {{ $trend->is_empty ? '10px' : ($trend->pct_hadir . '%') }}; background-color: {{ $trend->is_empty ? '#FAF9FF' : ($loop->iteration % 2 === 0 ? '#00CEC9' : '#6C5CE7') }}; box-shadow: 2px 0px 0px 0px #1E1B29;">
                             </div>
                         </div>
                     @endforeach
@@ -454,6 +471,36 @@
                 </h2>
 
                 <div class="flex flex-col gap-4 relative z-10">
+                    @forelse($criticalReports as $report)
+                        <div class="bg-white p-4 border-2 border-[#1E1B29] rounded-xl shadow-[3px_3px_0px_0px_#1E1B29]">
+                            <h4 class="font-anime-header text-base text-[#1E1B29] mb-1">{{ $report->title }}</h4>
+                            <p class="text-xs text-gray-700 font-semibold leading-relaxed">
+                                {{ $report->summary }}
+                            </p>
+
+                            @if(collect($report->items ?? [])->isNotEmpty())
+                                <ul class="mt-3 mb-0 pl-4 text-xs text-[#1E1B29] font-semibold space-y-1">
+                                    @foreach($report->items as $item)
+                                        <li>{{ $item }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+
+                            @if(!empty($report->action_url))
+                                <a href="{{ $report->action_url }}" class="inline-block mt-3 font-anime-header text-xs text-[#6C5CE7] no-underline hover:underline">
+                                    {{ $report->action_label ?? 'Buka Detail' }} â†’
+                                </a>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="bg-white p-4 border-2 border-[#1E1B29] rounded-xl shadow-[3px_3px_0px_0px_#1E1B29]">
+                            <h4 class="font-anime-header text-base text-[#1E1B29] mb-1">Tidak Ada Alert</h4>
+                            <p class="text-xs text-gray-700 font-semibold leading-relaxed">
+                                Belum ada anomali presensi atau sesi yang perlu ditindaklanjuti hari ini.
+                            </p>
+                        </div>
+                    @endforelse
+                    @if(false)
                     <div class="bg-white p-4 border-2 border-[#1E1B29] rounded-xl shadow-[3px_3px_0px_0px_#1E1B29]">
                         <h4 class="font-anime-header text-base text-[#1E1B29] mb-1">Anomali Kehadiran</h4>
                         <p class="text-xs text-gray-700 font-semibold leading-relaxed">
@@ -470,6 +517,7 @@
                             Kelas XII-A belum mengunggah rekap presensi jam ke-4.
                         </p>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
