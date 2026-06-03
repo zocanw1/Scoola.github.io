@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe Presensi Guru Scoola</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="wireframe-page">
+        <div class="shell">
+            <aside class="sidebar panel">
+                <div class="brand-mark">scoola</div>
+                <div class="menu-stack">
+                    <div class="menu-label">Guru Area</div>
+                    <div class="menu-item"><span>Dashboard</span><span>01</span></div>
+                    <div class="menu-item active"><span>Presensi Guru</span><span>02</span></div>
+                    <div class="menu-item"><span>Jadwal Mengajar</span><span>03</span></div>
+                    <div class="menu-item"><span>Riwayat Presensi</span><span>04</span></div>
+                </div>
+            </aside>
+
+            <section class="content-stack">
+                <div class="topbar panel">
+                    <div class="title-wrap">
+                        <span class="eyebrow">Log Akademik</span>
+                        <h1>Data Presensi</h1>
+                        <p>Halaman ini mengikuti layout presensi guru di project: header card, stats-action card, flash message, tabel data, lalu form tambah presensi.</p>
+                    </div>
+                    <div class="ghost-group">
+                        <span class="ghost-button">Kembali</span>
+                        <span class="solid-button">+ Tambah Presensi</span>
+                    </div>
+                </div>
+
+                <section class="panel">
+                    <div class="hero-inner">
+                        <span class="badge">Log Akademik</span>
+                        <h1>Data Presensi</h1>
+                        <p>Riwayat kehadiran siswa pada sesi mata pelajaran Anda. Pantau dan verifikasi kehadiran secara real-time.</p>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="toolbar-head">
+                        <div class="toolbar-copy">
+                            <strong>Ringkasan Presensi</strong>
+                            <p class="muted">Kartu ini meniru blok total entri dan tombol aksi pada halaman index presensi.</p>
+                        </div>
+                        <div class="ghost-group">
+                            <span class="solid-button">+ Tambah Presensi</span>
+                        </div>
+                    </div>
+                    <div class="stats-grid" style="margin-top: 16px;">
+                        <article class="panel stat-card" style="min-height:auto;">
+                            <div class="stat-icon">36</div>
+                            <div>
+                                <div class="metric-label">Total Entri</div>
+                                <div class="muted">Data presensi hari ini</div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="wire-alert" style="margin:0;">
+                    Presensi berhasil disimpan.
+                </section>
+
+                <section class="table-card">
+                    <div class="toolbar-copy" style="margin-bottom: 14px;">
+                        <strong>Tabel Presensi</strong>
+                    </div>
+                    <div class="table-shell tight">
+                        <div class="table-head" style="grid-template-columns: .8fr .9fr .8fr 1.1fr .8fr .8fr .7fr;">
+                            <span>Kode</span>
+                            <span>Tanggal</span>
+                            <span>Jadwal</span>
+                            <span>Siswa</span>
+                            <span>Jam</span>
+                            <span>Status</span>
+                            <span>Aksi</span>
+                        </div>
+                        <div class="table-row" style="grid-template-columns: .8fr .9fr .8fr 1.1fr .8fr .8fr .7fr;">
+                            <span>PRS-01</span>
+                            <span>2026-06-01</span>
+                            <span>MTK-8A</span>
+                            <span>Azka Pratama</span>
+                            <span>07:00</span>
+                            <span><span class="status-good">Hadir</span></span>
+                            <span>Edit</span>
+                        </div>
+                        <div class="table-row" style="grid-template-columns: .8fr .9fr .8fr 1.1fr .8fr .8fr .7fr;">
+                            <span>PRS-02</span>
+                            <span>2026-06-01</span>
+                            <span>MTK-8A</span>
+                            <span>Nabila Sari</span>
+                            <span>07:05</span>
+                            <span><span class="status-wait">Izin</span></span>
+                            <span>Edit</span>
+                        </div>
+                        <div class="table-row" style="grid-template-columns: .8fr .9fr .8fr 1.1fr .8fr .8fr .7fr;">
+                            <span>PRS-03</span>
+                            <span>2026-06-01</span>
+                            <span>MTK-8B</span>
+                            <span>Fahri Ramadhan</span>
+                            <span>09:10</span>
+                            <span><span class="status-alert">Alfa</span></span>
+                            <span>Edit</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel presensi-form-card">
+                    <div class="hero-inner">
+                        <span class="badge">Tambah Presensi</span>
+                        <h1>Tambah Presensi</h1>
+                        <p>Bagian ini mengikuti halaman create presensi guru dengan gaya form editorial garis bawah.</p>
+                    </div>
+
+                    <div class="wire-alert" style="margin-top: 24px;">
+                        Tanggal, jadwal, siswa, jam masuk, dan status wajib diisi.
+                    </div>
+
+                    <div style="margin-top: 24px;">
+                        <div class="editorial-field">
+                            <label class="field-label">Tanggal</label>
+                            <div class="editorial-line">2026-06-01</div>
+                        </div>
+                        <div class="editorial-field">
+                            <label class="field-label">Pilih Jadwal</label>
+                            <div class="editorial-line">Pilih Jadwal</div>
+                        </div>
+                        <div class="editorial-field">
+                            <label class="field-label">Pilih Siswa</label>
+                            <div class="editorial-line">Pilih Siswa</div>
+                        </div>
+                        <div class="editorial-field">
+                            <label class="field-label">Jam Masuk</label>
+                            <div class="editorial-line">07:00</div>
+                        </div>
+                        <div class="editorial-field">
+                            <label class="field-label">Status Kehadiran</label>
+                            <div class="editorial-line">Hadir</div>
+                        </div>
+                        <div class="ghost-group" style="margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--gray-300);">
+                            <span class="solid-button">Simpan Presensi</span>
+                            <span class="ghost-button">Batal</span>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe Data Siswa Guru Scoola</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="wireframe-page">
+        <div class="shell">
+            <aside class="sidebar panel">
+                <div class="brand-mark">scoola</div>
+                <div class="menu-stack">
+                    <div class="menu-label">Data Master</div>
+                    <div class="menu-item"><span>Dashboard</span><span>01</span></div>
+                    <div class="menu-item active"><span>Data Siswa / Guru</span><span>02</span></div>
+                    <div class="menu-item"><span>Kelas</span><span>03</span></div>
+                    <div class="menu-item"><span>Mapel</span><span>04</span></div>
+                </div>
+            </aside>
+
+            <section class="content-stack">
+                <div class="topbar panel">
+                    <div class="title-wrap">
+                        <span class="eyebrow">Data Master</span>
+                        <h1>Data Siswa / Guru</h1>
+                        <p>Halaman ini digabung, tetapi tiap blok dibuat mengikuti layout halaman siswa dan guru di project.</p>
+                    </div>
+                    <div class="segmented">
+                        <span class="active">Siswa</span>
+                        <span>Guru</span>
+                    </div>
+                </div>
+
+                <section class="panel">
+                    <span class="card-sticker">Siswa</span>
+                    <div class="hero-inner">
+                        <span class="badge">Database Siswa</span>
+                        <h1>Kelola seluruh informasi siswa.</h1>
+                        <p>Susunan di bawah mengikuti halaman `siswa-index`: hero, dua kartu statistik, toolbar pencarian, import, tabel, pagination, dan tombol tambah.</p>
+                    </div>
+                </section>
+
+                <section class="stats-grid">
+                    <article class="panel stat-card">
+                        <div class="stat-icon">S</div>
+                        <div>
+                            <div class="metric-value">864</div>
+                            <div class="metric-label">Total Siswa</div>
+                        </div>
+                    </article>
+                    <article class="panel stat-card">
+                        <div class="stat-icon">K</div>
+                        <div>
+                            <div class="metric-value">12</div>
+                            <div class="metric-label">Kelas Aktif</div>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="panel toolbar-card">
+                    <div class="toolbar-head">
+                        <div class="toolbar-copy">
+                            <strong>Direktori Siswa</strong>
+                            <p class="muted">Form pencarian mengikuti blok live search dan filter kelas pada project.</p>
+                        </div>
+                        <span class="wire-pill">Live Search Aktif</span>
+                    </div>
+                    <div class="toolbar-grid">
+                        <div>
+                            <label class="field-label">Pencarian Direktori</label>
+                            <div class="input-shell">Cari nama, NIS, email, atau kelas...</div>
+                        </div>
+                        <div>
+                            <label class="field-label">Filter Kelas</label>
+                            <div class="input-shell">Semua Kelas</div>
+                        </div>
+                        <div class="action-row">
+                            <span class="solid-button">Terapkan Filter</span>
+                            <span class="ghost-button">Reset</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="toolbar-head">
+                        <div class="toolbar-copy">
+                            <strong>Import Data Siswa</strong>
+                            <p class="muted">Blok ini meniru area import Excel pada halaman siswa.</p>
+                        </div>
+                    </div>
+                    <div class="import-strip" style="margin-top: 16px;">
+                        <div class="import-icon">XLS</div>
+                        <div class="import-box">Belum ada file dipilih</div>
+                        <span class="solid-button">Import Siswa</span>
+                    </div>
+                </section>
+
+                <section class="table-card">
+                    <div class="toolbar-copy" style="margin-bottom: 14px;">
+                        <strong>Tabel Siswa</strong>
+                    </div>
+                    <div class="table-shell tight">
+                        <div class="table-head">
+                            <span>NIS</span>
+                            <span>Nama Lengkap</span>
+                            <span>Kelas</span>
+                            <span>Email</span>
+                            <span>Status</span>
+                        </div>
+                        <div class="table-row">
+                            <span>23081</span>
+                            <span>Azka Pratama</span>
+                            <span>8B</span>
+                            <span>siswa-23081@gmail.com</span>
+                            <span><span class="status-good">Aktif</span></span>
+                        </div>
+                        <div class="table-row">
+                            <span>23114</span>
+                            <span>Fani Lestari</span>
+                            <span>9A</span>
+                            <span>siswa-23114@gmail.com</span>
+                            <span><span class="status-good">Aktif</span></span>
+                        </div>
+                        <div class="table-row">
+                            <span>23120</span>
+                            <span>Rama Putra</span>
+                            <span>9B</span>
+                            <span>siswa-23120@gmail.com</span>
+                            <span><span class="status-wait">Review</span></span>
+                        </div>
+                    </div>
+                    <div class="pagination-stub">
+                        <span>Menampilkan 1-10 dari 864 data</span>
+                        <div class="page-pills">
+                            <span class="page-pill">‹</span>
+                            <span class="page-pill active">1</span>
+                            <span class="page-pill">2</span>
+                            <span class="page-pill">3</span>
+                            <span class="page-pill">›</span>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="section-divider"></div>
+
+                <section class="panel">
+                    <span class="card-sticker">Guru</span>
+                    <div class="hero-inner">
+                        <span class="badge">Data Guru</span>
+                        <h1>Kelola direktori pengajar dan mapel.</h1>
+                        <p>Blok ini dibuat mirip halaman `guru-index`: hero, dua kartu statistik, toolbar, import, tabel, pagination, dan tombol tambah.</p>
+                    </div>
+                </section>
+
+                <section class="stats-grid">
+                    <article class="panel stat-card">
+                        <div class="stat-icon">G</div>
+                        <div>
+                            <div class="metric-value">72</div>
+                            <div class="metric-label">Total Guru</div>
+                        </div>
+                    </article>
+                    <article class="panel stat-card">
+                        <div class="stat-icon">A</div>
+                        <div>
+                            <div class="metric-value">64</div>
+                            <div class="metric-label">Akses Aktif</div>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="panel toolbar-card">
+                    <div class="toolbar-head">
+                        <div class="toolbar-copy">
+                            <strong>Direktori Guru</strong>
+                            <p class="muted">Form ini mengikuti pencarian nama, NIP, email, dan filter mapel.</p>
+                        </div>
+                        <span class="wire-pill">Live Search Aktif</span>
+                    </div>
+                    <div class="toolbar-grid">
+                        <div>
+                            <label class="field-label">Pencarian Direktori</label>
+                            <div class="input-shell">Cari nama, NIP, email, atau mapel...</div>
+                        </div>
+                        <div>
+                            <label class="field-label">Spesialisasi</label>
+                            <div class="input-shell">Semua Mata Pelajaran</div>
+                        </div>
+                        <div class="action-row">
+                            <span class="solid-button">Terapkan Filter</span>
+                            <span class="ghost-button">Reset</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="toolbar-head">
+                        <div class="toolbar-copy">
+                            <strong>Import Data Guru</strong>
+                            <p class="muted">Area import meniru blok upload file di halaman guru.</p>
+                        </div>
+                    </div>
+                    <div class="import-strip" style="margin-top: 16px;">
+                        <div class="import-icon">XLS</div>
+                        <div class="import-box">Belum ada file dipilih</div>
+                        <span class="solid-button">Import Guru</span>
+                    </div>
+                </section>
+
+                <section class="table-card">
+                    <div class="toolbar-copy" style="margin-bottom: 14px;">
+                        <strong>Tabel Guru</strong>
+                    </div>
+                    <div class="table-shell tight">
+                        <div class="table-head" style="grid-template-columns: .8fr 1fr 1fr 1fr .7fr;">
+                            <span>NIP</span>
+                            <span>Nama Guru</span>
+                            <span>Mata Pelajaran</span>
+                            <span>Email</span>
+                            <span>Aksi</span>
+                        </div>
+                        <div class="table-row" style="grid-template-columns: .8fr 1fr 1fr 1fr .7fr;">
+                            <span>11022</span>
+                            <span>Reza Saputra</span>
+                            <span>Matematika</span>
+                            <span>reza@scoola.id</span>
+                            <span>Edit</span>
+                        </div>
+                        <div class="table-row" style="grid-template-columns: .8fr 1fr 1fr 1fr .7fr;">
+                            <span>11031</span>
+                            <span>Nisa Farhani</span>
+                            <span>BK</span>
+                            <span>nisa@scoola.id</span>
+                            <span>Edit</span>
+                        </div>
+                        <div class="table-row" style="grid-template-columns: .8fr 1fr 1fr 1fr .7fr;">
+                            <span>11042</span>
+                            <span>Dewi Sartika</span>
+                            <span>B. Indonesia</span>
+                            <span>dewi@scoola.id</span>
+                            <span>Edit</span>
+                        </div>
+                    </div>
+                    <div class="pagination-stub">
+                        <span>Menampilkan 1-10 dari 72 data</span>
+                        <div class="page-pills">
+                            <span class="page-pill">‹</span>
+                            <span class="page-pill active">1</span>
+                            <span class="page-pill">2</span>
+                            <span class="page-pill">›</span>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </div>
+
+        <div class="fab-stub">+</div>
+    </main>
+</body>
+</html>

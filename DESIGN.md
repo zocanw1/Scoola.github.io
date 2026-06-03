@@ -1,5 +1,5 @@
-# 🎨 Buku Panduan Desain Scoola (Anime Edition v1.0)
-**Konsep Utama:** Manga-Pop & Neobrutalism UI
+# 🎨 Buku Panduan Desain Scoola v1.0
+**Konsep Utama:** Neobrutalism UI
 
 Dokumen ini adalah acuan mutlak (100% akurat) untuk pengembangan antarmuka Scoola. Setiap komponen harus mematuhi fisika desain, palet warna, dan aturan tipografi di bawah ini agar identitas visual tetap konsisten, ceria, dan energik.
 
@@ -67,7 +67,7 @@ Saat kursor berinteraksi, elemen seolah melayang dan bayangannya memanjang.
 ## 4. ✨ Latar Belakang & Elemen Dekoratif
 
 ### A. Pola Background (Patterns)
-* **Background Utama (`--mochi` Area):** Menggunakan pola *polkadot/screentone* khas manga.
+* **Background Utama (`--mochi` Area):** Menggunakan pola *polkadot/screentone*.
     ```css
     background-image: radial-gradient(var(--cosmo) 1px, transparent 0);
     background-size: 24px 24px; /* Dashboard: 32px 32px */
@@ -83,7 +83,7 @@ Saat kursor berinteraksi, elemen seolah melayang dan bayangannya memanjang.
     background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
     ```
 
-### B. Stroke & Text Shadow (Gaya Manga)
+### B. Stroke & Text Shadow
 Teks besar (Judul, Brand) wajib menggunakan ilusi *outline* ganda.
 ```css
 text-shadow: 5px 5px 0px var(--midnight);

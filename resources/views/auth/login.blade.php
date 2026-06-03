@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -433,10 +433,10 @@
         <div class="hero-content">
             <div class="brand-text">Scoola</div>
             <br>
-            <div class="hero-badge">✨ Anime Professional</div>
+            <div class="hero-badge">✨ Professional</div>
             <div class="hero-text">
                 <h1 class="hero-title">Smart Presensi Sekolah</h1>
-                <p class="hero-desc">Platform kehadiran modern yang menggabungkan keseriusan profesional dan sentuhan visual anime yang super ceria! ⚡</p>
+                <p class="hero-desc">Platform kehadiran modern yang menggabungkan keseriusan profesional dan sentuhan visual yang super ceria! ⚡</p>
             </div>
         </div>
         <div class="hero-note">(✿◡‿◡) &bull; Presensi Jadi Lebih Menyenangkan!</div>

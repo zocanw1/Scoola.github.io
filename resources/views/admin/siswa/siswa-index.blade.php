@@ -697,10 +697,10 @@
     @endif
 
     <div class="neo-card hero-section">
-        <div class="hero-badge">Anime Professional Database</div>
+        <div class="hero-badge">Professional Database</div>
         <h1 class="hero-title">Database Siswa</h1>
         <p class="hero-description">
-            Kelola seluruh informasi siswa secara modern dengan visual dashboard Manga-Pop khas Scoola.
+            Kelola seluruh informasi siswa secara modern dengan visual dashboard khas Scoola.
         </p>
     </div>
 

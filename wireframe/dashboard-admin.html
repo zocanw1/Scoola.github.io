@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe Dashboard Admin Scoola</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="wireframe-page">
+        <div class="shell">
+            <aside class="sidebar panel">
+                <div class="brand-mark">scoola</div>
+                <div class="menu-stack">
+                    <div class="menu-label">Menu Admin</div>
+                    <div class="menu-item active"><span>Dashboard</span><span>01</span></div>
+                    <div class="menu-item"><span>Data Siswa</span><span>02</span></div>
+                    <div class="menu-item"><span>Data Guru</span><span>03</span></div>
+                    <div class="menu-item"><span>Presensi</span><span>04</span></div>
+                    <div class="menu-item"><span>Laporan</span><span>05</span></div>
+                    <div class="menu-label">Status</div>
+                    <div class="menu-item"><span>Semester Aktif</span><span>Genap</span></div>
+                    <div class="menu-item"><span>Server</span><span>Normal</span></div>
+                </div>
+            </aside>
+
+            <section class="content-stack">
+                <div class="topbar panel">
+                    <div class="title-wrap">
+                        <span class="eyebrow">Dashboard Utama</span>
+                        <h1>Overview</h1>
+                        <p>Susunan halaman ini dibuat mengikuti dashboard admin project: hero, statistik, tabel absensi, agenda, analitik, kelas, dan laporan kritikal.</p>
+                    </div>
+                    <div class="ghost-group">
+                        <span class="ghost-button">Lihat Semua</span>
+                        <span class="solid-button">Kelola</span>
+                    </div>
+                </div>
+
+                <section class="hero panel">
+                    <span class="card-sticker">Hello</span>
+                    <div class="hero-inner">
+                        <span class="badge">Dashboard Utama</span>
+                        <h1>OVERVIEW</h1>
+                        <p>Ringkasan ekosistem Scoola hari ini. Pantau kehadiran siswa dan efektivitas pengajaran secara real-time.</p>
+                    </div>
+                </section>
+
+                <section class="dash-stats-grid">
+                    <article class="panel dash-stat-card">
+                        <span class="card-sticker">Total</span>
+                        <div class="stat-icon">01</div>
+                        <div class="metric-label">Total Siswa</div>
+                        <div class="metric-value">864</div>
+                        <p class="muted">12 unit kelas aktif</p>
+                    </article>
+                    <article class="panel dash-stat-card">
+                        <span class="card-sticker">Hadir</span>
+                        <div class="stat-icon">02</div>
+                        <div class="metric-label">Kehadiran</div>
+                        <div class="metric-value">91%</div>
+                        <p class="muted">786 siswa hadir</p>
+                    </article>
+                    <article class="panel dash-stat-card">
+                        <span class="card-sticker">Info</span>
+                        <div class="stat-icon">03</div>
+                        <div class="metric-label">Izin / Sakit</div>
+                        <div class="metric-value">18</div>
+                        <p class="muted">Siswa berhalangan</p>
+                    </article>
+                    <article class="panel dash-stat-card">
+                        <span class="card-sticker">Alert</span>
+                        <div class="stat-icon">04</div>
+                        <div class="metric-label">Absensi Alpha</div>
+                        <div class="metric-value">12</div>
+                        <p class="muted">Perlu tindakan</p>
+                    </article>
+                </section>
+
+                <section class="dash-main-grid">
+                    <div class="stack-lg">
+                        <article class="panel">
+                            <div class="toolbar-head" style="margin-bottom: 16px;">
+                                <div class="toolbar-copy">
+                                    <strong>Absensi Masuk Terbaru</strong>
+                                </div>
+                                <span class="ghost-button">Lihat Semua</span>
+                            </div>
+                            <div class="table-shell tight">
+                                <div class="table-head" style="grid-template-columns: 1.2fr .9fr .8fr .8fr;">
+                                    <span>Siswa</span>
+                                    <span>Kelas</span>
+                                    <span>Waktu</span>
+                                    <span>Status</span>
+                                </div>
+                                <div class="table-row" style="grid-template-columns: 1.2fr .9fr .8fr .8fr;">
+                                    <span>Azka Pratama</span>
+                                    <span>8A</span>
+                                    <span>07:02</span>
+                                    <span><span class="status-good">Hadir</span></span>
+                                </div>
+                                <div class="table-row" style="grid-template-columns: 1.2fr .9fr .8fr .8fr;">
+                                    <span>Nabila Sari</span>
+                                    <span>9B</span>
+                                    <span>07:06</span>
+                                    <span><span class="status-good">Hadir</span></span>
+                                </div>
+                                <div class="table-row" style="grid-template-columns: 1.2fr .9fr .8fr .8fr;">
+                                    <span>Fahri Ramadhan</span>
+                                    <span>12C</span>
+                                    <span>07:15</span>
+                                    <span><span class="status-alert">Alpha</span></span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="panel">
+                            <div class="toolbar-head" style="margin-bottom: 16px;">
+                                <div class="toolbar-copy">
+                                    <strong>Agenda Belajar Hari Ini</strong>
+                                </div>
+                                <span class="solid-button">Kelola</span>
+                            </div>
+                            <div class="agenda-list">
+                                <div class="agenda-wire">
+                                    <div style="display:flex; align-items:center; gap:12px;">
+                                        <span class="agenda-time">07:00</span>
+                                        <div>
+                                            <strong>Matematika</strong>
+                                            <div class="muted">Kelas X-A</div>
+                                        </div>
+                                    </div>
+                                    <span class="wire-pill">Pak Hendra</span>
+                                </div>
+                                <div class="agenda-wire">
+                                    <div style="display:flex; align-items:center; gap:12px;">
+                                        <span class="agenda-time">08:30</span>
+                                        <div>
+                                            <strong>B. Indonesia</strong>
+                                            <div class="muted">Kelas XI-B</div>
+                                        </div>
+                                    </div>
+                                    <span class="wire-pill">Bu Dewi</span>
+                                </div>
+                                <div class="agenda-wire">
+                                    <div style="display:flex; align-items:center; gap:12px;">
+                                        <span class="agenda-time">10:15</span>
+                                        <div>
+                                            <strong>Fisika</strong>
+                                            <div class="muted">Kelas XII-C</div>
+                                        </div>
+                                    </div>
+                                    <span class="wire-pill">Pak Rizal</span>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="stack-lg">
+                        <article class="panel">
+                            <div class="toolbar-copy" style="margin-bottom: 14px;">
+                                <strong>Analitik Kehadiran</strong>
+                            </div>
+                            <div class="chart-shell">
+                                <div class="chart-bars">
+                                    <div class="chart-bar" style="height: 28%;"></div>
+                                    <div class="chart-bar" style="height: 62%;"></div>
+                                    <div class="chart-bar" style="height: 48%;"></div>
+                                    <div class="chart-bar" style="height: 74%;"></div>
+                                    <div class="chart-bar" style="height: 58%;"></div>
+                                    <div class="chart-bar" style="height: 86%;"></div>
+                                    <div class="chart-bar" style="height: 66%;"></div>
+                                </div>
+                                <div class="scale-row">
+                                    <span>Sen</span>
+                                    <span>Sel</span>
+                                    <span>Rab</span>
+                                    <span>Kam</span>
+                                    <span>Jum</span>
+                                    <span>Sab</span>
+                                    <span>Min</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="panel">
+                            <div class="toolbar-copy" style="margin-bottom: 14px;">
+                                <strong>Data Per Kelas</strong>
+                            </div>
+                            <div class="progress-list">
+                                <div class="progress-item">
+                                    <div class="progress-head"><span>X-A</span><span>92%</span></div>
+                                    <div class="progress-bar"><div class="progress-fill" style="width:92%;"></div></div>
+                                </div>
+                                <div class="progress-item">
+                                    <div class="progress-head"><span>XI-B</span><span>86%</span></div>
+                                    <div class="progress-bar"><div class="progress-fill" style="width:86%;"></div></div>
+                                </div>
+                                <div class="progress-item">
+                                    <div class="progress-head"><span>XII-C</span><span>79%</span></div>
+                                    <div class="progress-bar"><div class="progress-fill" style="width:79%;"></div></div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="panel">
+                            <div class="toolbar-copy" style="margin-bottom: 14px;">
+                                <strong>Laporan Kritikal</strong>
+                            </div>
+                            <div class="report-list">
+                                <div class="report-wire">
+                                    <div>
+                                        <strong>Anomali Kehadiran</strong>
+                                        <div class="muted">5 siswa dengan status alpha berulang.</div>
+                                    </div>
+                                </div>
+                                <div class="report-wire">
+                                    <div>
+                                        <strong>Sesi Belum Lengkap</strong>
+                                        <div class="muted">Kelas XII-A belum mengunggah rekap jam ke-4.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

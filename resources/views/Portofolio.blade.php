@@ -192,7 +192,7 @@
                 </div>
             </div>
             <div class="text-center mt-8 font-bold opacity-50">
-                Dibuat dengan semangat Anime ( ≧◡≦ ) &copy; 2026 Scoola Team
+                Dibuat dengan semangat ( ≧◡≦ ) &copy; 2026 Scoola Team
             </div>
         </footer>
     </main>

@@ -72,3 +72,4 @@ Spawn agent terpisah sesuai file TOML:
 
 Jangan gabungkan bug_hunter dan security_reviewer dalam satu agent.
 Tampilkan nama agent yang dibuat dan tugas masing-masing.
+Ketika Menggunakan SUB Agent,Bilang Ke USer"Sedang Menggunakan SUB Agent(nama nya)".

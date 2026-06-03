@@ -75,7 +75,7 @@
             </span>
             <h1 class="fredoka text-6xl md:text-8xl leading-tight mb-6" style="-webkit-text-stroke: 2px var(--midnight);">ACADEMIC<br>MANAGEMENT.</h1>
             <p class="text-xl font-semibold max-w-lg bg-[rgba(30,27,41,0.5)] p-6 border-[3px] border-[var(--midnight)] mb-8">
-                Platform kehadiran modern yang menggabungkan keseriusan profesional dan sentuhan visual anime yang ceria! (✿◡‿◡)
+                Platform kehadiran modern yang menggabungkan keseriusan profesional dan sentuhan visual yang ceria! (✿◡‿◡)
             </p>
             <a href="{{ route('login') }}" class="inline-block bg-[var(--sakura)] text-white font-bold px-8 py-4 text-lg neo-brutalism uppercase tracking-wider">
                 Akses Sistem Sekarang! 🚀
@@ -93,7 +93,7 @@
             <div class="bg-white p-8 neo-brutalism border-[4px]">
                 <div class="text-[var(--sakura)] font-bold mb-4 fredoka text-lg">01 / AESTHETICS</div>
                 <h3 class="fredoka text-2xl mb-3">Editorial Design</h3>
-                <p class="text-[var(--midnight)] font-semibold leading-relaxed">Tampilan bersih dengan fondasi struktur Swiss Design yang dibalut palet warna manga kontras tinggi. Bebas distrasi, fokus penuh pada data.</p>
+                <p class="text-[var(--midnight)] font-semibold leading-relaxed">Tampilan bersih dengan fondasi struktur Swiss Design yang dibalut palet warna kontras tinggi. Bebas distraksi, fokus penuh pada data.</p>
             </div>
             <div class="bg-white p-8 neo-brutalism border-[4px]">
                 <div class="text-[var(--cyber)] font-bold mb-4 fredoka text-lg">02 / FUNCTION</div>
