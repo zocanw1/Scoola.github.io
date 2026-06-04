@@ -32,8 +32,9 @@ class RekapPresensiController extends Controller
 
         $mode = in_array($request->input('mode'), ['siswa', 'rentang'], true) ? $request->input('mode') : 'mingguan';
         $selectedKelas = $this->scopeSelectedKelas($request->input('kelas'), $kelas, $access['isScoped']);
-        $tanggalInput = $request->input('tanggal') ?: now()->toDateString();
-        $carbonDate = Carbon::parse($tanggalInput);
+        $today = now();
+        $carbonDate = $this->parseDateOrFallback($request->input('tanggal'), $today);
+        $tanggalInput = $carbonDate->toDateString();
         $startOfWeek = $carbonDate->copy()->startOfWeek(Carbon::MONDAY);
         $endOfWeek = $carbonDate->copy()->startOfWeek(Carbon::MONDAY)->addDays(4); // Jumat
 
@@ -42,8 +43,10 @@ class RekapPresensiController extends Controller
             ? $this->buildWeeklyMatrixData($selectedKelas, $startOfWeek, $endOfWeek, $hariList)
             : $this->emptyWeeklyMatrixData($hariList);
 
-        $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
-        $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
+        $tanggalMulaiCarbon = $this->parseDateOrFallback($request->input('tanggal_mulai'), $today->copy()->startOfMonth());
+        $tanggalAkhirCarbon = $this->parseDateOrFallback($request->input('tanggal_akhir'), $today);
+        $tanggalMulai = $tanggalMulaiCarbon->toDateString();
+        $tanggalAkhir = $tanggalAkhirCarbon->toDateString();
         $selectedNamaSiswa = trim((string) $request->input('nama_siswa', ''));
         $selectedNis = $request->input('nis');
         $siswaOptions = $mode === 'siswa' ? $this->presensiRekapBuilder->getSiswaOptions($selectedKelas) : collect();
@@ -51,10 +54,10 @@ class RekapPresensiController extends Controller
             ? $this->presensiRekapBuilder->filterSiswaByName($siswaOptions, $selectedNamaSiswa)
             : collect();
         $studentData = $mode === 'siswa' && $selectedNis
-            ? $this->presensiRekapBuilder->buildStudentRecapData($selectedKelas, $selectedNamaSiswa, Carbon::parse($tanggalMulai), Carbon::parse($tanggalAkhir), $selectedNis)
+            ? $this->presensiRekapBuilder->buildStudentRecapData($selectedKelas, $selectedNamaSiswa, $tanggalMulaiCarbon, $tanggalAkhirCarbon, $selectedNis)
             : $this->presensiRekapBuilder->emptyStudentRecapData();
         $rangeSummaryData = $mode === 'rentang'
-            ? $this->presensiRekapBuilder->buildRangeSummaryData($selectedKelas, Carbon::parse($tanggalMulai), Carbon::parse($tanggalAkhir))
+            ? $this->presensiRekapBuilder->buildRangeSummaryData($selectedKelas, $tanggalMulaiCarbon, $tanggalAkhirCarbon)
             : $this->presensiRekapBuilder->emptyRangeSummaryData();
 
         if ($selectedNamaSiswa === '' && $studentData['selectedSiswa']) {
@@ -90,8 +93,11 @@ class RekapPresensiController extends Controller
         if ($mode === 'siswa') {
             $selectedNamaSiswa = trim((string) $request->input('nama_siswa', ''));
             $legacySelectedNis = $request->input('nis');
-            $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
-            $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
+            $today = now();
+            $tanggalMulaiCarbon = $this->parseDateOrFallback($request->input('tanggal_mulai'), $today->copy()->startOfMonth());
+            $tanggalAkhirCarbon = $this->parseDateOrFallback($request->input('tanggal_akhir'), $today);
+            $tanggalMulai = $tanggalMulaiCarbon->toDateString();
+            $tanggalAkhir = $tanggalAkhirCarbon->toDateString();
 
             if (! $selectedKelas || ($selectedNamaSiswa === '' && ! $legacySelectedNis)) {
                 return redirect()->back()->with('error', 'Silakan pilih kelas dan isi nama siswa terlebih dahulu.');
@@ -100,8 +106,8 @@ class RekapPresensiController extends Controller
             $studentData = $this->presensiRekapBuilder->buildStudentRecapData(
                 $selectedKelas,
                 $selectedNamaSiswa,
-                Carbon::parse($tanggalMulai),
-                Carbon::parse($tanggalAkhir),
+                $tanggalMulaiCarbon,
+                $tanggalAkhirCarbon,
                 $legacySelectedNis
             );
 
@@ -124,8 +130,11 @@ class RekapPresensiController extends Controller
         }
 
         if ($mode === 'rentang') {
-            $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
-            $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
+            $today = now();
+            $tanggalMulaiCarbon = $this->parseDateOrFallback($request->input('tanggal_mulai'), $today->copy()->startOfMonth());
+            $tanggalAkhirCarbon = $this->parseDateOrFallback($request->input('tanggal_akhir'), $today);
+            $tanggalMulai = $tanggalMulaiCarbon->toDateString();
+            $tanggalAkhir = $tanggalAkhirCarbon->toDateString();
 
             if (! $selectedKelas) {
                 return redirect()->back()->with('error', 'Silakan pilih kelas terlebih dahulu.');
@@ -133,8 +142,8 @@ class RekapPresensiController extends Controller
 
             $rangeSummaryData = $this->presensiRekapBuilder->buildRangeSummaryData(
                 $selectedKelas,
-                Carbon::parse($tanggalMulai),
-                Carbon::parse($tanggalAkhir)
+                $tanggalMulaiCarbon,
+                $tanggalAkhirCarbon
             );
 
             $filename = "Rekap_Presensi_Rentang_{$selectedKelas}_{$tanggalMulai}_{$tanggalAkhir}.xls";
@@ -149,8 +158,8 @@ class RekapPresensiController extends Controller
                 ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
         }
 
-        $tanggalInput = $request->input('tanggal') ?: now()->toDateString();
-        $carbonDate = Carbon::parse($tanggalInput);
+        $carbonDate = $this->parseDateOrFallback($request->input('tanggal'), now());
+        $tanggalInput = $carbonDate->toDateString();
         $startOfWeek = $carbonDate->copy()->startOfWeek(Carbon::MONDAY);
         $endOfWeek = $carbonDate->copy()->startOfWeek(Carbon::MONDAY)->addDays(4); // Jumat
 
@@ -397,5 +406,20 @@ class RekapPresensiController extends Controller
         }
 
         return $statusMatrix;
+    }
+
+    private function parseDateOrFallback(mixed $value, Carbon $fallback): Carbon
+    {
+        $stringValue = is_scalar($value) ? trim((string) $value) : '';
+
+        if ($stringValue === '') {
+            return $fallback->copy();
+        }
+
+        try {
+            return Carbon::parse($stringValue);
+        } catch (\Throwable) {
+            return $fallback->copy();
+        }
     }
 }

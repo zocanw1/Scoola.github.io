@@ -96,6 +96,34 @@ class RekapPresensiPerformanceTest extends TestCase
         $response->assertSee('Rekap Per Siswa');
     }
 
+    public function test_rekap_index_falls_back_when_weekly_date_query_is_malformed(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get(route('admin.rekap.index', [
+            'tanggal' => 'tanggal-rusak-total',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Rekap Mingguan');
+        $response->assertSee('Pilih Kelas');
+    }
+
+    public function test_rekap_index_falls_back_when_range_dates_are_malformed(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get(route('admin.rekap.index', [
+            'mode' => 'rentang',
+            'tanggal_mulai' => 'bukan-tanggal',
+            'tanggal_akhir' => 'juga-bukan-tanggal',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Rekap Rentang Tanggal');
+        $response->assertSee('Pilih Kelas');
+    }
+
     public function test_student_rekap_form_uses_student_name_input_instead_of_student_select(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
