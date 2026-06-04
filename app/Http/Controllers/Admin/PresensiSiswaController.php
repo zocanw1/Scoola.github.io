@@ -114,6 +114,17 @@ class PresensiSiswaController extends Controller
         ]);
     }
 
+    public function redirectStatusUrl(Request $request, string $nis)
+    {
+        return redirect()->route($request->user()?->role === 'guru' ? 'guru.presensi-siswa.show' : 'admin.presensi-siswa.show', [
+            'nis' => $nis,
+            'kelas' => $request->input('kelas'),
+            'q' => $request->input('q'),
+            'tanggal_mulai' => $request->input('tanggal_mulai'),
+            'tanggal_akhir' => $request->input('tanggal_akhir'),
+        ]);
+    }
+
     public function updateStatus(Request $request, string $nis)
     {
         abort_unless($request->user()?->role === 'admin', 403, 'Akses ditolak');

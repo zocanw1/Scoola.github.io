@@ -151,6 +151,16 @@ class AdminPresensiCorrectionTest extends TestCase
         $detailResponse->assertSee('Riwayat Koreksi');
     }
 
+    public function test_getting_stale_status_url_for_slash_nis_redirects_to_student_detail(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $siswa = $this->createStudent('17588/122/065', 'Siswa Slash');
+
+        $response = $this->actingAs($admin)->get('/admin/presensi-siswa/' . $siswa->NIS . '/status');
+
+        $response->assertRedirect(route('admin.presensi-siswa.show', $siswa->NIS));
+    }
+
     public function test_admin_can_correct_finished_session_without_existing_presensi_and_keep_original_session_date(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-05-28 09:30:00'));

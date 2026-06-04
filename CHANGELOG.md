@@ -4,6 +4,13 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 
 ---
 
+## [2026-06-04] - Perbaikan Link Koreksi Status Presensi
+
+### Bug Fix
+- Memperbaiki akses `GET` ke URL koreksi status presensi seperti `/admin/presensi-siswa/{nis}/status` agar tidak masuk ke detail siswa dengan NIS yang salah saat NIS berisi garis miring.
+- Menambahkan fallback redirect ke halaman detail presensi siswa yang benar, sehingga refresh atau akses langsung ke URL action form tidak memicu halaman error.
+- Menambahkan regresi test untuk NIS berformat slash seperti `17588/122/065`.
+
 ## [2026-05-19] - Fitur Rekap Presensi Mingguan & Perapian Dokumen
 
 ### Fitur Baru: Sistem Rekap Presensi Mingguan (Format 1 Minggu)
