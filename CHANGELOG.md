@@ -4,6 +4,39 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 
 ---
 
+## [2026-06-08] - Update Nomor Telepon Tim Portfolio
+
+### Portfolio
+- Mengganti nomor telepon pada tiga kartu anggota tim di halaman portfolio sesuai nomor terbaru.
+- Menambahkan pengecekan nomor telepon pada `tests/Feature/PortfolioTest.php` agar tampilan kontak tim tetap konsisten.
+
+## [2026-06-07] - Penambahan Mean Median Modus di Dashboard
+
+### Statistik Dashboard
+- Menambahkan helper statistik untuk menghitung `mean`, `median`, dan `modus` dari distribusi kehadiran kelas aktif serta status presensi harian.
+- Menampilkan unsur statistik tersebut pada dashboard admin dan dashboard guru di bawah grafik analitik kehadiran.
+- Menambahkan regresi test dashboard agar ringkasan statistik tetap ikut tervalidasi saat perhitungan presensi berubah.
+
+## [2026-06-07] - Penambahan Komentar Penjelas di File Inti
+
+### Dokumentasi Kode
+- Menambahkan komentar penjelas pada controller inti admin, guru, dan siswa agar alur data lebih mudah dipahami saat membaca kode.
+- Menambahkan komentar pada view inti dashboard, rekap, dan ruang kelas aktif untuk menjelaskan fungsi setiap blok tampilan dan script utama.
+- Menambahkan komentar pada helper statistik agar tujuan perhitungan `mean`, `median`, dan `modus` lebih jelas saat maintenance.
+
+## [2026-06-07] - Pembersihan Data Lokal Guru dan Siswa
+
+### Operasional Lokal
+- Menghapus seluruh akun lokal dengan role `guru` dan `siswa` beserta data turunannya.
+- Data admin dan kakonsli tetap dipertahankan.
+
+## [2026-06-05] - Dokumentasi Fitur Scoola Untuk Presentasi Non-IT
+
+### Dokumentasi
+- Menambahkan dokumen sumber `docs/scoola-dokumentasi-fitur-presentasi-non-it.md` yang merangkum fitur Scoola dalam bahasa non-teknis.
+- Materi difokuskan pada manfaat produk, alur kerja sederhana, peran pengguna, fitur utama, dan susunan slide presentasi.
+- Dokumen disiapkan sebagai dasar pembuatan file Word/DOCX untuk kebutuhan presentasi ke audiens umum.
+
 ## [2026-06-04] - Perbaikan Link Koreksi Status Presensi
 
 ### Bug Fix
