@@ -11,6 +11,7 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 - Menyisakan jalur lama sebagai fallback redirect/alias supaya link lama tidak langsung putus setelah deploy.
 - Merapikan breadcrumb ruang presensi guru agar tidak lagi menampilkan chip subjek tambahan yang tidak relevan di bar kuning atas.
 - Menyederhanakan live search direktori guru dan siswa ke pola submit normal yang langsung memakai hasil filter server, sekaligus menjaga fokus input tetap kembali setelah hasil dimuat ulang.
+- Mengembalikan live search direktori guru dan siswa ke mode fetch partial tanpa reload halaman penuh agar pencarian tidak lagi melempar user ke halaman 500 saat mengetik.
 
 ## [2026-06-08] - Perbaikan Live Search Direktori Guru dan Siswa
 

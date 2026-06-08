@@ -829,13 +829,15 @@
 document.addEventListener('DOMContentLoaded', function () {
     const importForm = document.getElementById('guruImportForm');
     const filterForm = document.getElementById('guruFilterForm');
+    const resultContainer = document.getElementById('guruDirectoryResults');
     const fileInput = document.getElementById('guruImportFile');
     const fileName = document.getElementById('guruImportFileName');
     const rowsInput = document.getElementById('guruImportRows');
     const liveSearchInput = document.getElementById('liveGuruSearch');
     const mapelFilter = filterForm?.querySelector('select[name="mapel"]');
-    const liveSearchStateKey = 'scoola-live-search:guru';
-    let isComposing = false;
+    const resetButton = filterForm?.querySelector('[data-search-reset="guru"]');
+    const parser = new DOMParser();
+    let currentSearchController = null;
 
     const debounce = (fn, delay) => {
         let timeoutId = null;
@@ -856,87 +858,155 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    const persistLiveSearchState = () => {
-        if (!liveSearchInput) {
+    const syncFilterInputs = (url) => {
+        if (liveSearchInput) {
+            liveSearchInput.value = url.searchParams.get('q') || '';
+        }
+
+        if (mapelFilter) {
+            mapelFilter.value = url.searchParams.get('mapel') || '';
+        }
+    };
+
+    const buildResultsUrl = (page = 1) => {
+        const url = new URL(filterForm.action, window.location.origin);
+        const params = new URLSearchParams();
+        const formData = new FormData(filterForm);
+
+        formData.forEach((value, key) => {
+            const normalizedValue = String(value).trim();
+
+            if (normalizedValue !== '') {
+                params.set(key, normalizedValue);
+            }
+        });
+
+        if (page > 1) {
+            params.set('page', String(page));
+        }
+
+        url.search = params.toString();
+
+        return url;
+    };
+
+    const fetchGuruResults = async ({ page = 1, historyMode = 'replace' } = {}) => {
+        if (!filterForm || !resultContainer) {
             return;
         }
 
-        try {
-            sessionStorage.setItem(liveSearchStateKey, JSON.stringify({
-                path: window.location.pathname,
-                value: liveSearchInput.value,
+        const shouldRestoreCaret = document.activeElement === liveSearchInput;
+        const caret = shouldRestoreCaret
+            ? {
                 start: liveSearchInput.selectionStart ?? liveSearchInput.value.length,
                 end: liveSearchInput.selectionEnd ?? liveSearchInput.value.length,
-            }));
-        } catch (error) {}
-    };
+            }
+            : null;
 
-    const restoreLiveSearchState = () => {
-        if (!liveSearchInput) {
-            return;
+        const url = buildResultsUrl(page);
+
+        if (currentSearchController) {
+            currentSearchController.abort();
         }
+
+        currentSearchController = new AbortController();
 
         try {
-            const rawState = sessionStorage.getItem(liveSearchStateKey);
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                signal: currentSearchController.signal,
+            });
 
-            if (!rawState) {
+            if (!response.ok) {
                 return;
             }
 
-            sessionStorage.removeItem(liveSearchStateKey);
+            const html = await response.text();
+            const nextDocument = parser.parseFromString(html, 'text/html');
+            const nextResults = nextDocument.getElementById('guruDirectoryResults');
 
-            const state = JSON.parse(rawState);
-            if (!state || state.path !== window.location.pathname || state.value !== liveSearchInput.value) {
+            if (!nextResults) {
                 return;
             }
 
-            liveSearchInput.focus({ preventScroll: true });
-            liveSearchInput.setSelectionRange(state.start ?? liveSearchInput.value.length, state.end ?? liveSearchInput.value.length);
-        } catch (error) {}
+            resultContainer.innerHTML = nextResults.innerHTML;
+
+            if (historyMode === 'push') {
+                window.history.pushState({}, '', url);
+            } else if (historyMode === 'replace') {
+                window.history.replaceState({}, '', url);
+            }
+
+            if (caret && liveSearchInput) {
+                liveSearchInput.focus({ preventScroll: true });
+                liveSearchInput.setSelectionRange(caret.start, caret.end);
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error(error);
+            }
+        }
     };
 
-    const submitFilterForm = () => {
-        if (!filterForm) {
-            return;
-        }
-
-        persistLiveSearchState();
-
-        if (typeof filterForm.requestSubmit === 'function') {
-            filterForm.requestSubmit();
-            return;
-        }
-
-        filterForm.submit();
-    };
-
-    if (filterForm && liveSearchInput) {
-        restoreLiveSearchState();
-
+    if (filterForm && liveSearchInput && resultContainer) {
         const runLiveSearch = debounce(() => {
-            if (isComposing) {
-                return;
-            }
-
-            submitFilterForm();
+            fetchGuruResults({ page: 1, historyMode: 'replace' });
         }, 250);
-
-        liveSearchInput.addEventListener('compositionstart', function () {
-            isComposing = true;
-        });
-
-        liveSearchInput.addEventListener('compositionend', function () {
-            isComposing = false;
-            runLiveSearch();
-        });
 
         liveSearchInput.addEventListener('input', runLiveSearch);
 
+        filterForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            fetchGuruResults({ page: 1, historyMode: 'push' });
+        });
+
         if (mapelFilter) {
-            mapelFilter.addEventListener('change', submitFilterForm);
+            mapelFilter.addEventListener('change', function () {
+                fetchGuruResults({ page: 1, historyMode: 'push' });
+            });
         }
 
-        filterForm.addEventListener('submit', persistLiveSearchState);
+        if (resetButton) {
+            resetButton.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                if (liveSearchInput) {
+                    liveSearchInput.value = '';
+                }
+
+                if (mapelFilter) {
+                    mapelFilter.value = '';
+                }
+
+                fetchGuruResults({ page: 1, historyMode: 'push' });
+            });
+        }
+
+        resultContainer.addEventListener('click', function (event) {
+            const paginationLink = event.target.closest('.manga-pagination a.manga-page-link');
+
+            if (!paginationLink) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const nextUrl = new URL(paginationLink.href);
+            const targetPage = Number(nextUrl.searchParams.get('page') || 1);
+
+            syncFilterInputs(nextUrl);
+            fetchGuruResults({ page: targetPage, historyMode: 'push' });
+        });
+
+        window.addEventListener('popstate', function () {
+            const currentUrl = new URL(window.location.href);
+            const currentPage = Number(currentUrl.searchParams.get('page') || 1);
+
+            syncFilterInputs(currentUrl);
+            fetchGuruResults({ page: currentPage, historyMode: 'none' });
+        });
     }
 
     if (!importForm || !fileInput || !rowsInput) {

@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Siswa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -53,6 +55,37 @@ class SiswaTest extends TestCase
         $response->assertOk();
         $response->assertSee('Susi Andini');
         $response->assertDontSee('Budi Prasetyo');
+    }
+
+    public function test_siswa_index_still_renders_when_filtered_result_has_no_user_account(): void
+    {
+        $admin = $this->createAdmin();
+        $siswa = new Siswa([
+            'NIS' => '99887766',
+            'nama_siswa' => 'Muhammad Tanpa Akun',
+            'kelas' => 'XI-SIJA 1',
+        ]);
+        $siswa->setRelation('user', null);
+
+        $paginator = new LengthAwarePaginator(
+            Collection::make([$siswa]),
+            1,
+            25,
+            1,
+            ['path' => route('siswa.index'), 'query' => ['q' => 'muha', 'kelas' => '']]
+        );
+
+        $this->actingAs($admin);
+
+        $html = view('admin.siswa.siswa-index', [
+            'siswa' => $paginator,
+            'totalSiswa' => 1,
+            'totalKelasAktif' => 1,
+            'kelasOptions' => Collection::make(['XI-SIJA 1']),
+        ])->render();
+
+        $this->assertStringContainsString('Muhammad Tanpa Akun', $html);
+        $this->assertStringContainsString('-', $html);
     }
 
     public function test_admin_can_view_siswa_create_form(): void
