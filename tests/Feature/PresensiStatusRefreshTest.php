@@ -21,7 +21,7 @@ class PresensiStatusRefreshTest extends TestCase
         [$guru, $sesi, $siswa] = $this->createActiveSessionWithStudent('18434/109/065');
 
         $response = $this->actingAs($guru)->post(
-            "/guru/presensi/ruang/{$sesi->id}/update-status/{$siswa->NIS}",
+            "/guru/presensi/ruang-kelas/{$sesi->id}/update-status/{$siswa->NIS}",
             ['status' => 'Hadir']
         );
 

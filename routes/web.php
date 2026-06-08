@@ -156,10 +156,14 @@ Route::middleware('auth')->group(function () {
             ->name('guru.rekap.export');
         Route::post('/presensi/buka', [PresensiController::class, 'bukaKelas'])
             ->name('guru.presensi.buka');
-        Route::get('/presensi/ruang/{id}', [PresensiController::class, 'ruangKelas'])
+        Route::get('/presensi/ruang-kelas/{id}', [PresensiController::class, 'ruangKelas'])
             ->name('guru.presensi.ruang');
-        Route::get('/presensi/ruang/{id}/snapshot', [PresensiController::class, 'statusSnapshot'])
+        Route::get('/presensi/ruang/{id}', function ($id) {
+            return redirect()->route('guru.presensi.ruang', ['id' => $id]);
+        });
+        Route::get('/presensi/ruang-kelas/{id}/snapshot', [PresensiController::class, 'statusSnapshot'])
             ->name('guru.presensi.snapshot');
+        Route::get('/presensi/ruang/{id}/snapshot', [PresensiController::class, 'statusSnapshot']);
         Route::get('/presensi/kode/{id}', [PresensiController::class, 'tampilKode'])
             ->name('guru.presensi.tampil');
         Route::post('/presensi/akhiri-presensi/{id}', [PresensiController::class, 'akhiriPresensi'])
@@ -168,9 +172,11 @@ Route::middleware('auth')->group(function () {
             ->name('guru.presensi.generate-kode');
         Route::post('/presensi/akhiri-kelas/{id}', [PresensiController::class, 'akhiriKelas'])
             ->name('guru.presensi.akhiri-kelas');
-        Route::post('/presensi/ruang/{sesiId}/update-status/{nis}', [PresensiController::class, 'updateStatusSiswa'])
+        Route::post('/presensi/ruang-kelas/{sesiId}/update-status/{nis}', [PresensiController::class, 'updateStatusSiswa'])
             ->where('nis', '.*')
             ->name('guru.presensi.update-status');
+        Route::post('/presensi/ruang/{sesiId}/update-status/{nis}', [PresensiController::class, 'updateStatusSiswa'])
+            ->where('nis', '.*');
 
 
 

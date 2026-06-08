@@ -4,6 +4,12 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 
 ---
 
+## [2026-06-08] - Perapian URL Ruang Presensi Guru
+
+### Presensi Guru
+- Mengganti URL halaman ruang presensi guru dari pola `/guru/presensi/ruang/{id}` menjadi `/guru/presensi/ruang-kelas/{id}` agar lebih jelas dan sesuai nama halaman.
+- Menyisakan jalur lama sebagai fallback redirect/alias supaya link lama tidak langsung putus setelah deploy.
+
 ## [2026-06-08] - Perbaikan Live Search Direktori Guru dan Siswa
 
 ### Dashboard Data Master
