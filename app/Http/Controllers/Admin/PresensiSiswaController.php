@@ -11,7 +11,11 @@ use App\Support\PresensiStatusManager;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Throwable;
 
+/**
+ * Menyediakan daftar, detail, dan koreksi status presensi siswa untuk admin maupun wali kelas.
+ */
 class PresensiSiswaController extends Controller
 {
     public function __construct(
@@ -21,19 +25,25 @@ class PresensiSiswaController extends Controller
     {
     }
 
+    /**
+     * Menampilkan daftar siswa dan antrean koreksi alpha berdasarkan filter kelas/tanggal.
+     */
     public function index(Request $request)
     {
         $pageContext = $this->resolvePageContext($request);
         $selectedKelas = $this->scopeSelectedKelas($request->input('kelas'), $pageContext['kelas'], $pageContext['isScoped']);
         $search = trim((string) $request->input('q', ''));
         $selectedNis = $request->input('nis');
-        $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
-        $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
+        $tanggalMulaiCarbon = $this->parseDateOrFallback($request->input('tanggal_mulai'), now()->startOfMonth());
+        $tanggalAkhirCarbon = $this->parseDateOrFallback($request->input('tanggal_akhir'), now());
+        $tanggalMulai = $tanggalMulaiCarbon->toDateString();
+        $tanggalAkhir = $tanggalAkhirCarbon->toDateString();
 
         if ($selectedNis && ($request->boolean('detail') || $request->filled('tanggal_mulai') || $request->filled('tanggal_akhir'))) {
             return $this->show($request, $selectedNis);
         }
 
+        // List siswa dipakai untuk navigasi cepat, sedangkan queue dipakai untuk prioritas koreksi presensi.
         $siswas = Siswa::query()
             ->when($selectedKelas, function ($query, string $selectedKelas): void {
                 $query->where('kelas', $selectedKelas);
@@ -49,8 +59,8 @@ class PresensiSiswaController extends Controller
 
         $alpaQueue = $this->presensiRekapBuilder->buildCorrectionQueue(
             $selectedKelas,
-            Carbon::parse($tanggalMulai),
-            Carbon::parse($tanggalAkhir),
+            $tanggalMulaiCarbon,
+            $tanggalAkhirCarbon,
             $search
         );
 
@@ -69,11 +79,16 @@ class PresensiSiswaController extends Controller
         ]);
     }
 
+    /**
+     * Menampilkan riwayat presensi lengkap satu siswa pada rentang tanggal terpilih.
+     */
     public function show(Request $request, string $nis)
     {
         $pageContext = $this->resolvePageContext($request);
-        $tanggalMulai = $request->input('tanggal_mulai') ?: now()->startOfMonth()->toDateString();
-        $tanggalAkhir = $request->input('tanggal_akhir') ?: now()->toDateString();
+        $tanggalMulaiCarbon = $this->parseDateOrFallback($request->input('tanggal_mulai'), now()->startOfMonth());
+        $tanggalAkhirCarbon = $this->parseDateOrFallback($request->input('tanggal_akhir'), now());
+        $tanggalMulai = $tanggalMulaiCarbon->toDateString();
+        $tanggalAkhir = $tanggalAkhirCarbon->toDateString();
         $search = trim((string) $request->input('q', ''));
 
         $student = Siswa::query()
@@ -89,13 +104,14 @@ class PresensiSiswaController extends Controller
         $detailData = $this->presensiRekapBuilder->buildStudentRecapData(
             $selectedKelas,
             $student->nama_siswa,
-            Carbon::parse($tanggalMulai),
-            Carbon::parse($tanggalAkhir),
+            $tanggalMulaiCarbon,
+            $tanggalAkhirCarbon,
             $student->NIS
         );
 
         abort_if(! $detailData['selectedSiswa'], 404);
 
+        // View detail menerima data yang sudah diringkas builder supaya logika tampilan tetap tipis.
         return view('admin.presensi-siswa.show', [
             'pageLayout' => $pageContext['layout'],
             'pageRoute' => $pageContext['indexRoute'],
@@ -114,6 +130,9 @@ class PresensiSiswaController extends Controller
         ]);
     }
 
+    /**
+     * Menjaga URL aksi lama tetap diarahkan ke halaman detail yang benar.
+     */
     public function redirectStatusUrl(Request $request, string $nis)
     {
         return redirect()->route($request->user()?->role === 'guru' ? 'guru.presensi-siswa.show' : 'admin.presensi-siswa.show', [
@@ -125,6 +144,9 @@ class PresensiSiswaController extends Controller
         ]);
     }
 
+    /**
+     * Admin dapat mengoreksi status presensi satu siswa berikut alasan perubahannya.
+     */
     public function updateStatus(Request $request, string $nis)
     {
         abort_unless($request->user()?->role === 'admin', 403, 'Akses ditolak');
@@ -158,6 +180,9 @@ class PresensiSiswaController extends Controller
         ])->with('success', 'Status presensi berhasil diperbarui.');
     }
 
+    /**
+     * Menentukan apakah user mendapat akses penuh admin atau akses wali kelas yang dibatasi.
+     */
     private function resolveAccess(Request $request): array
     {
         $user = $request->user();
@@ -190,6 +215,9 @@ class PresensiSiswaController extends Controller
         ];
     }
 
+    /**
+     * Memastikan kelas yang dipilih masih berada dalam daftar kelas yang boleh diakses.
+     */
     private function scopeSelectedKelas(?string $selectedKelas, Collection $kelas, bool $isScoped): ?string
     {
         if (! $isScoped) {
@@ -207,6 +235,9 @@ class PresensiSiswaController extends Controller
         return $selectedKelas;
     }
 
+    /**
+     * Semua route dan layout diturunkan dari access context supaya admin dan guru bisa berbagi controller.
+     */
     private function resolvePageContext(Request $request): array
     {
         $access = $this->resolveAccess($request);
@@ -218,5 +249,20 @@ class PresensiSiswaController extends Controller
             'indexRoute' => $access['isScoped'] ? 'guru.presensi-siswa.index' : 'admin.presensi-siswa.index',
             'showRoute' => $access['isScoped'] ? 'guru.presensi-siswa.show' : 'admin.presensi-siswa.show',
         ];
+    }
+
+    private function parseDateOrFallback(mixed $value, Carbon $fallback): Carbon
+    {
+        $stringValue = is_scalar($value) ? trim((string) $value) : '';
+
+        if ($stringValue === '') {
+            return $fallback->copy();
+        }
+
+        try {
+            return Carbon::parse($stringValue);
+        } catch (Throwable) {
+            return $fallback->copy();
+        }
     }
 }

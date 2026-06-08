@@ -238,6 +238,70 @@ class BreadcrumbNavigationTest extends TestCase
         $detailResponse->assertSee('2026-05-xx');
     }
 
+    public function test_presensi_siswa_index_tolerates_malformed_queue_dates(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+
+        Kelas::firstOrCreate(['nama_kelas' => 'XI-SIJA 2'], ['wali_kelas_nip' => null]);
+
+        $mapel = Mapel::create([
+            'kd_mapel' => 'MAPEL-QUEUE-BAD',
+            'nama_mapel' => 'Mapel Queue Bad',
+        ]);
+
+        Guru::create([
+            'NIP' => 'NIP-QUEUE-BAD',
+            'user_id' => $guruUser->id,
+            'nama_guru' => 'Guru Queue Bad',
+            'kd_mapel' => $mapel->kd_mapel,
+        ]);
+
+        JadwalPelajaran::create([
+            'kd_jp' => 'JP-QUEUE-BAD',
+            'hari' => 'Senin',
+            'jam_mulai' => 1,
+            'jam_selesai' => 2,
+            'kd_mapel' => $mapel->kd_mapel,
+            'NIP' => 'NIP-QUEUE-BAD',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        $siswa = Siswa::create([
+            'NIS' => 'MUH-QUEUE-01',
+            'user_id' => User::factory()->create(['role' => 'siswa'])->id,
+            'nama_siswa' => 'Muhammad Queue',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
+        Presensi::create([
+            'kd_presensi' => 'QUEUE-BAD-001',
+            'sesi_id' => null,
+            'tanggal' => '2026-06-07x',
+            'kd_jp' => 'JP-QUEUE-BAD',
+            'jam_masuk' => null,
+            'status' => 'Alpa',
+            'NIS' => $siswa->NIS,
+            'updated_at' => '2026-06-07 08:00:00',
+        ]);
+
+        $response = $this->actingAs($admin)->get('/admin/presensi-siswa?kelas=&q=MUH&tanggal_mulai=2026-06-01&tanggal_akhir=2026-06-08');
+
+        $response->assertOk();
+        $response->assertSee('Muhammad Queue');
+        $response->assertSee('07 Jun 2026');
+    }
+
+    public function test_presensi_siswa_index_falls_back_when_filter_dates_are_malformed(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/admin/presensi-siswa?kelas=&q=MUH&tanggal_mulai=bukan-tanggal&tanggal_akhir=juga-bukan');
+
+        $response->assertOk();
+        $response->assertSee('Presensi Siswa');
+    }
+
     private function createJadwalForGuru(User $guruUser, string $kodeJp, string $kelas): JadwalPelajaran
     {
         $mapel = Mapel::create([

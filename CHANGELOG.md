@@ -107,3 +107,9 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 ### Bug Fix
 - Mengembalikan live search admin siswa dan guru ke perilaku sebelumnya setelah versi filter lokal per halaman terbukti mengganggu alur pencarian.
 - Menghapus perubahan tampilan dan interaksi pencarian lokal agar fitur search kembali mengikuti implementasi semula.
+
+## [2026-06-08] - Perbaikan Error 500 Presensi Siswa
+
+### Bug Fix
+- Mengamankan parsing `tanggal_mulai` dan `tanggal_akhir` pada halaman admin presensi siswa agar input tanggal rusak tidak lagi memicu error `500`.
+- Mengamankan tampilan antrean koreksi Alpa supaya data presensi lama dengan format tanggal rusak tetap bisa ditampilkan tanpa menjatuhkan halaman.

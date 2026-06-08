@@ -75,7 +75,7 @@
                         <div style="font-family:'Fredoka One', cursive; color:var(--midnight); font-size:20px;">{{ $row['nama_siswa'] }}</div>
                         <div style="color:var(--midnight); font-weight:900; margin-top:4px;">{{ $row['nis'] }} &bull; {{ $row['kelas'] }}</div>
                         <div style="color:var(--midnight); font-weight:900; margin-top:8px;">
-                            {{ \Carbon\Carbon::parse($row['tanggal'])->format('d M Y') }} &bull; {{ $row['mapel'] }} &bull; {{ $row['jam'] }}
+                            {{ $row['tanggal_label'] ?? $row['tanggal'] }} &bull; {{ $row['mapel'] }} &bull; {{ $row['jam'] }}
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">

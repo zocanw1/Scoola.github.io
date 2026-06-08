@@ -387,15 +387,18 @@ class PresensiRekapBuilder
             })
             ->orderByDesc('tanggal')
             ->orderBy('jam_masuk')
-            ->get(['id', 'sesi_id', 'tanggal', 'kd_jp', 'jam_masuk', 'status', 'NIS'])
+            ->get(['id', 'sesi_id', 'tanggal', 'kd_jp', 'jam_masuk', 'status', 'NIS', 'updated_at'])
             ->map(function (Presensi $presensi): array {
+                $resolvedDate = $this->resolveAttendanceDate($presensi->tanggal, $presensi->updated_at);
+
                 return [
                     'presensi_id' => $presensi->id,
                     'sesi_id' => $presensi->sesi_id,
                     'nis' => $presensi->NIS,
                     'nama_siswa' => $presensi->siswa?->nama_siswa ?? $presensi->NIS,
                     'kelas' => $presensi->siswa?->kelas ?? '-',
-                    'tanggal' => $presensi->tanggal,
+                    'tanggal' => $resolvedDate['date']->toDateString(),
+                    'tanggal_label' => $resolvedDate['label'],
                     'jam' => $presensi->jadwal ? "Jam {$presensi->jadwal->jam_mulai} - {$presensi->jadwal->jam_selesai}" : '-',
                     'mapel' => $presensi->jadwal?->mapel?->nama_mapel ?? $presensi->kd_jp ?? '-',
                     'status' => $presensi->status,
