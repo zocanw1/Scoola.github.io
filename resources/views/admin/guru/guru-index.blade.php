@@ -706,7 +706,7 @@
                     Direktori Guru
                 </div>
                 <div class="toolbar-note">
-                    Live search di bawah tetap responsif saat kamu mengetik, dan pagination yang tampil akan mengikuti hasil pencarian aktif.
+                    Live search di bawah langsung memakai hasil pencarian server, jadi pagination yang tampil selalu mengikuti filter aktif.
                 </div>
             </div>
             <div class="live-chip">
@@ -829,15 +829,13 @@
 document.addEventListener('DOMContentLoaded', function () {
     const importForm = document.getElementById('guruImportForm');
     const filterForm = document.getElementById('guruFilterForm');
-    const resultContainer = document.getElementById('guruDirectoryResults');
     const fileInput = document.getElementById('guruImportFile');
     const fileName = document.getElementById('guruImportFileName');
     const rowsInput = document.getElementById('guruImportRows');
     const liveSearchInput = document.getElementById('liveGuruSearch');
     const mapelFilter = filterForm?.querySelector('select[name="mapel"]');
-    const resetButton = filterForm?.querySelector('[data-search-reset="guru"]');
-    const parser = new DOMParser();
-    let currentSearchController = null;
+    const liveSearchStateKey = 'scoola-live-search:guru';
+    let isComposing = false;
 
     const debounce = (fn, delay) => {
         let timeoutId = null;
@@ -858,155 +856,87 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    const syncFilterInputs = (url) => {
-        if (liveSearchInput) {
-            liveSearchInput.value = url.searchParams.get('q') || '';
-        }
-
-        if (mapelFilter) {
-            mapelFilter.value = url.searchParams.get('mapel') || '';
-        }
-    };
-
-    const buildResultsUrl = (page = 1) => {
-        const url = new URL(filterForm.action, window.location.origin);
-        const params = new URLSearchParams();
-        const formData = new FormData(filterForm);
-
-        formData.forEach((value, key) => {
-            const normalizedValue = String(value).trim();
-
-            if (normalizedValue !== '') {
-                params.set(key, normalizedValue);
-            }
-        });
-
-        if (page > 1) {
-            params.set('page', String(page));
-        }
-
-        url.search = params.toString();
-
-        return url;
-    };
-
-    const fetchGuruResults = async ({ page = 1, historyMode = 'replace' } = {}) => {
-        if (!filterForm || !resultContainer) {
+    const persistLiveSearchState = () => {
+        if (!liveSearchInput) {
             return;
         }
 
-        const shouldRestoreCaret = document.activeElement === liveSearchInput;
-        const caret = shouldRestoreCaret
-            ? {
+        try {
+            sessionStorage.setItem(liveSearchStateKey, JSON.stringify({
+                path: window.location.pathname,
+                value: liveSearchInput.value,
                 start: liveSearchInput.selectionStart ?? liveSearchInput.value.length,
                 end: liveSearchInput.selectionEnd ?? liveSearchInput.value.length,
-            }
-            : null;
-
-        const url = buildResultsUrl(page);
-
-        if (currentSearchController) {
-            currentSearchController.abort();
-        }
-
-        currentSearchController = new AbortController();
-
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                signal: currentSearchController.signal,
-            });
-
-            if (!response.ok) {
-                return;
-            }
-
-            const html = await response.text();
-            const nextDocument = parser.parseFromString(html, 'text/html');
-            const nextResults = nextDocument.getElementById('guruDirectoryResults');
-
-            if (!nextResults) {
-                return;
-            }
-
-            resultContainer.innerHTML = nextResults.innerHTML;
-
-            if (historyMode === 'push') {
-                window.history.pushState({}, '', url);
-            } else if (historyMode === 'replace') {
-                window.history.replaceState({}, '', url);
-            }
-
-            if (caret && liveSearchInput) {
-                liveSearchInput.focus({ preventScroll: true });
-                liveSearchInput.setSelectionRange(caret.start, caret.end);
-            }
-        } catch (error) {
-            if (error.name !== 'AbortError') {
-                console.error(error);
-            }
-        }
+            }));
+        } catch (error) {}
     };
 
-    if (filterForm && liveSearchInput && resultContainer) {
+    const restoreLiveSearchState = () => {
+        if (!liveSearchInput) {
+            return;
+        }
+
+        try {
+            const rawState = sessionStorage.getItem(liveSearchStateKey);
+
+            if (!rawState) {
+                return;
+            }
+
+            sessionStorage.removeItem(liveSearchStateKey);
+
+            const state = JSON.parse(rawState);
+            if (!state || state.path !== window.location.pathname || state.value !== liveSearchInput.value) {
+                return;
+            }
+
+            liveSearchInput.focus({ preventScroll: true });
+            liveSearchInput.setSelectionRange(state.start ?? liveSearchInput.value.length, state.end ?? liveSearchInput.value.length);
+        } catch (error) {}
+    };
+
+    const submitFilterForm = () => {
+        if (!filterForm) {
+            return;
+        }
+
+        persistLiveSearchState();
+
+        if (typeof filterForm.requestSubmit === 'function') {
+            filterForm.requestSubmit();
+            return;
+        }
+
+        filterForm.submit();
+    };
+
+    if (filterForm && liveSearchInput) {
+        restoreLiveSearchState();
+
         const runLiveSearch = debounce(() => {
-            fetchGuruResults({ page: 1, historyMode: 'replace' });
+            if (isComposing) {
+                return;
+            }
+
+            submitFilterForm();
         }, 250);
+
+        liveSearchInput.addEventListener('compositionstart', function () {
+            isComposing = true;
+        });
+
+        liveSearchInput.addEventListener('compositionend', function () {
+            isComposing = false;
+            runLiveSearch();
+        });
 
         liveSearchInput.addEventListener('input', runLiveSearch);
 
-        filterForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            fetchGuruResults({ page: 1, historyMode: 'push' });
-        });
-
         if (mapelFilter) {
-            mapelFilter.addEventListener('change', function () {
-                fetchGuruResults({ page: 1, historyMode: 'push' });
-            });
+            mapelFilter.addEventListener('change', submitFilterForm);
         }
 
-        if (resetButton) {
-            resetButton.addEventListener('click', function (event) {
-                event.preventDefault();
-
-                if (liveSearchInput) {
-                    liveSearchInput.value = '';
-                }
-
-                if (mapelFilter) {
-                    mapelFilter.value = '';
-                }
-
-                fetchGuruResults({ page: 1, historyMode: 'push' });
-            });
-        }
-
-        resultContainer.addEventListener('click', function (event) {
-            const paginationLink = event.target.closest('.manga-pagination a.manga-page-link');
-
-            if (!paginationLink) {
-                return;
-            }
-
-            event.preventDefault();
-
-            const nextUrl = new URL(paginationLink.href);
-            const targetPage = Number(nextUrl.searchParams.get('page') || 1);
-
-            syncFilterInputs(nextUrl);
-            fetchGuruResults({ page: targetPage, historyMode: 'push' });
-        });
-
-        window.addEventListener('popstate', function () {
-            const currentUrl = new URL(window.location.href);
-            const currentPage = Number(currentUrl.searchParams.get('page') || 1);
-
-            syncFilterInputs(currentUrl);
-            fetchGuruResults({ page: currentPage, historyMode: 'none' });
-        });
+        filterForm.addEventListener('submit', persistLiveSearchState);
     }
 
     if (!importForm || !fileInput || !rowsInput) {

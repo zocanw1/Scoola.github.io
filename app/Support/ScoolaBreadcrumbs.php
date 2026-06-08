@@ -69,7 +69,9 @@ class ScoolaBreadcrumbs
         $featureKey = $segments[1] ?? 'dashboard';
         $feature = self::resolveFeature($context, $featureKey);
         $action = self::resolveAction($route->getName(), $segments, $feature['noun'] ?? $feature['label']);
-        $subject = self::resolveSubject($viewData, $route->parameters(), $action['key']);
+        $subject = self::shouldSuppressSubject($route->getName(), $action['key'])
+            ? null
+            : self::resolveSubject($viewData, $route->parameters(), $action['key']);
         $crumbs = [
             self::resolveRootItem($context, $request),
         ];
@@ -219,6 +221,15 @@ class ScoolaBreadcrumbs
         }
 
         return null;
+    }
+
+    private static function shouldSuppressSubject(?string $routeName, string $actionKey): bool
+    {
+        if (in_array($routeName, ['guru.presensi.ruang', 'guru.presensi.tampil'], true)) {
+            return true;
+        }
+
+        return in_array($actionKey, ['dashboard', 'index'], true);
     }
 
     private static function extractLabel(mixed $value): ?string

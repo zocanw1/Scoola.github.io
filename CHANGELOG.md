@@ -9,6 +9,8 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 ### Presensi Guru
 - Mengganti URL halaman ruang presensi guru dari pola `/guru/presensi/ruang/{id}` menjadi `/guru/presensi/ruang-kelas/{id}` agar lebih jelas dan sesuai nama halaman.
 - Menyisakan jalur lama sebagai fallback redirect/alias supaya link lama tidak langsung putus setelah deploy.
+- Merapikan breadcrumb ruang presensi guru agar tidak lagi menampilkan chip subjek tambahan yang tidak relevan di bar kuning atas.
+- Menyederhanakan live search direktori guru dan siswa ke pola submit normal yang langsung memakai hasil filter server, sekaligus menjaga fokus input tetap kembali setelah hasil dimuat ulang.
 
 ## [2026-06-08] - Perbaikan Live Search Direktori Guru dan Siswa
 
