@@ -102,9 +102,8 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
   - Spasi Baris: 1.5.
   - Alignment: Justify (Rata Kiri Kanan).
 
-## [2026-06-08] - Stabilisasi Live Search Siswa dan Guru
+## [2026-06-08] - Pengembalian Live Search Admin
 
 ### Bug Fix
-- Mengganti live search halaman admin siswa dan guru menjadi filter lokal biasa pada data yang sedang tampil di halaman, sehingga pengetikan tidak lagi memicu request pencarian ke server.
-- Menambahkan penanganan hasil kosong di sisi klien saat filter aktif, sekaligus menyembunyikan pagination sementara ketika live search atau filter lokal sedang dipakai.
-- Menyamakan live search agar tetap case-insensitive tanpa memicu error `500` saat pengguna mengetik.
+- Mengembalikan live search admin siswa dan guru ke perilaku sebelumnya setelah versi filter lokal per halaman terbukti mengganggu alur pencarian.
+- Menghapus perubahan tampilan dan interaksi pencarian lokal agar fitur search kembali mengikuti implementasi semula.

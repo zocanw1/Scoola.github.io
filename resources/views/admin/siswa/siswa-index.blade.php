@@ -720,14 +720,16 @@
         </div>
     </div>
 
-    <form method="GET" action="{{ route('siswa.index') }}" id="siswaFilterForm" class="neo-card toolbar-card" data-live-filter="siswa">
+    <form method="GET" action="{{ route('siswa.index') }}" id="siswaFilterForm" class="neo-card toolbar-card">
         <div class="toolbar-head">
             <div>
                 <div class="toolbar-title">
                     <i class="bi bi-stars"></i>
                     Direktori Siswa
                 </div>
-                <div class="toolbar-note">Live search di bawah hanya memfilter data yang sedang tampil di halaman ini, tanpa reload dan tanpa request pencarian tambahan.</div>
+                <div class="toolbar-note">
+                    Live search di bawah langsung memakai hasil pencarian server, jadi pagination yang tampil selalu mengikuti filter aktif.
+                </div>
             </div>
             <div class="live-chip">
                 <i class="bi bi-lightning-charge-fill"></i>
@@ -808,7 +810,7 @@
                 </thead>
                 <tbody id="siswaTableBody">
                     @forelse($siswa as $s)
-                        <tr class="siswa-row" data-search-text="{{ $s->NIS }} {{ $s->nama_siswa }} {{ $s->kelas }} {{ $s->user->email ?? '' }}" data-kelas="{{ $s->kelas }}">
+                        <tr class="siswa-row">
                             <td data-label="NIS" class="student-nis-cell">
                                 <span class="mobile-field-label">Nomor Induk</span>
                                 <span class="student-id-chip">{{ $s->NIS }}</span>
@@ -877,90 +879,162 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const filterForm = document.getElementById('siswaFilterForm');
+    const resultContainer = document.getElementById('siswaDirectoryResults');
     const liveSearchInput = document.getElementById('liveSiswaSearch');
     const kelasFilter = filterForm?.querySelector('select[name="kelas"]');
     const resetButton = filterForm?.querySelector('[data-search-reset="siswa"]');
-    const tableBody = document.getElementById('siswaTableBody');
-    const paginationWrap = document.querySelector('#siswaDirectoryResults .manga-pagination-wrap');
+    const parser = new DOMParser();
+    let currentSearchController = null;
 
-    if (filterForm && liveSearchInput && tableBody) {
-        const rows = Array.from(tableBody.querySelectorAll('.siswa-row'));
-        const serverEmptyRow = tableBody.querySelector('.empty-placeholder-base');
-        let clientEmptyRow = tableBody.querySelector('[data-client-empty="siswa"]');
-
-        if (!clientEmptyRow && rows.length > 0) {
-            clientEmptyRow = document.createElement('tr');
-            clientEmptyRow.setAttribute('data-client-empty', 'siswa');
-            clientEmptyRow.hidden = true;
-            clientEmptyRow.innerHTML = `
-                <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" class="table-empty-cell">
-                    Tidak ada siswa yang cocok di halaman ini.
-                </td>
-            `;
-            tableBody.appendChild(clientEmptyRow);
+    const syncFilterInputs = (url) => {
+        if (liveSearchInput) {
+            liveSearchInput.value = url.searchParams.get('q') || '';
         }
 
-        const normalize = (value) => String(value || '').toLocaleLowerCase('id-ID').trim();
+        if (kelasFilter) {
+            kelasFilter.value = url.searchParams.get('kelas') || '';
+        }
+    };
 
-        const applyLiveFilter = () => {
-            const query = normalize(liveSearchInput.value);
-            const selectedKelas = normalize(kelasFilter?.value || '');
-            let visibleRows = 0;
+    const buildResultsUrl = (page = 1) => {
+        const url = new URL(filterForm.action, window.location.origin);
+        const params = new URLSearchParams();
+        const formData = new FormData(filterForm);
 
-            rows.forEach((row) => {
-                const rowSearchText = normalize(row.dataset.searchText);
-                const rowKelas = normalize(row.dataset.kelas);
-                const matchQuery = query === '' || rowSearchText.includes(query);
-                const matchKelas = selectedKelas === '' || rowKelas === selectedKelas;
-                const isVisible = matchQuery && matchKelas;
+        formData.forEach((value, key) => {
+            const normalizedValue = String(value).trim();
 
-                row.hidden = !isVisible;
+            if (normalizedValue !== '') {
+                params.set(key, normalizedValue);
+            }
+        });
 
-                if (isVisible) {
-                    visibleRows += 1;
-                }
+        if (page > 1) {
+            params.set('page', String(page));
+        }
+
+        url.search = params.toString();
+
+        return url;
+    };
+
+    const fetchSiswaResults = async ({ page = 1, historyMode = 'replace' } = {}) => {
+        if (!filterForm || !resultContainer) {
+            return;
+        }
+
+        const shouldRestoreCaret = document.activeElement === liveSearchInput;
+        const caret = shouldRestoreCaret
+            ? {
+                start: liveSearchInput.selectionStart ?? liveSearchInput.value.length,
+                end: liveSearchInput.selectionEnd ?? liveSearchInput.value.length,
+            }
+            : null;
+
+        const url = buildResultsUrl(page);
+
+        if (currentSearchController) {
+            currentSearchController.abort();
+        }
+
+        currentSearchController = new AbortController();
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                signal: currentSearchController.signal,
             });
 
-            if (clientEmptyRow) {
-                clientEmptyRow.hidden = visibleRows > 0 || rows.length === 0;
+            if (!response.ok) {
+                return;
             }
 
-            if (serverEmptyRow && rows.length > 0) {
-                serverEmptyRow.hidden = true;
+            const html = await response.text();
+            const nextDocument = parser.parseFromString(html, 'text/html');
+            const nextResults = nextDocument.getElementById('siswaDirectoryResults');
+
+            if (!nextResults) {
+                return;
             }
 
-            if (paginationWrap) {
-                paginationWrap.style.display = query !== '' || selectedKelas !== '' ? 'none' : '';
-            }
-        };
+            resultContainer.innerHTML = nextResults.innerHTML;
 
-        const runLiveSearch = debounce(applyLiveFilter, 120);
+            if (historyMode === 'push') {
+                window.history.pushState({}, '', url);
+            } else if (historyMode === 'replace') {
+                window.history.replaceState({}, '', url);
+            }
+
+            if (caret && liveSearchInput) {
+                liveSearchInput.focus({ preventScroll: true });
+                liveSearchInput.setSelectionRange(caret.start, caret.end);
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error(error);
+            }
+        }
+    };
+
+    if (filterForm && liveSearchInput && resultContainer) {
+        const runLiveSearch = debounce(() => {
+            fetchSiswaResults({ page: 1, historyMode: 'replace' });
+        }, 250);
 
         liveSearchInput.addEventListener('input', runLiveSearch);
+
         filterForm.addEventListener('submit', function (event) {
             event.preventDefault();
-            applyLiveFilter();
+            fetchSiswaResults({ page: 1, historyMode: 'push' });
         });
 
         if (kelasFilter) {
-            kelasFilter.addEventListener('change', applyLiveFilter);
+            kelasFilter.addEventListener('change', function () {
+                fetchSiswaResults({ page: 1, historyMode: 'push' });
+            });
         }
 
         if (resetButton) {
             resetButton.addEventListener('click', function (event) {
                 event.preventDefault();
-                liveSearchInput.value = '';
+
+                if (liveSearchInput) {
+                    liveSearchInput.value = '';
+                }
 
                 if (kelasFilter) {
                     kelasFilter.value = '';
                 }
 
-                applyLiveFilter();
-                liveSearchInput.focus({ preventScroll: true });
+                fetchSiswaResults({ page: 1, historyMode: 'push' });
             });
         }
 
-        applyLiveFilter();
+        resultContainer.addEventListener('click', function (event) {
+            const paginationLink = event.target.closest('.manga-pagination a.manga-page-link');
+
+            if (!paginationLink) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const nextUrl = new URL(paginationLink.href);
+            const targetPage = Number(nextUrl.searchParams.get('page') || 1);
+
+            syncFilterInputs(nextUrl);
+            fetchSiswaResults({ page: targetPage, historyMode: 'push' });
+        });
+
+        window.addEventListener('popstate', function () {
+            const currentUrl = new URL(window.location.href);
+            const currentPage = Number(currentUrl.searchParams.get('page') || 1);
+
+            syncFilterInputs(currentUrl);
+            fetchSiswaResults({ page: currentPage, historyMode: 'none' });
+        });
     }
 
     const form = document.getElementById('siswaImportForm');
