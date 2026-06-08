@@ -14,8 +14,14 @@ use Illuminate\Validation\Rule;
 
 use App\Models\ActivityLog;
 
+/**
+ * Mengelola data guru, mapel yang diampu, dan akun login terkait.
+ */
 class GuruController extends Controller
 {
+    /**
+     * Menampilkan daftar guru dengan filter pencarian dan filter mapel.
+     */
     public function index(Request $request)
     {
         $query = Guru::with(['user', 'mapels'])->orderBy('nama_guru');
@@ -35,6 +41,14 @@ class GuruController extends Controller
         }
 
         $guru = $query->paginate(20)->withQueryString();
+
+        if (($request->filled('q') || $request->filled('mapel'))
+            && $guru->isEmpty()
+            && $guru->total() > 0
+            && $guru->currentPage() > 1) {
+            return redirect()->route('guru.index', array_merge($request->except('page'), ['page' => 1]));
+        }
+
         $totalGuru = Guru::count();
         $totalGuruAktif = Guru::whereNotNull('user_id')->count();
         $allMapels = Mapel::orderBy('nama_mapel')->get();
@@ -42,12 +56,18 @@ class GuruController extends Controller
         return view('admin.guru.guru-index', compact('guru', 'totalGuru', 'totalGuruAktif', 'allMapels'));
     }
 
+    /**
+     * Menyiapkan form tambah guru beserta daftar mapel yang tersedia.
+     */
     public function create()
     {
         $mapel = Mapel::orderBy('nama_mapel')->get();
         return view('admin.guru.guru-create', compact('mapel'));
     }
 
+    /**
+     * Menyimpan user guru dan relasi mapel secara atomik.
+     */
     public function store(Request $request)
     {
         $hasGenderColumn = $this->hasGenderColumn();
@@ -62,6 +82,7 @@ class GuruController extends Controller
             'password'   => 'required|min:6',
         ]);
 
+        // Guru utama, user login, dan relasi mapel wajib sukses bersamaan agar data tetap sinkron.
         DB::transaction(function () use ($request, $hasGenderColumn) {
             $user = User::create([
                 'name'     => $request->nama,
@@ -93,6 +114,9 @@ class GuruController extends Controller
             ->with('success', 'Guru berhasil ditambahkan');
     }
 
+    /**
+     * Mengimpor banyak guru dengan kredensial default berbasis NIP.
+     */
     public function import(Request $request)
     {
         $request->validate([
@@ -111,6 +135,7 @@ class GuruController extends Controller
 
         $hasGenderColumn = $this->hasGenderColumn();
 
+        // Baris yang rusak atau duplikat dilewati tanpa menggagalkan seluruh proses import.
         DB::transaction(function () use ($rows, &$created, &$skipped, &$seenNips, $hasGenderColumn): void {
             foreach ($rows as $row) {
                 $nama = trim((string) ($row['nama'] ?? ''));
@@ -165,6 +190,9 @@ class GuruController extends Controller
             ->with('error', "Import guru gagal. Tidak ada data baru yang bisa ditambahkan. {$skipped} data dilewati.");
     }
 
+    /**
+     * Menampilkan form edit guru dan semua mapel yang bisa dihubungkan.
+     */
     public function edit($nip)
     {
         $guru  = Guru::with('user', 'mapels')->findOrFail($nip);
@@ -173,6 +201,9 @@ class GuruController extends Controller
         return view('admin.guru.guru-edit', compact('guru', 'mapel'));
     }
 
+    /**
+     * Memperbarui profil guru, relasi mapel, dan opsional kredensial login.
+     */
     public function update(Request $request, $nip)
     {
         $guru = Guru::with('user')->findOrFail($nip);
@@ -190,6 +221,7 @@ class GuruController extends Controller
         $passwordChanged = $request->filled('password');
         $credentialsChanged = $emailChanged || $passwordChanged;
 
+        // Penggantian email/password sengaja diberi lapisan validasi ekstra karena berdampak ke akun login.
         if ($credentialsChanged) {
             $request->validate([
                 'change_login_credentials' => 'accepted',
@@ -242,6 +274,9 @@ class GuruController extends Controller
             ->with('success', 'Guru berhasil diperbarui');
     }
 
+    /**
+     * Menghapus akun user dan data guru dalam satu transaksi.
+     */
     public function destroy($nip)
     {
         $guru = Guru::with('user')->findOrFail($nip);
@@ -258,6 +293,9 @@ class GuruController extends Controller
             ->with('success', 'Guru berhasil dihapus');
     }
 
+    /**
+     * Email import dibentuk stabil dari NIP dan diberi suffix bila sudah dipakai.
+     */
     private function buildImportEmail(string $nip): string
     {
         $base = 'guru-' . Str::lower($nip) . '@gmail.com';
@@ -272,6 +310,9 @@ class GuruController extends Controller
         return $email;
     }
 
+    /**
+     * Cek kolom gender menjaga controller tetap kompatibel lintas migrasi.
+     */
     private function hasGenderColumn(): bool
     {
         return Schema::hasColumn('guru', 'jenis_kelamin');

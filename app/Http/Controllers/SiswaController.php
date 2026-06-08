@@ -12,8 +12,14 @@ use Illuminate\Support\Str;
 
 use App\Models\ActivityLog;
 
+/**
+ * Mengelola CRUD siswa admin, termasuk filter daftar dan import massal.
+ */
 class SiswaController extends Controller
 {
+    /**
+     * Menampilkan daftar siswa beserta statistik ringkas untuk header halaman admin.
+     */
     public function index(Request $request)
     {
         $query = Siswa::with('user')->orderBy('nama_siswa');
@@ -31,6 +37,14 @@ class SiswaController extends Controller
         }
 
         $siswa = $query->paginate(25)->withQueryString();
+
+        if (($request->filled('q') || $request->filled('kelas'))
+            && $siswa->isEmpty()
+            && $siswa->total() > 0
+            && $siswa->currentPage() > 1) {
+            return redirect()->route('siswa.index', array_merge($request->except('page'), ['page' => 1]));
+        }
+
         $totalSiswa = Siswa::count();
         $totalKelasAktif = Siswa::distinct('kelas')->count('kelas');
         $kelasOptions = Siswa::query()->distinct()->orderBy('kelas')->pluck('kelas');
@@ -38,11 +52,17 @@ class SiswaController extends Controller
         return view('admin.siswa.siswa-index', compact('siswa', 'totalSiswa', 'totalKelasAktif', 'kelasOptions'));
     }
 
+    /**
+     * Menampilkan form pembuatan siswa baru.
+     */
     public function create()
     {
         return view('admin.siswa.siswa-create');
     }
 
+    /**
+     * Menyimpan akun user dan profil siswa di dalam satu transaksi.
+     */
     public function store(Request $request)
     {
         $hasGenderColumn = $this->hasGenderColumn();
@@ -56,6 +76,7 @@ class SiswaController extends Controller
             'password' => 'required|min:6',
         ]);
 
+        // Simpan user dan entitas siswa sekaligus agar data tidak pernah setengah jadi.
         DB::transaction(function () use ($request, $hasGenderColumn) {
             $user = User::create([
                 'name'     => $request->nama,
@@ -85,6 +106,9 @@ class SiswaController extends Controller
             ->with('success', 'Siswa berhasil ditambahkan');
     }
 
+    /**
+     * Mengimpor banyak siswa dari payload JSON yang sudah diparsing di sisi client.
+     */
     public function import(Request $request)
     {
         $request->validate([
@@ -103,6 +127,7 @@ class SiswaController extends Controller
 
         $hasGenderColumn = $this->hasGenderColumn();
 
+        // Setiap baris diperiksa satu per satu supaya data ganda bisa dilewati tanpa membatalkan batch lain.
         DB::transaction(function () use ($rows, &$created, &$skipped, &$seenNis, $hasGenderColumn): void {
             foreach ($rows as $row) {
                 $nis = trim((string) ($row['nis'] ?? ''));
@@ -159,12 +184,18 @@ class SiswaController extends Controller
             ->with('error', "Import siswa gagal. Tidak ada data baru yang bisa ditambahkan. {$skipped} data dilewati.");
     }
 
+    /**
+     * Menampilkan form edit siswa dan akun login yang terhubung.
+     */
     public function edit($nis)
     {
         $siswa = Siswa::with('user')->findOrFail($nis);
         return view('admin.siswa.siswa-edit', compact('siswa'));
     }
 
+    /**
+     * Memperbarui profil siswa serta email akun user dalam satu transaksi.
+     */
     public function update(Request $request, $nis)
     {
         $siswa = Siswa::with('user')->findOrFail($nis);
@@ -201,6 +232,9 @@ class SiswaController extends Controller
             ->with('success', 'Data siswa berhasil diperbarui');
     }
 
+    /**
+     * Menghapus akun user dan data siswa agar referensi tetap bersih.
+     */
     public function destroy($nis)
     {
         $siswa = Siswa::with('user')->findOrFail($nis);
@@ -217,6 +251,9 @@ class SiswaController extends Controller
             ->with('success', 'Siswa berhasil dihapus');
     }
 
+    /**
+     * Menyamakan berbagai variasi penulisan kelas hasil import ke format baku aplikasi.
+     */
     private function normalizeImportedKelas(string $kelas): ?string
     {
         $normalized = Str::upper(trim($kelas));
@@ -229,11 +266,17 @@ class SiswaController extends Controller
         };
     }
 
+    /**
+     * Token import memakai NIS yang dibersihkan agar aman dijadikan password/email default.
+     */
     private function buildSiswaImportToken(string $nis): string
     {
         return preg_replace('/[^A-Za-z0-9]/', '', $nis) ?: $nis;
     }
 
+    /**
+     * Email import dijaga unik walau NIS serupa sudah pernah dipakai.
+     */
     private function buildImportEmail(string $token): string
     {
         $base = 'siswa-' . Str::lower($token) . '@gmail.com';
@@ -248,6 +291,9 @@ class SiswaController extends Controller
         return $email;
     }
 
+    /**
+     * Cek kolom gender menjaga controller tetap kompatibel saat migrasi belum dijalankan.
+     */
     private function hasGenderColumn(): bool
     {
         return Schema::hasColumn('siswa', 'jenis_kelamin');

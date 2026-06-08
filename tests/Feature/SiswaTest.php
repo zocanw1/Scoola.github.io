@@ -26,6 +26,29 @@ class SiswaTest extends TestCase
         $response->assertSee('liveSiswaSearch', false);
     }
 
+    public function test_filtered_siswa_search_redirects_stale_page_back_to_first_page(): void
+    {
+        $admin = $this->createAdmin();
+        $user = User::factory()->create(['role' => 'siswa', 'name' => 'Susi Andini']);
+
+        Siswa::create([
+            'NIS' => '12345678',
+            'user_id' => $user->id,
+            'nama_siswa' => 'Susi Andini',
+            'kelas' => 'XI-SIJA 1',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('siswa.index', [
+            'q' => 'Susi',
+            'page' => 2,
+        ]));
+
+        $response->assertRedirect(route('siswa.index', [
+            'q' => 'Susi',
+            'page' => 1,
+        ]));
+    }
+
     public function test_admin_can_view_siswa_create_form(): void
     {
         $admin = $this->createAdmin();

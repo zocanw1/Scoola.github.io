@@ -694,7 +694,7 @@
         </div>
     </div>
 
-    <form method="GET" action="{{ route('guru.index') }}" class="manga-card toolbar-card">
+    <form method="GET" action="{{ route('guru.index') }}" id="guruFilterForm" class="manga-card toolbar-card">
         <span style="position: absolute; top: -16px; left: -16px; background: var(--sakura); color: var(--white); border: 3px solid var(--midnight); font-weight: 900; font-size: 12px; padding: 6px 12px; border-radius: 8px; transform: rotate(-5deg); box-shadow: 3px 3px 0 var(--midnight);">
             LET'S SEARCH
         </span>
@@ -706,7 +706,7 @@
                     Direktori Guru
                 </div>
                 <div class="toolbar-note">
-                    Live search di bawah hanya memfilter baris yang sedang tampil di browser, jadi tetap ringan dan tidak menambah latency. Untuk pencarian lintas halaman, tetap gunakan tombol filter.
+                    Live search di bawah otomatis memuat ulang hasil dari halaman pertama, jadi data yang cocok tidak nyangkut di halaman lain saat kamu mengetik.
                 </div>
             </div>
             <div class="live-chip">
@@ -812,9 +812,6 @@
                             <td colspan="5" class="guru-empty-cell">(′·_·`) Belum ada data guru ditemukan.</td>
                         </tr>
                     @endforelse
-                    <tr id="guruLiveEmptyRow" class="guru-empty-row" style="display: none;">
-                        <td colspan="5" class="guru-empty-cell">Tidak ada guru yang cocok di halaman ini.</td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -829,12 +826,11 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const importForm = document.getElementById('guruImportForm');
+    const filterForm = document.getElementById('guruFilterForm');
     const fileInput = document.getElementById('guruImportFile');
     const fileName = document.getElementById('guruImportFileName');
     const rowsInput = document.getElementById('guruImportRows');
     const liveSearchInput = document.getElementById('liveGuruSearch');
-    const tableRows = Array.from(document.querySelectorAll('#guruTableBody .guru-row'));
-    const liveEmptyRow = document.getElementById('guruLiveEmptyRow');
 
     const debounce = (fn, delay) => {
         let timeoutId = null;
@@ -855,25 +851,21 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    if (liveSearchInput && tableRows.length) {
-        const runLiveFilter = debounce(() => {
-            const keyword = liveSearchInput.value.trim().toLowerCase();
-            let visibleCount = 0;
+    if (filterForm && liveSearchInput) {
+        let lastSubmittedKeyword = liveSearchInput.value.trim();
 
-            tableRows.forEach((row) => {
-                const matches = keyword === '' || row.textContent.toLowerCase().includes(keyword);
-                row.style.display = matches ? '' : 'none';
-                if (matches) {
-                    visibleCount++;
-                }
-            });
+        const runLiveSearch = debounce(() => {
+            const keyword = liveSearchInput.value.trim();
 
-            if (liveEmptyRow) {
-                liveEmptyRow.style.display = visibleCount === 0 ? '' : 'none';
+            if (keyword === lastSubmittedKeyword) {
+                return;
             }
-        }, 120);
 
-        liveSearchInput.addEventListener('input', runLiveFilter);
+            lastSubmittedKeyword = keyword;
+            filterForm.requestSubmit();
+        }, 250);
+
+        liveSearchInput.addEventListener('input', runLiveSearch);
     }
 
     if (!importForm || !fileInput || !rowsInput) {

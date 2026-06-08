@@ -720,7 +720,7 @@
         </div>
     </div>
 
-    <form method="GET" action="{{ route('siswa.index') }}" class="neo-card toolbar-card">
+    <form method="GET" action="{{ route('siswa.index') }}" id="siswaFilterForm" class="neo-card toolbar-card">
         <div class="toolbar-head">
             <div>
                 <div class="toolbar-title">
@@ -728,7 +728,7 @@
                     Direktori Siswa
                 </div>
                 <div class="toolbar-note">
-                    Live search di bawah hanya memfilter baris yang sedang tampil di browser, jadi tetap ringan dan tidak menambah latency. Untuk pencarian lintas halaman, tetap gunakan tombol filter.
+                    Live search di bawah otomatis memuat ulang hasil dari halaman pertama, jadi data yang cocok tidak nyangkut di halaman lain saat kamu mengetik.
                 </div>
             </div>
             <div class="live-chip">
@@ -846,11 +846,6 @@
                             </td>
                         </tr>
                     @endforelse
-                    <tr id="siswaLiveEmptyRow" class="empty-placeholder-base" style="display: none;">
-                        <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" class="table-empty-cell">
-                            Tidak ada siswa yang cocok di halaman ini.
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -881,29 +876,24 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     };
 
+    const filterForm = document.getElementById('siswaFilterForm');
     const liveSearchInput = document.getElementById('liveSiswaSearch');
-    const tableRows = Array.from(document.querySelectorAll('#siswaTableBody .siswa-row'));
-    const liveEmptyRow = document.getElementById('siswaLiveEmptyRow');
 
-    if (liveSearchInput && tableRows.length) {
-        const runLiveFilter = debounce(() => {
-            const keyword = liveSearchInput.value.trim().toLowerCase();
-            let visibleCount = 0;
+    if (filterForm && liveSearchInput) {
+        let lastSubmittedKeyword = liveSearchInput.value.trim();
 
-            tableRows.forEach((row) => {
-                const matches = keyword === '' || row.textContent.toLowerCase().includes(keyword);
-                row.style.display = matches ? '' : 'none';
-                if (matches) {
-                    visibleCount++;
-                }
-            });
+        const runLiveSearch = debounce(() => {
+            const keyword = liveSearchInput.value.trim();
 
-            if (liveEmptyRow) {
-                liveEmptyRow.style.display = visibleCount === 0 ? '' : 'none';
+            if (keyword === lastSubmittedKeyword) {
+                return;
             }
-        }, 120);
 
-        liveSearchInput.addEventListener('input', runLiveFilter);
+            lastSubmittedKeyword = keyword;
+            filterForm.requestSubmit();
+        }, 250);
+
+        liveSearchInput.addEventListener('input', runLiveSearch);
     }
 
     const form = document.getElementById('siswaImportForm');
