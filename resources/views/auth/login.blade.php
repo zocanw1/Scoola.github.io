@@ -495,9 +495,7 @@
                 </button>
 
                 <!-- Footer -->
-                <div class="form-footer">
-                    <a href="#">Lupa Password-mu? (′·_·`)</a>
-                </div>
+                <div class="form-footer" aria-hidden="true"></div>
             </form>
         </div>
     </div>
@@ -505,3 +503,4 @@
 
 </body>
 </html>
+

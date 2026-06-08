@@ -4,6 +4,12 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 
 ---
 
+## [2026-06-08] - Hapus Tautan Lupa Password di Halaman Login
+
+### Auth
+- Menghapus teks dan tautan "Lupa Password" pada halaman login tanpa mengubah garis dashed pemisah di bagian footer form.
+- Menambahkan pengecekan pada `tests/Feature/AuthTest.php` agar teks tersebut tidak muncul lagi di halaman login.
+
 ## [2026-06-08] - Update Nomor Telepon Tim Portfolio
 
 ### Portfolio

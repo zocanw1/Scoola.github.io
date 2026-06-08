@@ -14,6 +14,7 @@ class AuthTest extends TestCase
     {
         $response = $this->get('/login');
         $response->assertStatus(200);
+        $response->assertDontSee('Lupa Password-mu?');
     }
 
     public function test_login_with_valid_credentials(): void
