@@ -10,6 +10,7 @@ use App\Support\PresensiRekapBuilder;
 use App\Support\PresensiStatusManager;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 use Throwable;
 
@@ -49,9 +50,11 @@ class PresensiSiswaController extends Controller
                 $query->where('kelas', $selectedKelas);
             })
             ->when($search !== '', function ($query) use ($search): void {
-                $query->where(function ($scope) use ($search): void {
-                    $scope->where('nama_siswa', 'like', '%' . $search . '%')
-                        ->orWhere('NIS', 'like', '%' . $search . '%');
+                $likeSearch = '%' . mb_strtolower($search) . '%';
+
+                $query->where(function ($scope) use ($likeSearch): void {
+                    $scope->whereRaw($this->lowerLikeColumn('nama_siswa'), [$likeSearch])
+                        ->orWhereRaw($this->lowerLikeColumn('NIS'), [$likeSearch]);
                 });
             })
             ->orderBy('nama_siswa')
@@ -77,6 +80,13 @@ class PresensiSiswaController extends Controller
             'tanggalAkhir' => $tanggalAkhir,
             'alpaQueue' => $alpaQueue,
         ]);
+    }
+
+    private function lowerLikeColumn(string $column): string
+    {
+        $wrapped = DB::connection()->getQueryGrammar()->wrap($column);
+
+        return "LOWER({$wrapped}) LIKE ?";
     }
 
     /**

@@ -32,8 +32,8 @@ class GuruController extends Controller
             $query->where(function ($builder) use ($keyword) {
                 $likeKeyword = '%' . $keyword . '%';
 
-                $builder->whereRaw('LOWER(nama_guru) LIKE ?', [$likeKeyword])
-                    ->orWhereRaw('LOWER(NIP) LIKE ?', [$likeKeyword])
+                $builder->whereRaw($this->lowerLikeColumn('nama_guru'), [$likeKeyword])
+                    ->orWhereRaw($this->lowerLikeColumn('NIP'), [$likeKeyword])
                     ->orWhereHas('user', function ($userBuilder) use ($likeKeyword) {
                         $userBuilder->whereRaw('LOWER(email) LIKE ?', [$likeKeyword]);
                     })
@@ -56,6 +56,13 @@ class GuruController extends Controller
         $allMapels = Mapel::orderBy('nama_mapel')->get();
 
         return view('admin.guru.guru-index', compact('guru', 'totalGuru', 'totalGuruAktif', 'allMapels'));
+    }
+
+    private function lowerLikeColumn(string $column): string
+    {
+        $wrapped = DB::connection()->getQueryGrammar()->wrap($column);
+
+        return "LOWER({$wrapped}) LIKE ?";
     }
 
     /**

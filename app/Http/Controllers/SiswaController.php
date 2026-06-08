@@ -29,9 +29,9 @@ class SiswaController extends Controller
             $query->where(function ($builder) use ($keyword) {
                 $likeKeyword = '%' . $keyword . '%';
 
-                $builder->whereRaw('LOWER(nama_siswa) LIKE ?', [$likeKeyword])
-                    ->orWhereRaw('LOWER(NIS) LIKE ?', [$likeKeyword])
-                    ->orWhereRaw('LOWER(kelas) LIKE ?', [$likeKeyword])
+                $builder->whereRaw($this->lowerLikeColumn('nama_siswa'), [$likeKeyword])
+                    ->orWhereRaw($this->lowerLikeColumn('NIS'), [$likeKeyword])
+                    ->orWhereRaw($this->lowerLikeColumn('kelas'), [$likeKeyword])
                     ->orWhereHas('user', function ($userBuilder) use ($likeKeyword) {
                         $userBuilder->whereRaw('LOWER(email) LIKE ?', [$likeKeyword]);
                     });
@@ -49,6 +49,13 @@ class SiswaController extends Controller
         $kelasOptions = Siswa::query()->distinct()->orderBy('kelas')->pluck('kelas');
 
         return view('admin.siswa.siswa-index', compact('siswa', 'totalSiswa', 'totalKelasAktif', 'kelasOptions'));
+    }
+
+    private function lowerLikeColumn(string $column): string
+    {
+        $wrapped = DB::connection()->getQueryGrammar()->wrap($column);
+
+        return "LOWER({$wrapped}) LIKE ?";
     }
 
     /**

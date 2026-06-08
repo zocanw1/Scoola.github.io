@@ -4,6 +4,12 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 
 ---
 
+## [2026-06-08] - Perbaikan Query Live Search di Hosting
+
+### Dashboard Admin
+- Memperbaiki query live search siswa, guru, dan presensi siswa agar kolom `NIS`/`NIP` aman di Supabase/Postgres.
+- Menjaga pencarian tetap tidak membedakan huruf besar-kecil saat berjalan di hosting, bukan hanya di lokal.
+
 ## [2026-06-08] - Perapian URL Ruang Presensi Guru
 
 ### Presensi Guru
