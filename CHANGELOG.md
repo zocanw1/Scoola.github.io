@@ -10,6 +10,12 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 - Mengganti nomor telepon pada tiga kartu anggota tim di halaman portfolio sesuai nomor terbaru.
 - Menambahkan pengecekan nomor telepon pada `tests/Feature/PortfolioTest.php` agar tampilan kontak tim tetap konsisten.
 
+## [2026-06-08] - Penyeragaman Format Nomor Telepon Tim Portfolio
+
+### Portfolio
+- Menyeragamkan format nomor telepon kartu tim paling kiri menjadi ber-strip seperti kartu anggota lainnya.
+- Memperbarui regresi test portfolio agar mengikuti format nomor terbaru yang tampil di halaman.
+
 ## [2026-06-07] - Penambahan Mean Median Modus di Dashboard
 
 ### Statistik Dashboard

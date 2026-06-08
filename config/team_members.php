@@ -11,7 +11,7 @@ return [
             'nis' => '18433/108/065',
             'birthplace' => 'Malang',
             'birthdate' => '2008-10-06',
-            'phone' => '081320922504',
+            'phone' => '0813-2092-2504',
             'description' => 'Siswa yang penuh semangat dan ambisius untuk mengeksplorasi teknologi.',
             'jobdesk' => 'Bertanggung jawab dalam mengelola alur pengembangan proyek, memastikan integrasi kode berjalan lancar, serta melakukan pengawasan terhadap kualitas UI/UX yang dihasilkan tim.',
             'photo' => 'rafiff.jpg',
