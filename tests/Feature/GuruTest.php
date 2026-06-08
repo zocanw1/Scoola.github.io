@@ -32,6 +32,7 @@ class GuruTest extends TestCase
         $response = $this->actingAs($admin)->get(route('guru.index'));
         $response->assertStatus(200);
         $response->assertSee('liveGuruSearch', false);
+        $response->assertSee('data-live-filter="guru"', false);
     }
 
     public function test_guru_search_filters_results_using_query_parameter_case_insensitively(): void

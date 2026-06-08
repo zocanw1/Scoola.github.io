@@ -694,7 +694,7 @@
         </div>
     </div>
 
-    <form method="GET" action="{{ route('guru.index') }}" id="guruFilterForm" class="manga-card toolbar-card">
+    <form method="GET" action="{{ route('guru.index') }}" id="guruFilterForm" class="manga-card toolbar-card" data-live-filter="guru">
         <span style="position: absolute; top: -16px; left: -16px; background: var(--sakura); color: var(--white); border: 3px solid var(--midnight); font-weight: 900; font-size: 12px; padding: 6px 12px; border-radius: 8px; transform: rotate(-5deg); box-shadow: 3px 3px 0 var(--midnight);">
             LET'S SEARCH
         </span>
@@ -705,9 +705,7 @@
                     <i class="bi bi-stars"></i>
                     Direktori Guru
                 </div>
-                <div class="toolbar-note">
-                    Live search di bawah langsung memakai hasil pencarian server, jadi pagination yang tampil selalu mengikuti filter aktif.
-                </div>
+                <div class="toolbar-note">Live search di bawah hanya memfilter data yang sedang tampil di halaman ini, tanpa reload dan tanpa request pencarian tambahan.</div>
             </div>
             <div class="live-chip">
                 <i class="bi bi-lightning-charge-fill"></i>
@@ -783,7 +781,7 @@
                 </thead>
                 <tbody id="guruTableBody">
                     @forelse ($guru as $g)
-                        <tr class="guru-row">
+                        <tr class="guru-row" data-search-text="{{ $g->NIP }} {{ $g->nama_guru }} {{ $g->user->email ?? '' }} {{ $g->mapels->pluck('nama_mapel')->implode(' ') }}" data-mapels="{{ collect([$g->kd_mapel])->merge($g->mapels->pluck('kd_mapel'))->filter()->unique()->implode(' ') }}">
                             <td data-label="NIP" class="guru-nip-cell" style="padding-left: 32px; font-size: 16px;">
                                 <span class="mobile-field-label">Nomor Induk</span>
                                 <span class="guru-id-chip">{{ $g->NIP }}</span>
@@ -829,15 +827,12 @@
 document.addEventListener('DOMContentLoaded', function () {
     const importForm = document.getElementById('guruImportForm');
     const filterForm = document.getElementById('guruFilterForm');
-    const resultContainer = document.getElementById('guruDirectoryResults');
     const fileInput = document.getElementById('guruImportFile');
     const fileName = document.getElementById('guruImportFileName');
     const rowsInput = document.getElementById('guruImportRows');
     const liveSearchInput = document.getElementById('liveGuruSearch');
     const mapelFilter = filterForm?.querySelector('select[name="mapel"]');
     const resetButton = filterForm?.querySelector('[data-search-reset="guru"]');
-    const parser = new DOMParser();
-    let currentSearchController = null;
 
     const debounce = (fn, delay) => {
         let timeoutId = null;
@@ -858,155 +853,85 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    const syncFilterInputs = (url) => {
-        if (liveSearchInput) {
-            liveSearchInput.value = url.searchParams.get('q') || '';
+    const tableBody = document.getElementById('guruTableBody');
+    const paginationWrap = document.querySelector('#guruDirectoryResults .manga-pagination-wrap');
+
+    if (filterForm && liveSearchInput && tableBody) {
+        const rows = Array.from(tableBody.querySelectorAll('.guru-row'));
+        const serverEmptyRow = tableBody.querySelector('.guru-empty-row');
+        let clientEmptyRow = tableBody.querySelector('[data-client-empty="guru"]');
+
+        if (!clientEmptyRow && rows.length > 0) {
+            clientEmptyRow = document.createElement('tr');
+            clientEmptyRow.setAttribute('data-client-empty', 'guru');
+            clientEmptyRow.hidden = true;
+            clientEmptyRow.innerHTML = `
+                <td colspan="5" class="guru-empty-cell">Tidak ada guru yang cocok di halaman ini.</td>
+            `;
+            tableBody.appendChild(clientEmptyRow);
         }
 
-        if (mapelFilter) {
-            mapelFilter.value = url.searchParams.get('mapel') || '';
-        }
-    };
+        const normalize = (value) => String(value || '').toLocaleLowerCase('id-ID').trim();
 
-    const buildResultsUrl = (page = 1) => {
-        const url = new URL(filterForm.action, window.location.origin);
-        const params = new URLSearchParams();
-        const formData = new FormData(filterForm);
+        const applyLiveFilter = () => {
+            const query = normalize(liveSearchInput.value);
+            const selectedMapel = normalize(mapelFilter?.value || '');
+            let visibleRows = 0;
 
-        formData.forEach((value, key) => {
-            const normalizedValue = String(value).trim();
+            rows.forEach((row) => {
+                const rowSearchText = normalize(row.dataset.searchText);
+                const rowMapels = normalize(row.dataset.mapels);
+                const matchQuery = query === '' || rowSearchText.includes(query);
+                const matchMapel = selectedMapel === '' || rowMapels.split(/\s+/).includes(selectedMapel);
+                const isVisible = matchQuery && matchMapel;
 
-            if (normalizedValue !== '') {
-                params.set(key, normalizedValue);
-            }
-        });
+                row.hidden = !isVisible;
 
-        if (page > 1) {
-            params.set('page', String(page));
-        }
-
-        url.search = params.toString();
-
-        return url;
-    };
-
-    const fetchGuruResults = async ({ page = 1, historyMode = 'replace' } = {}) => {
-        if (!filterForm || !resultContainer) {
-            return;
-        }
-
-        const shouldRestoreCaret = document.activeElement === liveSearchInput;
-        const caret = shouldRestoreCaret
-            ? {
-                start: liveSearchInput.selectionStart ?? liveSearchInput.value.length,
-                end: liveSearchInput.selectionEnd ?? liveSearchInput.value.length,
-            }
-            : null;
-
-        const url = buildResultsUrl(page);
-
-        if (currentSearchController) {
-            currentSearchController.abort();
-        }
-
-        currentSearchController = new AbortController();
-
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                signal: currentSearchController.signal,
+                if (isVisible) {
+                    visibleRows += 1;
+                }
             });
 
-            if (!response.ok) {
-                return;
+            if (clientEmptyRow) {
+                clientEmptyRow.hidden = visibleRows > 0 || rows.length === 0;
             }
 
-            const html = await response.text();
-            const nextDocument = parser.parseFromString(html, 'text/html');
-            const nextResults = nextDocument.getElementById('guruDirectoryResults');
-
-            if (!nextResults) {
-                return;
+            if (serverEmptyRow && rows.length > 0) {
+                serverEmptyRow.hidden = true;
             }
 
-            resultContainer.innerHTML = nextResults.innerHTML;
-
-            if (historyMode === 'push') {
-                window.history.pushState({}, '', url);
-            } else if (historyMode === 'replace') {
-                window.history.replaceState({}, '', url);
+            if (paginationWrap) {
+                paginationWrap.style.display = query !== '' || selectedMapel !== '' ? 'none' : '';
             }
+        };
 
-            if (caret && liveSearchInput) {
-                liveSearchInput.focus({ preventScroll: true });
-                liveSearchInput.setSelectionRange(caret.start, caret.end);
-            }
-        } catch (error) {
-            if (error.name !== 'AbortError') {
-                console.error(error);
-            }
-        }
-    };
-
-    if (filterForm && liveSearchInput && resultContainer) {
-        const runLiveSearch = debounce(() => {
-            fetchGuruResults({ page: 1, historyMode: 'replace' });
-        }, 250);
+        const runLiveSearch = debounce(applyLiveFilter, 120);
 
         liveSearchInput.addEventListener('input', runLiveSearch);
-
         filterForm.addEventListener('submit', function (event) {
             event.preventDefault();
-            fetchGuruResults({ page: 1, historyMode: 'push' });
+            applyLiveFilter();
         });
 
         if (mapelFilter) {
-            mapelFilter.addEventListener('change', function () {
-                fetchGuruResults({ page: 1, historyMode: 'push' });
-            });
+            mapelFilter.addEventListener('change', applyLiveFilter);
         }
 
         if (resetButton) {
             resetButton.addEventListener('click', function (event) {
                 event.preventDefault();
-
-                if (liveSearchInput) {
-                    liveSearchInput.value = '';
-                }
+                liveSearchInput.value = '';
 
                 if (mapelFilter) {
                     mapelFilter.value = '';
                 }
 
-                fetchGuruResults({ page: 1, historyMode: 'push' });
+                applyLiveFilter();
+                liveSearchInput.focus({ preventScroll: true });
             });
         }
 
-        resultContainer.addEventListener('click', function (event) {
-            const paginationLink = event.target.closest('.manga-pagination a.manga-page-link');
-
-            if (!paginationLink) {
-                return;
-            }
-
-            event.preventDefault();
-
-            const nextUrl = new URL(paginationLink.href);
-            const targetPage = Number(nextUrl.searchParams.get('page') || 1);
-
-            syncFilterInputs(nextUrl);
-            fetchGuruResults({ page: targetPage, historyMode: 'push' });
-        });
-
-        window.addEventListener('popstate', function () {
-            const currentUrl = new URL(window.location.href);
-            const currentPage = Number(currentUrl.searchParams.get('page') || 1);
-
-            syncFilterInputs(currentUrl);
-            fetchGuruResults({ page: currentPage, historyMode: 'none' });
-        });
+        applyLiveFilter();
     }
 
     if (!importForm || !fileInput || !rowsInput) {

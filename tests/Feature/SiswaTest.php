@@ -26,6 +26,7 @@ class SiswaTest extends TestCase
         $response = $this->actingAs($admin)->get(route('siswa.index'));
         $response->assertStatus(200);
         $response->assertSee('liveSiswaSearch', false);
+        $response->assertSee('data-live-filter="siswa"', false);
     }
 
     public function test_siswa_search_filters_results_using_query_parameter_case_insensitively(): void

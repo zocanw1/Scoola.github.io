@@ -101,3 +101,10 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
   - Font: Times New Roman 12pt (dengan menjaga format heading).
   - Spasi Baris: 1.5.
   - Alignment: Justify (Rata Kiri Kanan).
+
+## [2026-06-08] - Stabilisasi Live Search Siswa dan Guru
+
+### Bug Fix
+- Mengganti live search halaman admin siswa dan guru menjadi filter lokal biasa pada data yang sedang tampil di halaman, sehingga pengetikan tidak lagi memicu request pencarian ke server.
+- Menambahkan penanganan hasil kosong di sisi klien saat filter aktif, sekaligus menyembunyikan pagination sementara ketika live search atau filter lokal sedang dipakai.
+- Menyamakan live search agar tetap case-insensitive tanpa memicu error `500` saat pengguna mengetik.
