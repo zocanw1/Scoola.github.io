@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Throwable;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class PresensiRekapBuilder
@@ -380,8 +381,10 @@ class PresensiRekapBuilder
             ->when($needle !== '', function ($query) use ($needle): void {
                 $query->where(function ($scope) use ($needle): void {
                     $scope->whereHas('siswa', function ($studentQuery) use ($needle): void {
-                        $studentQuery->whereRaw('LOWER(nama_siswa) like ?', ['%' . $needle . '%'])
-                            ->orWhereRaw('LOWER(NIS) like ?', ['%' . $needle . '%']);
+                        $likeNeedle = '%' . $needle . '%';
+
+                        $studentQuery->whereRaw($this->lowerLikeColumn('nama_siswa'), [$likeNeedle])
+                            ->orWhereRaw($this->lowerLikeColumn('NIS'), [$likeNeedle]);
                     });
                 });
             })
@@ -587,5 +590,12 @@ class PresensiRekapBuilder
         }
 
         return $this->resolveImplicitStatusForSession($session);
+    }
+
+    private function lowerLikeColumn(string $column): string
+    {
+        $wrapped = DB::connection()->getQueryGrammar()->wrap($column);
+
+        return "LOWER({$wrapped}) LIKE ?";
     }
 }
