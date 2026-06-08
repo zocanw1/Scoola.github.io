@@ -26,10 +26,11 @@ class SiswaTest extends TestCase
         $response->assertSee('liveSiswaSearch', false);
     }
 
-    public function test_filtered_siswa_search_redirects_stale_page_back_to_first_page(): void
+    public function test_siswa_search_filters_results_using_query_parameter(): void
     {
         $admin = $this->createAdmin();
         $user = User::factory()->create(['role' => 'siswa', 'name' => 'Susi Andini']);
+        $otherUser = User::factory()->create(['role' => 'siswa', 'name' => 'Budi Prasetyo']);
 
         Siswa::create([
             'NIS' => '12345678',
@@ -38,15 +39,20 @@ class SiswaTest extends TestCase
             'kelas' => 'XI-SIJA 1',
         ]);
 
+        Siswa::create([
+            'NIS' => '87654321',
+            'user_id' => $otherUser->id,
+            'nama_siswa' => 'Budi Prasetyo',
+            'kelas' => 'XI-SIJA 2',
+        ]);
+
         $response = $this->actingAs($admin)->get(route('siswa.index', [
             'q' => 'Susi',
-            'page' => 2,
         ]));
 
-        $response->assertRedirect(route('siswa.index', [
-            'q' => 'Susi',
-            'page' => 1,
-        ]));
+        $response->assertOk();
+        $response->assertSee('Susi Andini');
+        $response->assertDontSee('Budi Prasetyo');
     }
 
     public function test_admin_can_view_siswa_create_form(): void

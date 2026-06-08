@@ -7,9 +7,9 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 ## [2026-06-08] - Perbaikan Live Search Direktori Guru dan Siswa
 
 ### Dashboard Data Master
-- Mengubah live search direktori guru dan siswa agar otomatis memuat hasil filter dari halaman pertama saat keyword diketik.
-- Menambahkan pengaman di controller supaya query pencarian yang masih membawa `page` lama otomatis dilempar kembali ke halaman 1 bila hasilnya kosong.
-- Menambahkan regresi test untuk memastikan pencarian terfilter tidak berhenti di halaman pagination yang sudah stale.
+- Mengubah live search direktori guru dan siswa agar hasil tabel serta pagination pencarian diperbarui tanpa reload halaman penuh.
+- Pagination yang tampil saat keyword aktif sekarang mengikuti dataset pencarian, bukan tetap memakai hitungan data penuh.
+- Memperbarui regresi test filter direktori guru dan siswa agar hasil query hanya menampilkan data yang cocok.
 
 ## [2026-06-08] - Hapus Tautan Lupa Password di Halaman Login
 

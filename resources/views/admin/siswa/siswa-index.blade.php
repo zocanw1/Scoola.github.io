@@ -728,7 +728,7 @@
                     Direktori Siswa
                 </div>
                 <div class="toolbar-note">
-                    Live search di bawah otomatis memuat ulang hasil dari halaman pertama, jadi data yang cocok tidak nyangkut di halaman lain saat kamu mengetik.
+                    Live search di bawah tetap responsif saat kamu mengetik, dan pagination yang tampil akan mengikuti hasil pencarian aktif.
                 </div>
             </div>
             <div class="live-chip">
@@ -758,7 +758,7 @@
 
             <div class="search-actions">
                 <button type="submit" class="edit-btn">Terapkan Filter</button>
-                <a href="{{ route('siswa.index') }}" class="edit-btn" style="background: var(--white);">Reset</a>
+                <a href="{{ route('siswa.index') }}" data-search-reset="siswa" class="edit-btn" style="background: var(--white);">Reset</a>
             </div>
         </div>
     </form>
@@ -792,6 +792,7 @@
         </form>
     @endif
 
+    <div id="siswaDirectoryResults">
     <div class="neo-card table-shell" style="padding: 0; overflow: hidden;">
         <div class="table-wrapper">
             <table class="anime-table">
@@ -854,6 +855,7 @@
             {{ $siswa->onEachSide(1)->links('vendor.pagination.manga-pop') }}
         </div>
     </div>
+    </div>
 </div>
 
 @if(auth()->user()->role === 'admin')
@@ -877,23 +879,162 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const filterForm = document.getElementById('siswaFilterForm');
+    const resultContainer = document.getElementById('siswaDirectoryResults');
     const liveSearchInput = document.getElementById('liveSiswaSearch');
+    const kelasFilter = filterForm?.querySelector('select[name="kelas"]');
+    const resetButton = filterForm?.querySelector('[data-search-reset="siswa"]');
+    const parser = new DOMParser();
+    let currentSearchController = null;
 
-    if (filterForm && liveSearchInput) {
-        let lastSubmittedKeyword = liveSearchInput.value.trim();
+    const syncFilterInputs = (url) => {
+        if (liveSearchInput) {
+            liveSearchInput.value = url.searchParams.get('q') || '';
+        }
 
-        const runLiveSearch = debounce(() => {
-            const keyword = liveSearchInput.value.trim();
+        if (kelasFilter) {
+            kelasFilter.value = url.searchParams.get('kelas') || '';
+        }
+    };
 
-            if (keyword === lastSubmittedKeyword) {
+    const buildResultsUrl = (page = 1) => {
+        const url = new URL(filterForm.action, window.location.origin);
+        const params = new URLSearchParams();
+        const formData = new FormData(filterForm);
+
+        formData.forEach((value, key) => {
+            const normalizedValue = String(value).trim();
+
+            if (normalizedValue !== '') {
+                params.set(key, normalizedValue);
+            }
+        });
+
+        if (page > 1) {
+            params.set('page', String(page));
+        }
+
+        url.search = params.toString();
+
+        return url;
+    };
+
+    const fetchSiswaResults = async ({ page = 1, historyMode = 'replace' } = {}) => {
+        if (!filterForm || !resultContainer) {
+            return;
+        }
+
+        const shouldRestoreCaret = document.activeElement === liveSearchInput;
+        const caret = shouldRestoreCaret
+            ? {
+                start: liveSearchInput.selectionStart ?? liveSearchInput.value.length,
+                end: liveSearchInput.selectionEnd ?? liveSearchInput.value.length,
+            }
+            : null;
+
+        const url = buildResultsUrl(page);
+
+        if (currentSearchController) {
+            currentSearchController.abort();
+        }
+
+        currentSearchController = new AbortController();
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                signal: currentSearchController.signal,
+            });
+
+            if (!response.ok) {
                 return;
             }
 
-            lastSubmittedKeyword = keyword;
-            filterForm.requestSubmit();
+            const html = await response.text();
+            const nextDocument = parser.parseFromString(html, 'text/html');
+            const nextResults = nextDocument.getElementById('siswaDirectoryResults');
+
+            if (!nextResults) {
+                return;
+            }
+
+            resultContainer.innerHTML = nextResults.innerHTML;
+
+            if (historyMode === 'push') {
+                window.history.pushState({}, '', url);
+            } else if (historyMode === 'replace') {
+                window.history.replaceState({}, '', url);
+            }
+
+            if (caret && liveSearchInput) {
+                liveSearchInput.focus({ preventScroll: true });
+                liveSearchInput.setSelectionRange(caret.start, caret.end);
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error(error);
+            }
+        }
+    };
+
+    if (filterForm && liveSearchInput && resultContainer) {
+        const runLiveSearch = debounce(() => {
+            fetchSiswaResults({ page: 1, historyMode: 'replace' });
         }, 250);
 
         liveSearchInput.addEventListener('input', runLiveSearch);
+
+        filterForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            fetchSiswaResults({ page: 1, historyMode: 'push' });
+        });
+
+        if (kelasFilter) {
+            kelasFilter.addEventListener('change', function () {
+                fetchSiswaResults({ page: 1, historyMode: 'push' });
+            });
+        }
+
+        if (resetButton) {
+            resetButton.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                if (liveSearchInput) {
+                    liveSearchInput.value = '';
+                }
+
+                if (kelasFilter) {
+                    kelasFilter.value = '';
+                }
+
+                fetchSiswaResults({ page: 1, historyMode: 'push' });
+            });
+        }
+
+        resultContainer.addEventListener('click', function (event) {
+            const paginationLink = event.target.closest('.manga-pagination a.manga-page-link');
+
+            if (!paginationLink) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const nextUrl = new URL(paginationLink.href);
+            const targetPage = Number(nextUrl.searchParams.get('page') || 1);
+
+            syncFilterInputs(nextUrl);
+            fetchSiswaResults({ page: targetPage, historyMode: 'push' });
+        });
+
+        window.addEventListener('popstate', function () {
+            const currentUrl = new URL(window.location.href);
+            const currentPage = Number(currentUrl.searchParams.get('page') || 1);
+
+            syncFilterInputs(currentUrl);
+            fetchSiswaResults({ page: currentPage, historyMode: 'none' });
+        });
     }
 
     const form = document.getElementById('siswaImportForm');

@@ -706,7 +706,7 @@
                     Direktori Guru
                 </div>
                 <div class="toolbar-note">
-                    Live search di bawah otomatis memuat ulang hasil dari halaman pertama, jadi data yang cocok tidak nyangkut di halaman lain saat kamu mengetik.
+                    Live search di bawah tetap responsif saat kamu mengetik, dan pagination yang tampil akan mengikuti hasil pencarian aktif.
                 </div>
             </div>
             <div class="live-chip">
@@ -736,7 +736,7 @@
 
             <div class="search-actions">
                 <button type="submit" class="manga-btn-edit">Terapkan Filter</button>
-                <a href="{{ route('guru.index') }}" class="manga-btn-edit" style="background: var(--white); color: var(--midnight);">Reset</a>
+                <a href="{{ route('guru.index') }}" data-search-reset="guru" class="manga-btn-edit" style="background: var(--white); color: var(--midnight);">Reset</a>
             </div>
         </div>
     </form>
@@ -768,6 +768,7 @@
         </div>
     </form>
 
+    <div id="guruDirectoryResults">
     <div class="manga-card guru-table-card" style="padding: 0; overflow: hidden;">
         <div class="manga-table-wrap">
             <table class="manga-table">
@@ -820,6 +821,7 @@
             {{ $guru->onEachSide(1)->links('vendor.pagination.manga-pop') }}
         </div>
     </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -827,10 +829,15 @@
 document.addEventListener('DOMContentLoaded', function () {
     const importForm = document.getElementById('guruImportForm');
     const filterForm = document.getElementById('guruFilterForm');
+    const resultContainer = document.getElementById('guruDirectoryResults');
     const fileInput = document.getElementById('guruImportFile');
     const fileName = document.getElementById('guruImportFileName');
     const rowsInput = document.getElementById('guruImportRows');
     const liveSearchInput = document.getElementById('liveGuruSearch');
+    const mapelFilter = filterForm?.querySelector('select[name="mapel"]');
+    const resetButton = filterForm?.querySelector('[data-search-reset="guru"]');
+    const parser = new DOMParser();
+    let currentSearchController = null;
 
     const debounce = (fn, delay) => {
         let timeoutId = null;
@@ -851,21 +858,155 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    if (filterForm && liveSearchInput) {
-        let lastSubmittedKeyword = liveSearchInput.value.trim();
+    const syncFilterInputs = (url) => {
+        if (liveSearchInput) {
+            liveSearchInput.value = url.searchParams.get('q') || '';
+        }
 
-        const runLiveSearch = debounce(() => {
-            const keyword = liveSearchInput.value.trim();
+        if (mapelFilter) {
+            mapelFilter.value = url.searchParams.get('mapel') || '';
+        }
+    };
 
-            if (keyword === lastSubmittedKeyword) {
+    const buildResultsUrl = (page = 1) => {
+        const url = new URL(filterForm.action, window.location.origin);
+        const params = new URLSearchParams();
+        const formData = new FormData(filterForm);
+
+        formData.forEach((value, key) => {
+            const normalizedValue = String(value).trim();
+
+            if (normalizedValue !== '') {
+                params.set(key, normalizedValue);
+            }
+        });
+
+        if (page > 1) {
+            params.set('page', String(page));
+        }
+
+        url.search = params.toString();
+
+        return url;
+    };
+
+    const fetchGuruResults = async ({ page = 1, historyMode = 'replace' } = {}) => {
+        if (!filterForm || !resultContainer) {
+            return;
+        }
+
+        const shouldRestoreCaret = document.activeElement === liveSearchInput;
+        const caret = shouldRestoreCaret
+            ? {
+                start: liveSearchInput.selectionStart ?? liveSearchInput.value.length,
+                end: liveSearchInput.selectionEnd ?? liveSearchInput.value.length,
+            }
+            : null;
+
+        const url = buildResultsUrl(page);
+
+        if (currentSearchController) {
+            currentSearchController.abort();
+        }
+
+        currentSearchController = new AbortController();
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                signal: currentSearchController.signal,
+            });
+
+            if (!response.ok) {
                 return;
             }
 
-            lastSubmittedKeyword = keyword;
-            filterForm.requestSubmit();
+            const html = await response.text();
+            const nextDocument = parser.parseFromString(html, 'text/html');
+            const nextResults = nextDocument.getElementById('guruDirectoryResults');
+
+            if (!nextResults) {
+                return;
+            }
+
+            resultContainer.innerHTML = nextResults.innerHTML;
+
+            if (historyMode === 'push') {
+                window.history.pushState({}, '', url);
+            } else if (historyMode === 'replace') {
+                window.history.replaceState({}, '', url);
+            }
+
+            if (caret && liveSearchInput) {
+                liveSearchInput.focus({ preventScroll: true });
+                liveSearchInput.setSelectionRange(caret.start, caret.end);
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error(error);
+            }
+        }
+    };
+
+    if (filterForm && liveSearchInput && resultContainer) {
+        const runLiveSearch = debounce(() => {
+            fetchGuruResults({ page: 1, historyMode: 'replace' });
         }, 250);
 
         liveSearchInput.addEventListener('input', runLiveSearch);
+
+        filterForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            fetchGuruResults({ page: 1, historyMode: 'push' });
+        });
+
+        if (mapelFilter) {
+            mapelFilter.addEventListener('change', function () {
+                fetchGuruResults({ page: 1, historyMode: 'push' });
+            });
+        }
+
+        if (resetButton) {
+            resetButton.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                if (liveSearchInput) {
+                    liveSearchInput.value = '';
+                }
+
+                if (mapelFilter) {
+                    mapelFilter.value = '';
+                }
+
+                fetchGuruResults({ page: 1, historyMode: 'push' });
+            });
+        }
+
+        resultContainer.addEventListener('click', function (event) {
+            const paginationLink = event.target.closest('.manga-pagination a.manga-page-link');
+
+            if (!paginationLink) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const nextUrl = new URL(paginationLink.href);
+            const targetPage = Number(nextUrl.searchParams.get('page') || 1);
+
+            syncFilterInputs(nextUrl);
+            fetchGuruResults({ page: targetPage, historyMode: 'push' });
+        });
+
+        window.addEventListener('popstate', function () {
+            const currentUrl = new URL(window.location.href);
+            const currentPage = Number(currentUrl.searchParams.get('page') || 1);
+
+            syncFilterInputs(currentUrl);
+            fetchGuruResults({ page: currentPage, historyMode: 'none' });
+        });
     }
 
     if (!importForm || !fileInput || !rowsInput) {

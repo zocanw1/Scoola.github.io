@@ -38,13 +38,6 @@ class SiswaController extends Controller
 
         $siswa = $query->paginate(25)->withQueryString();
 
-        if (($request->filled('q') || $request->filled('kelas'))
-            && $siswa->isEmpty()
-            && $siswa->total() > 0
-            && $siswa->currentPage() > 1) {
-            return redirect()->route('siswa.index', array_merge($request->except('page'), ['page' => 1]));
-        }
-
         $totalSiswa = Siswa::count();
         $totalKelasAktif = Siswa::distinct('kelas')->count('kelas');
         $kelasOptions = Siswa::query()->distinct()->orderBy('kelas')->pluck('kelas');

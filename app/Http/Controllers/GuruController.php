@@ -42,13 +42,6 @@ class GuruController extends Controller
 
         $guru = $query->paginate(20)->withQueryString();
 
-        if (($request->filled('q') || $request->filled('mapel'))
-            && $guru->isEmpty()
-            && $guru->total() > 0
-            && $guru->currentPage() > 1) {
-            return redirect()->route('guru.index', array_merge($request->except('page'), ['page' => 1]));
-        }
-
         $totalGuru = Guru::count();
         $totalGuruAktif = Guru::whereNotNull('user_id')->count();
         $allMapels = Mapel::orderBy('nama_mapel')->get();

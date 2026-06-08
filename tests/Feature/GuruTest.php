@@ -34,10 +34,11 @@ class GuruTest extends TestCase
         $response->assertSee('liveGuruSearch', false);
     }
 
-    public function test_filtered_guru_search_redirects_stale_page_back_to_first_page(): void
+    public function test_guru_search_filters_results_using_query_parameter(): void
     {
         $admin = $this->createAdmin();
         $user = User::factory()->create(['role' => 'guru', 'name' => 'Susi Nur Jayanti, S.Pd.']);
+        $otherUser = User::factory()->create(['role' => 'guru', 'name' => 'Budi Santoso, S.Pd.']);
 
         Guru::create([
             'NIP' => '199311292025212115',
@@ -46,15 +47,20 @@ class GuruTest extends TestCase
             'kd_mapel' => null,
         ]);
 
+        Guru::create([
+            'NIP' => '198410192022212030',
+            'user_id' => $otherUser->id,
+            'nama_guru' => 'Budi Santoso, S.Pd.',
+            'kd_mapel' => null,
+        ]);
+
         $response = $this->actingAs($admin)->get(route('guru.index', [
             'q' => 'Susi',
-            'page' => 2,
         ]));
 
-        $response->assertRedirect(route('guru.index', [
-            'q' => 'Susi',
-            'page' => 1,
-        ]));
+        $response->assertOk();
+        $response->assertSee('Susi Nur Jayanti, S.Pd.');
+        $response->assertDontSee('Budi Santoso, S.Pd.');
     }
 
     public function test_admin_can_create_guru(): void
