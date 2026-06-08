@@ -25,10 +25,16 @@ class SiswaController extends Controller
         $query = Siswa::with('user')->orderBy('nama_siswa');
 
         if ($request->filled('q')) {
-            $keyword = trim($request->q);
+            $keyword = Str::lower(trim($request->q));
             $query->where(function ($builder) use ($keyword) {
-                $builder->where('nama_siswa', 'like', '%' . $keyword . '%')
-                    ->orWhere('NIS', 'like', '%' . $keyword . '%');
+                $likeKeyword = '%' . $keyword . '%';
+
+                $builder->whereRaw('LOWER(nama_siswa) LIKE ?', [$likeKeyword])
+                    ->orWhereRaw('LOWER(NIS) LIKE ?', [$likeKeyword])
+                    ->orWhereRaw('LOWER(kelas) LIKE ?', [$likeKeyword])
+                    ->orWhereHas('user', function ($userBuilder) use ($likeKeyword) {
+                        $userBuilder->whereRaw('LOWER(email) LIKE ?', [$likeKeyword]);
+                    });
             });
         }
 

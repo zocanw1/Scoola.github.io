@@ -97,12 +97,14 @@
 </a>
 
 <script>
-document.getElementById('searchInput').addEventListener('keyup', function() {
-    const searchTerm = this.value.toLowerCase();
+const normalizeLiveSearch = (value) => String(value || '').toLocaleLowerCase('id-ID').trim();
+
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = normalizeLiveSearch(this.value);
     const rows = document.querySelectorAll('.walikelas-row');
 
     rows.forEach(row => {
-        const text = row.innerText.toLowerCase();
+        const text = normalizeLiveSearch(row.innerText);
         row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
 });

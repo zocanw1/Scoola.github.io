@@ -46,6 +46,7 @@ class AndroidPresensiViewTest extends TestCase
         $response->assertSee('gpsPermissionBackdrop', false);
         $response->assertSee('grantGpsBtn', false);
         $response->assertSee('openGpsSettingsBtn', false);
+        $response->assertSee('hasShownAutomaticGpsPrompt', false);
         $response->assertSee('name="accuracy"', false);
         $response->assertSee('role="dialog"', false);
         $response->assertSee('autocomplete="one-time-code"', false);

@@ -507,17 +507,28 @@ document.addEventListener('DOMContentLoaded', function() {
     let gpsReady = false;
     let gpsRequesting = false;
     let permissionStatus = null;
+    let hasShownAutomaticGpsPrompt = false;
 
+    // Tombol submit hanya aktif jika kode 6 karakter lengkap dan GPS sudah valid.
     function updateSubmitState() {
         submitBtn.disabled = !gpsReady || realKode.value.length < inputs.length;
     }
 
+    // Seluruh perubahan status lokasi dipusatkan di sini supaya UI badge selalu konsisten.
     function updateGPSUI(status, title, message) {
         gpsShell.dataset.gpsState = status;
         gpsTitle.textContent = title;
         gpsHint.textContent = message;
         gpsText.textContent = title;
         retryGpsBtn.hidden = status !== 'error' && status !== 'denied' && status !== 'timeout';
+
+        if (status === 'denied') {
+            retryGpsBtn.textContent = 'Minta Izin GPS Lagi';
+        } else if (status === 'timeout') {
+            retryGpsBtn.textContent = 'Coba GPS Lagi';
+        } else if (status === 'error') {
+            retryGpsBtn.textContent = 'Minta GPS Lagi';
+        }
 
         if (status === 'success') {
             gpsIcon.style.background = 'var(--cyber)';
@@ -544,13 +555,21 @@ document.addEventListener('DOMContentLoaded', function() {
         gpsPermissionBackdrop.hidden = true;
     }
 
+    // State ini dipakai saat user sudah pernah menolak izin lokasi dan butuh arahan pemulihan.
     function showDeniedRecovery() {
         showGPSPermission(
             'Izin lokasi diblokir',
             'Kalau tadi tidak sengaja menolak GPS, aktifkan lagi izin lokasi dari pengaturan situs browser lalu tekan Cek Lagi.',
             { showHelp: true, primaryText: 'Cek Lagi' }
         );
-        updateGPSUI('denied', 'Izin lokasi diblokir', 'Aktifkan lagi izin lokasi dari pengaturan situs browser, lalu tekan Coba Lagi.');
+    }
+
+    function showGPSRetryPrompt() {
+        showGPSPermission(
+            'Coba izinkan GPS lagi',
+            'Tekan tombol izinkan, lalu beri akses lokasi dari browser agar presensi bisa dikirim.',
+            { primaryText: 'Izinkan GPS' }
+        );
     }
 
     async function refreshPermissionState() {
@@ -563,22 +582,33 @@ document.addEventListener('DOMContentLoaded', function() {
             permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
             permissionStatus.onchange = () => {
                 if (permissionStatus.state === 'denied') {
-                    showDeniedRecovery();
+                    gpsReady = false;
+                    gpsRequesting = false;
+                    updateGPSUI('denied', 'Izin lokasi diblokir', 'Aktifkan lagi izin lokasi dari pengaturan situs browser, lalu tekan Minta Izin GPS Lagi.');
                     return;
                 }
 
-                showGPSPermission('GPS bisa diaktifkan lagi', 'Tekan Izinkan GPS untuk membaca ulang lokasi perangkat.');
+                if (permissionStatus.state === 'granted' && !gpsReady && !gpsRequesting) {
+                    initGPS();
+                }
             };
 
             if (permissionStatus.state === 'denied') {
-                showDeniedRecovery();
+                updateGPSUI('denied', 'Izin lokasi diblokir', 'Aktifkan lagi izin lokasi dari pengaturan situs browser, lalu tekan Minta Izin GPS Lagi.');
+                return;
+            }
+
+            if (permissionStatus.state === 'granted') {
+                initGPS();
                 return;
             }
         } catch (error) {
             permissionStatus = null;
         }
 
-        showGPSPermission();
+        if (!hasShownAutomaticGpsPrompt) {
+            showGPSPermission();
+        }
     }
 
     function initGPS() {
@@ -619,7 +649,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (err.code === 1) {
                     status = 'denied';
                     title = 'Izin lokasi ditolak';
-                    message = 'Aktifkan lagi izin lokasi dari pengaturan situs browser, lalu tekan Coba Lagi.';
+                    message = 'Aktifkan lagi izin lokasi dari pengaturan situs browser, lalu tekan Minta Izin GPS Lagi.';
                 } else if (err.code === 3) {
                     status = 'timeout';
                     title = 'Pencarian lokasi terlalu lama';
@@ -628,9 +658,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 hideGPSPermission();
                 updateGPSUI(status, title, message);
-                if (status === 'denied') {
-                    showDeniedRecovery();
-                }
             },
             { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
@@ -642,14 +669,25 @@ document.addEventListener('DOMContentLoaded', function() {
         gpsPermissionHelp.hidden = false;
         grantGpsBtn.textContent = 'Cek Lagi';
     });
-    dismissGpsBtn.addEventListener('click', hideGPSPermission);
+    dismissGpsBtn.addEventListener('click', () => {
+        hideGPSPermission();
+
+        if (!gpsReady && !gpsRequesting) {
+            updateGPSUI('error', 'GPS belum diaktifkan', 'Kalau sudah siap, tekan Minta GPS Lagi untuk membuka permintaan lokasi lagi.');
+        }
+    });
     retryGpsBtn.addEventListener('click', () => {
         if (permissionStatus && permissionStatus.state === 'denied') {
             showDeniedRecovery();
             return;
         }
 
-        showGPSPermission('Coba izinkan GPS lagi', 'Tekan tombol izinkan, lalu beri akses lokasi dari browser agar presensi bisa dikirim.');
+        if (permissionStatus && permissionStatus.state === 'granted') {
+            initGPS();
+            return;
+        }
+
+        showGPSRetryPrompt();
     });
 
     inputs.forEach((input, index) => {
@@ -694,7 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (!gpsReady) {
             e.preventDefault();
-            if (!gpsRequesting) {
+            if (!gpsRequesting && !hasShownAutomaticGpsPrompt) {
                 showGPSPermission('GPS belum aktif', 'Izinkan lokasi terlebih dahulu agar tombol presensi bisa digunakan.');
             }
         }

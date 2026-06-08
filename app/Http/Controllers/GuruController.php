@@ -27,10 +27,19 @@ class GuruController extends Controller
         $query = Guru::with(['user', 'mapels'])->orderBy('nama_guru');
 
         if ($request->filled('q')) {
-            $keyword = trim($request->q);
+            $keyword = Str::lower(trim($request->q));
+            $likeKeyword = '%' . $keyword . '%';
             $query->where(function ($builder) use ($keyword) {
-                $builder->where('nama_guru', 'like', '%' . $keyword . '%')
-                    ->orWhere('NIP', 'like', '%' . $keyword . '%');
+                $likeKeyword = '%' . $keyword . '%';
+
+                $builder->whereRaw('LOWER(nama_guru) LIKE ?', [$likeKeyword])
+                    ->orWhereRaw('LOWER(NIP) LIKE ?', [$likeKeyword])
+                    ->orWhereHas('user', function ($userBuilder) use ($likeKeyword) {
+                        $userBuilder->whereRaw('LOWER(email) LIKE ?', [$likeKeyword]);
+                    })
+                    ->orWhereHas('mapels', function ($mapelBuilder) use ($likeKeyword) {
+                        $mapelBuilder->whereRaw('LOWER(nama_mapel) LIKE ?', [$likeKeyword]);
+                    });
             });
         }
 

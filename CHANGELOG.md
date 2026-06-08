@@ -9,7 +9,14 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 ### Dashboard Data Master
 - Mengubah live search direktori guru dan siswa agar hasil tabel serta pagination pencarian diperbarui tanpa reload halaman penuh.
 - Pagination yang tampil saat keyword aktif sekarang mengikuti dataset pencarian, bukan tetap memakai hitungan data penuh.
-- Memperbarui regresi test filter direktori guru dan siswa agar hasil query hanya menampilkan data yang cocok.
+- Memperbarui regresi test filter direktori guru dan siswa agar hasil query hanya menampilkan data yang cocok secara case-insensitive.
+
+## [2026-06-08] - Perapian Prompt GPS dan Penyamaan Live Search
+
+### Siswa Presensi dan Direktori
+- Mengubah prompt izin GPS di dashboard siswa agar modal otomatis hanya muncul sekali, lalu percobaan ulang dilakukan manual lewat tombol yang sudah disediakan saat GPS gagal atau ditolak.
+- Menyamakan live search di direktori guru, siswa, wali kelas, mapel, dan pencarian siswa pada rekap agar tidak membedakan huruf besar-kecil.
+- Pencarian live search guru dan siswa kini juga membaca field yang relevan seperti email, kelas, dan mata pelajaran agar hasil lebih konsisten dengan yang terlihat di layar.
 
 ## [2026-06-08] - Hapus Tautan Lupa Password di Halaman Login
 

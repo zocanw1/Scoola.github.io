@@ -26,7 +26,7 @@ class SiswaTest extends TestCase
         $response->assertSee('liveSiswaSearch', false);
     }
 
-    public function test_siswa_search_filters_results_using_query_parameter(): void
+    public function test_siswa_search_filters_results_using_query_parameter_case_insensitively(): void
     {
         $admin = $this->createAdmin();
         $user = User::factory()->create(['role' => 'siswa', 'name' => 'Susi Andini']);
@@ -47,7 +47,7 @@ class SiswaTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)->get(route('siswa.index', [
-            'q' => 'Susi',
+            'q' => 'sUsI',
         ]));
 
         $response->assertOk();

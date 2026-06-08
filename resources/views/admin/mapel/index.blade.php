@@ -78,13 +78,15 @@
 </a>
 
 <script>
-document.getElementById('mapelSearch').addEventListener('keyup', function() {
-    let filter = this.value.toUpperCase();
-    let rows = document.querySelectorAll('.mapel-row');
+const normalizeLiveSearch = (value) => String(value || '').toLocaleLowerCase('id-ID').trim();
+
+document.getElementById('mapelSearch').addEventListener('input', function() {
+    const searchTerm = normalizeLiveSearch(this.value);
+    const rows = document.querySelectorAll('.mapel-row');
 
     rows.forEach(row => {
-        let text = row.innerText.toUpperCase();
-        row.style.display = text.includes(filter) ? '' : 'none';
+        const text = normalizeLiveSearch(row.innerText);
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
 });
 </script>
