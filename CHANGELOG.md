@@ -4,6 +4,12 @@ Dokumen ini mencatat pembaruan dan fitur yang telah diimplementasikan pada aplik
 
 ---
 
+## [2026-06-09] - Perbaikan Status Koreksi Presensi di Hosting
+
+### Presensi Siswa
+- Membatasi pilihan koreksi status admin ke status yang aman disimpan sebagai record presensi (`Hadir`, `Izin`, `Sakit`, `Alpa`).
+- Mencegah status turunan seperti `Belum Hadir` dan status GPS seperti `Ditolak` dikirim dari form koreksi admin agar tidak memicu 500 di hosting.
+
 ## [2026-06-08] - Perbaikan Query Live Search di Hosting
 
 ### Dashboard Admin

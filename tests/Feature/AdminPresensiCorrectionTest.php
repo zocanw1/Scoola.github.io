@@ -263,6 +263,49 @@ class AdminPresensiCorrectionTest extends TestCase
         ])->assertForbidden();
     }
 
+    public function test_admin_correction_rejects_statuses_that_are_not_persisted_corrections(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $guruUser = User::factory()->create(['role' => 'guru']);
+        $jadwal = $this->createJadwalForGuru($guruUser);
+        $siswa = $this->createStudent('SISWA-STATUS-VALID', 'Siswa Status Valid');
+
+        $sesi = SesiPresensi::create([
+            'guru_id' => $guruUser->id,
+            'kelas' => 'XI-SIJA 1',
+            'kd_jp' => $jadwal->kd_jp,
+            'kode_presensi' => null,
+            'waktu_berlaku' => now()->subHour(),
+            'status' => 'selesai',
+        ]);
+
+        $presensi = Presensi::create([
+            'kd_presensi' => 'PRS-STATUS-VALID',
+            'sesi_id' => $sesi->id,
+            'tanggal' => now()->toDateString(),
+            'kd_jp' => $jadwal->kd_jp,
+            'jam_masuk' => '07:00:00',
+            'status' => 'Alpa',
+            'NIS' => $siswa->NIS,
+        ]);
+
+        foreach (['Ditolak', 'Belum Hadir'] as $status) {
+            $response = $this->from(route('admin.presensi-siswa.show', [
+                'nis' => $siswa->NIS,
+                'kelas' => $siswa->kelas,
+            ]))->actingAs($admin)->post(route('admin.presensi-siswa.update-status', $siswa->NIS), [
+                'presensi_id' => $presensi->id,
+                'sesi_id' => $sesi->id,
+                'status' => $status,
+                'correction_reason' => 'Status ini tidak boleh disimpan dari koreksi admin.',
+                'kelas' => $siswa->kelas,
+            ]);
+
+            $response->assertRedirect();
+            $response->assertSessionHasErrors('status');
+        }
+    }
+
     private function createJadwalForGuru(User $guruUser, string $kelas = 'XI-SIJA 1'): JadwalPelajaran
     {
         $mapel = Mapel::create([

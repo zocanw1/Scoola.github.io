@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 class PresensiStatusManager
 {
     public const ALLOWED_STATUSES = ['Hadir', 'Izin', 'Sakit', 'Alpa', 'Belum Hadir', 'Ditolak'];
+    public const CORRECTION_STATUSES = ['Hadir', 'Izin', 'Sakit', 'Alpa'];
 
     public function finalizeMissingStudentsAsAlpa(SesiPresensi $sesi): void
     {

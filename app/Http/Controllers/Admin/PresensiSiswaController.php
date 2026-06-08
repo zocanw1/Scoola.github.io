@@ -136,7 +136,7 @@ class PresensiSiswaController extends Controller
             'breadcrumbSubject' => $detailData['selectedSiswa'],
             'detailRows' => $detailData['studentRows'],
             'detailTotals' => $detailData['studentTotals'],
-            'statusOptions' => PresensiStatusManager::ALLOWED_STATUSES,
+            'statusOptions' => PresensiStatusManager::CORRECTION_STATUSES,
         ]);
     }
 
@@ -164,7 +164,7 @@ class PresensiSiswaController extends Controller
         $validated = $request->validate([
             'presensi_id' => 'nullable|string|required_without:sesi_id',
             'sesi_id' => 'nullable|integer|exists:sesi_presensis,id|required_without:presensi_id',
-            'status' => 'required|in:' . implode(',', PresensiStatusManager::ALLOWED_STATUSES),
+            'status' => 'required|in:' . implode(',', PresensiStatusManager::CORRECTION_STATUSES),
             'correction_reason' => 'required|string|max:1000',
             'kelas' => 'nullable|string',
             'q' => 'nullable|string',
